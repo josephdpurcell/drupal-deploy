@@ -1,0 +1,5 @@
+; $Id$
+name = "System Settings Service"
+description = "Provides an interface to system settings"
+dependencies = services
+package = Services - services

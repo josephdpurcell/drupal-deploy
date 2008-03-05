@@ -1,0 +1,5 @@
+; $Id$
+name = "Deploy Content Type"
+description = "Deploy content types using the Deployment framework"
+dependencies = deploy content_copy
+package = Deployment

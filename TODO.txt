@@ -1,0 +1,18 @@
+BEFORE LAUNCH
+-------------
+- edit servers callback
+- deployment plan item weighting
+
+IMMEDIATELY AFTER
+-----------------
+- installation / implementation guide. FAQ
+- Logging / auditing (new table)
+- Confirmation of install (?)
+- Views
+- Blocks and other non ssf settings
+- Delete confirmations (can you do this without two callbacks, see content type delete)
+- doxygen
+- simpletests
+- move some code to includes?
+- better error handling on services
+- better menu organization (so breadcrumb is better)

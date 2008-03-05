@@ -1,0 +1,106 @@
+<?php
+// $Id$
+
+include_once ('./'. drupal_get_path('module', 'node'    ) .'/content_types.inc');
+include_once ('./'. drupal_get_path('module', 'content') .'/content_admin.inc');
+
+/**
+ * Implementation of hook_help().
+ */
+function content_copy_service_help($section) {
+  switch ($section) {
+    case 'admin/help#services_content_copy':
+      return t('<p>Provides content_copy services. Requires services.module and content_copy.module.</p>');
+    case 'admin/modules#description':
+      return t('Provides content_copy services. Requires services.module and content_copy.module.');
+  }
+}
+
+/**
+ * Implementation of hook_service()
+ */
+function content_copy_service_service() {
+  return array(
+    
+    // content_copy.import
+    array(
+      '#method'   => 'content_copy.import',
+      '#callback' => 'content_copy_service_import',
+      '#args'     => array(
+        array(
+          '#name'         => 'type_name',
+          '#type'         => 'string',
+          '#description'  => t('Content type name to import fields into (or "create" to create new).')),
+        array(
+          '#name'         => 'export',
+          '#type'         => 'text',
+          '#description'  => t('Text of a content copy export'))),
+      '#return'   => 'string',
+      '#help'     => t('Import a content type macro')),
+      
+    // content_copy.export
+    array(
+      '#method'   => 'content_copy.export',
+      '#callback' => 'content_copy_service_export',
+      '#args'     => array(
+        array(
+          '#name'         => 'type_name',
+          '#type'         => 'string',
+          '#description'  => t('The content type to export'))),
+      '#return'   => 'string',
+      '#help'     => t('Export a content type macro')),
+  );
+}
+
+/**
+ * Content copy import service callback
+ */
+function content_copy_service_import($type_name, $export) {
+  if (!module_exists('content_copy')) {
+    return services_error("Content Copy Import: content_copy module not installed");
+  }
+
+  if ($type_name == 'create') {
+    $type_name = '<create>';
+  }
+
+  $values = array('type_name' => $type_name, 'macro' => $export, 'op' => 'Submit');
+  $retval = drupal_execute('content_copy_import_form', $values);
+
+  watchdog("Services", "Content Copy Import Service run. Results: $retval");
+
+  return $retval;
+}
+
+/**
+ * Content copy export service callback
+ */
+function content_copy_service_export($type_name) {
+  if (!module_exists('content_copy')) {
+    return services_error("Content Copy Export: content_copy module not installed");
+  }
+  
+  if (!array_key_exists($type_name, node_get_types())) {
+    return services_error("Content Copy Export: content type $type_name does not exist");
+  }
+  
+  $groups = array();
+  if (module_exists('fieldgroup')) {
+    $groups = content_copy_groups($type_name);
+  }
+ 
+  $fields = content_copy_fields($type_name);
+  $fields = array_keys($fields);
+  
+  $values = array(
+    'type_name' => $type_name,
+    'groups' => $groups,
+    'fields' => $fields
+  );
+  
+  $retval = content_copy_export('content_copy_export_form', $values);
+  
+  watchdog("Services", "Content Copy Export Service run for content type $type_name.");
+
+  return $retval;
+}
