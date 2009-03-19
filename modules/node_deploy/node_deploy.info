@@ -1,0 +1,6 @@
+; $Id$
+name = Node Deployment
+description = Deployment for nodes
+package = Deployment
+dependencies[] = deploy
+core = 6.x

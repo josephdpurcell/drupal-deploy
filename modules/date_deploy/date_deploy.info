@@ -1,0 +1,7 @@
+; $Id$
+name = "Deploy Dates"
+description = "Deploy CCK date fields using the Deployment framework"
+dependencies[] = deploy
+dependencies[] = date
+package = Deployment
+core = 6.x

@@ -1,0 +1,7 @@
+; $Id$
+name = UUID Service
+description = Web Service to retrieve remote IDs based on a UUID
+package = Services - services
+dependencies[] = deploy_uuid
+dependencies[] = services
+core = 6.x
