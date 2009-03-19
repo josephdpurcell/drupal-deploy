@@ -1,5 +1,9 @@
 <?php
 // $Id$
+/**
+ * @file
+ * Contains install and update functions for Deploy.
+ */
 
 /**
  * Implementation of hook_schema().
@@ -23,6 +27,12 @@ function deploy_schema() {
       'description' => array(
         'description' => t('A longer, more detailed description of a deployment plan.'),
         'type' => 'text',
+      ),
+      'internal' => array(
+        'description' => t('Boolean indicating whether or not this item is enabled.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0
       ),
     ),
     'primary key' => array('pid'),
@@ -58,7 +68,7 @@ function deploy_schema() {
       'weight' => array(
         'description' => t('The weight of this item, used to control which items get deployed first.'),
         'type' => 'int',
-        'unsigned' => TRUE,
+        'unsigned' => FALSE,
         'default' => 0,
       ),
       'data' => array(
@@ -74,6 +84,12 @@ function deploy_schema() {
       'ts' => array(
         'description' => t('The unix timestamp indicating when this item was added to the deployment plan.'),
         'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'weight_group' => array(
+        'description' => t('Weight of this group of items (nodes, comments, etc.)'),
+        'type' => 'int',
+        'unsigned' => TRUE,
         'not null' => TRUE,
       ),
     ),
@@ -132,10 +148,10 @@ function deploy_schema() {
         'length' => 100,
         'not null' => TRUE,
       ),
-      'uid' => array(
+      'username' => array(
         'description' => t('The id of the user who pushed this plan (foreign key to {user}).'),
-        'type' => 'int',
-        'unsigned' => TRUE,
+        'type' => 'varchar',
+        'length' => 60,
         'not null' => TRUE,
       ),
       'ts' => array(
@@ -205,4 +221,34 @@ function deploy_install() {
  */
 function deploy_uninstall() {
   drupal_uninstall_schema('deploy');
+
+  // Delete all the deploy variables and then clear the variable cache
+  db_query("DELETE FROM {variable} WHERE name LIKE 'deploy_%'");
+  cache_clear_all('variables', 'cache');
+}
+
+/**
+ * Implementation of hook_update().
+ *
+ * Add the item grouping field
+ */
+function deploy_update_6001() {
+  $update = array();
+
+  db_add_field($update, 'deploy_plan_items', 'weight_group', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
+
+  return $update;
+}
+
+/**
+ * Implementation of hook_update().
+ *
+ * Add the internal plan field
+ */
+function deploy_update_6002() {
+  $update = array();
+
+  db_add_field($update, 'deploy_plan', 'internal', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
+
+  return $update;
 }
