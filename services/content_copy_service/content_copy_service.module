@@ -1,18 +1,35 @@
 <?php
 // $Id$
-
+/**
+ * @file
+ * Service for importing or exporting CCK content types.
+ */
 include_once ('./'. drupal_get_path('module', 'node'    ) .'/content_types.inc');
-include_once ('./'. drupal_get_path('module', 'content') .'/content_admin.inc');
+include_once ('./'. drupal_get_path('module', 'content') .'/includes/content.admin.inc');
 
 /**
  * Implementation of hook_help().
  */
-function content_copy_service_help($section) {
-  switch ($section) {
+function content_copy_service_help($path, $args) {
+  switch ($path) {
     case 'admin/help#services_content_copy':
       return t('<p>Provides content_copy services. Requires services.module and content_copy.module.</p>');
     case 'admin/modules#description':
       return t('Provides content_copy services. Requires services.module and content_copy.module.');
+  }
+}
+
+/**
+ * Implementation of hook_content_fieldapi().
+ *
+ * When a very large content type is imported, it can (and often does) exceed
+ * PHP's timeout because every field instance being created also fires menu_rebuild().
+ * Luckily(?) I can hook into that process and reset the timer to precent this 
+ * timeout from happening.
+ */
+function content_copy_content_fieldapi($op, $field) {
+  if ($op == 'create instance') {
+    set_time_limit(60);
   }
 }
 
@@ -26,6 +43,7 @@ function content_copy_service_service() {
     array(
       '#method'   => 'content_copy.import',
       '#callback' => 'content_copy_service_import',
+      '#file'     => array('file' => 'inc', 'module' => 'content_copy_service'),
       '#args'     => array(
         array(
           '#name'         => 'type_name',
@@ -35,13 +53,14 @@ function content_copy_service_service() {
           '#name'         => 'export',
           '#type'         => 'text',
           '#description'  => t('Text of a content copy export'))),
-      '#return'   => 'string',
+      '#return'   => 'boolean',
       '#help'     => t('Import a content type macro')),
       
     // content_copy.export
     array(
       '#method'   => 'content_copy.export',
       '#callback' => 'content_copy_service_export',
+      '#file'     => array('file' => 'inc', 'module' => 'content_copy_service'),
       '#args'     => array(
         array(
           '#name'         => 'type_name',
@@ -50,49 +69,4 @@ function content_copy_service_service() {
       '#return'   => 'string',
       '#help'     => t('Export a content type macro')),
   );
-}
-
-/**
- * Content copy import service callback
- */
-function content_copy_service_import($type_name, $export) {
-  if ($type_name == 'create') {
-    $type_name = '<create>';
-  }
-
-  $values = array('type_name' => $type_name, 'macro' => $export, 'op' => 'Submit');
-  $retval = drupal_execute('content_copy_import_form', $values);
-
-  watchdog("Services", "Content Copy Import Service run. Results: $retval");
-
-  return $retval;
-}
-
-/**
- * Content copy export service callback
- */
-function content_copy_service_export($type_name) {
-  if (!array_key_exists($type_name, node_get_types())) {
-    return services_error("Content Copy Export: content type $type_name does not exist");
-  }
-  
-  $groups = array();
-  if (module_exists('fieldgroup')) {
-    $groups = content_copy_groups($type_name);
-  }
- 
-  $fields = content_copy_fields($type_name);
-  $fields = array_keys($fields);
-  
-  $values = array(
-    'type_name' => $type_name,
-    'groups' => $groups,
-    'fields' => $fields
-  );
-  
-  $retval = content_copy_export('content_copy_export_form', $values);
-  
-  watchdog("Services", "Content Copy Export Service run for content type $type_name.");
-
-  return $retval;
 }

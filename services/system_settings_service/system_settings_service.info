@@ -1,5 +1,6 @@
 ; $Id$
 name = "System Settings Service"
-description = "Provides an interface to system settings"
-dependencies = services
+description = "Provides a services interface to export and import system settings."
+dependencies[] = services
 package = Services - services
+core = 6.x

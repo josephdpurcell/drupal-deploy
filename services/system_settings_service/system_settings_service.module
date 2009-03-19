@@ -1,11 +1,19 @@
 <?php
 // $Id$
+/**
+ * @file
+ * Service for the management of system settings that used Drupals'
+ * system_settings_form() API.
+ *
+ * @todo
+ *   Would be nice to have an export service too.
+ */
 
 /**
  * Implementation of hook_help().
  */
-function system_settings_service_help($section) {
-  switch ($section) {
+function system_settings_service_help($path, $arg) {
+  switch ($path) {
     case 'admin/help#services_system_settings':
       return t('<p>Provides system settings services. Requires services.module.</p>');
     case 'admin/modules#description':
@@ -14,31 +22,38 @@ function system_settings_service_help($section) {
 }
 
 /**
- * Implementation of hook_service()
+ * Implementation of hook_perm().
  */
-function system_settings_service_service() {
+function system_settings_service_perm() {
   return array(
-    
-    // content_copy.import
-    array(
-      '#method'   => 'system_settings.import',
-      '#callback' => 'system_settings_service_import',
-      '#args'     => array(
-        array(
-          '#name'         => 'settings',
-          '#type'         => 'struct',
-          '#description'  => t('Array of system settings form values.'),
-        ),
-      ),
-      '#return'   => 'string',
-      '#help'     => t('Import system settings')
-    ),
+    'import system settings',
+    'export system settings',
   );
 }
 
-function system_settings_service_import($form_values) {
-  $form_id = $form_values['form_id'];
-  system_settings_form_submit($form_id, $form_values);
-  watchdog("Services", "System Settings Import Service run for $form_id.");
-  return "$form_id imported";
+/**
+ * Implementation of hook_service().
+ */
+function system_settings_service_service() {
+  $services = array();
+
+  // system_settings.import
+  $services[] = array(
+    '#method'   => 'system_settings.import',
+    '#access callback' => 'system_settings_service_import_access',
+    '#callback' => 'system_settings_service_import',
+    '#file'     => array('file' => 'inc', 'module' => 'system_settings_service'),
+    '#args'     => array(
+      array(
+        '#name'         => 'settings',
+        '#type'         => 'struct',
+        '#description'  => t('Array of system settings form values.'),
+      ),
+    ),
+    '#return'   => 'string',
+    '#help'     => t('Import system settings')
+  );
+
+  return $services;
 }
+
