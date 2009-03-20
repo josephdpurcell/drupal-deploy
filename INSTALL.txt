@@ -5,38 +5,52 @@ This framework requires two servers
 - a source server (which you will be deploying from)
 - a destination server (which you will be deploying to)
 
-It is theoretically possible to have one server act as both source and destination 
-(for instance localhost), however some things may not work properly. For instance, 
-at the moment the content type deployment automatically attempts to create any 
-imported content type. When you deploy from one server back to itself, this will 
-always fail because the content type already exists. Still this can be useful for testing 
-in some cases.
+While these do need to be separate and distinct Drupal installations, they do not actually need to be on two servers. They can be in separate subdirectories or virtual hosts on a single server and everything will work perfectly well.
 
-DESTINATION SERVER
-------------------
-NOTE: These instructions assume you have already installed the Services module. If you 
-have not, visit http://drupal.org/project/services and do that first.
-
-1) Extract the Deployment tarball into your modules directory
-
-2) Enable Services (under the Services group), XMLRPC Server (under Services - servers 
-group), Content Copy Service and/or System Settings Service depending on your need 
-(under the Services - services group). 
-
-3) Surf to /admin/build/services/settings on your site. 
-
-4) In the Security area, Verify that "Use Keys" is checked, and "Use Sessid" is unchecked 
-(the deployment framework does not currently support using sessions with services).
-
-5) If you do not already have an API Key generated for this server, surf to 
-admin/build/services/keys/add and create one. You may use strict domain checking if you 
-like but it is not required.
+BASIC TEST INSTALLATION
+-----------------------
+These instructions assume a brand new fresh install of Drupal on both servers.
 
 SOURCE SERVER
 -------------
-1) Extract the tarball into your modules directory
+1) Download and extract the tarball for Deploy into your modules directory. You must be using the most current -dev version.
 
-2) Surf to /admin/build/modules on your site
+2) Surf to /admin/build/modules on your site. 
 
-3) Enable the module Deployment (under the Deployment group) as well as Deploy System Settings 
-and/or Deploy Content Type depending on your needs.
+3) Enable the module Deployment (under the Deployment group), Node Deployment, User Deployment, and UUID.
+
+4) Go to admin/build/deploy/servers. Click 'Add a new server'. 
+
+5) Enter a 'Live Server' for the Name and 'http://<path_to_drupal>/services/xmlrpc' for the URL field. Save the server information.
+
+DESTINATION SERVER
+------------------
+1) Extract the tarball for Deploy and Services into your modules directory. You must be using the most current -dev version of both modules.
+
+2) Surf to /admin/build/modules on your site. 
+
+3) Enable the following modules - Services (under the Services group), XMLRPC Server (under Services - servers 
+group), System Service, Node Service, UUID Service, and User Service (under Services - services group), and UUID (under Deployment group)
+
+3) Surf to /admin/build/services/settings on your site. 
+
+4) In the Security area, Verify that "Use Keys" is unchecked, and "Use Sessid" is checked 
+(the deployment framework does not currently support using API keys with services). Save the configuration if necessary.
+
+5) Deployments run as a logged in user with the permissions of that user. For this test we will just admin to keep things simple, but if you do not wish to use admin, you will need to configure permissions appropriately for the user you're planning on logging in as. 
+
+USING DEPLOY
+------------
+1) For this demo we will create and deploy a new node, then deploy an update to the node. So on your staging server go to node/add/story and create a new story. Give it whatever options you like and save it.
+
+2) Go to admin/content/node. Check the node you just created, choose 'Deploy' from Update Options, and click the Update button. 
+
+3) Choose 'Live Server' from the Server select list, and enter the username and password for the user you wish your deployment to run as on the destination server. Click the Submit button.
+
+4) Your deployment should go through two phases - Processing deployment plan dependencies and Pushing deployment plans.
+
+5) You should end up at Deployment Log Details, which lists the node you just deployed and a Result of 'Success'. 
+
+6) Go to admin/content/node on your destination server. Your node should be listed there, and if you edit the node your settings should have all been transferred properly. 
+
+7) Now if you like you can return to this node on your source server, make some changes to the node, and go through the same process to deploy it to the destination server. Your changes should be transferred properly. 
