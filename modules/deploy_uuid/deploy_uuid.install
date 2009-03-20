@@ -18,21 +18,6 @@
       ),
     );    
 
-    // nodequeue mapping
-    $schema['nodequeue_queue_uuid'] = array(
-      'fields' => array(
-        'uuid' => deploy_uuid_get_field_definition(),
-        'qid' => array(
-          'type' => 'int', 
-          'not null' => TRUE,
-        ),
-      ),
-      'primary key' => array('qid'),
-      'unique keys' => array(
-        'uuid' => array('uuid'),
-      ),
-    );
-
     // user field mapping
     $schema['users_uuid'] = array(
       'fields' => array(
@@ -47,20 +32,6 @@
         'uuid' => array('uuid'),
       ),
     );
-
-    $schema['role_uuid'] = array(
-      'fields' => array(
-        'uuid' => deploy_uuid_get_field_definition(),
-        'rid' => array(
-          'type' => 'int', 
-          'not null' => TRUE,
-        ),
-      ),
-      'primary key' => array('rid'),
-      'unique keys' => array(
-        'uuid' => array('uuid'),
-      ),
-    );  
 
     // comment field mapping
     $schema['comments_uuid'] = array(
@@ -124,6 +95,9 @@
     return $schema; 
   }
 
+  /**
+  * Implementation of hook_install().
+  */
   function deploy_uuid_install() {
     drupal_install_schema('deploy_uuid');
     deploy_uuid_generate_nodes();
@@ -132,13 +106,15 @@
     deploy_uuid_generate_vocabularies();
     deploy_uuid_generate_comments();
     deploy_uuid_generate_files();
-    deploy_uuid_generate_nodequeues();
     
     // Put us as very first in the chain, guaranteeing that UUIDs get
     // generated before anyone else's hooks fire.
     db_query("UPDATE {system} SET weight = -1 WHERE name = 'deploy_uuid'"); 
   }
   
+  /**
+  * Implementation of hook_uninstall().
+  */
   function deploy_uuid_uninstall() {
     drupal_uninstall_schema('deploy_uuid');
   }
@@ -166,17 +142,6 @@
     while ($row = db_fetch_array($result)) {
       $uuid = uniqid(rand(), TRUE);
       db_query("INSERT INTO node_uuid (nid, uuid) values (%d, '%s')", $row['nid'], $uuid);
-    }
-  }
-  
-  /**
-  * Generate uuids for any existing nodequeues at install-time
-  */
-  function deploy_uuid_generate_nodequeues() {
-    $result = db_query("SELECT qid FROM {nodequeue_queue}");
-    while ($row = db_fetch_array($result)) {
-      $uuid = uniqid(rand(), TRUE);
-      db_query("INSERT INTO nodequeue_queue_uuid (qid, uuid) values (%d, '%s')", $row['qid'], $uuid);
     }
   }
   
@@ -264,33 +229,13 @@
     return $ret;
   }
   
-  // Adding nodequeue mapping table
-  function deploy_uuid_update_6003() {
-    $ret = array();
-    
-    $nodequeue_uuid_schema = array(
-      'fields' => array(
-        'uuid' => deploy_uuid_get_field_definition(),
-        'qid' => array(
-          'type' => 'int', 
-          'not null' => TRUE,
-        ),
-      ),
-    );    
-    db_create_table($ret, 'nodequeue_queue_uuid', $nodequeue_uuid_schema);
-    deploy_uuid_generate_nodequeues();
-    
-    return $ret;    
-  }
-  
   // Add indexes to all tables
-  function deploy_uuid_update_6004() {
+  function deploy_uuid_update_6003() {
     $ret = array();
 
     $ret[] = update_sql("ALTER TABLE {comments_uuid} ADD UNIQUE (uuid)");
     $ret[] = update_sql("ALTER TABLE {files_uuid} ADD UNIQUE (uuid)");
     $ret[] = update_sql("ALTER TABLE {node_uuid} ADD UNIQUE (uuid)");
-    $ret[] = update_sql("ALTER TABLE {nodequeue_queue_uuid} ADD UNIQUE (uuid)");
     $ret[] = update_sql("ALTER TABLE {role_uuid} ADD UNIQUE (uuid)");
     $ret[] = update_sql("ALTER TABLE {term_data_uuid} ADD UNIQUE (uuid)");
     $ret[] = update_sql("ALTER TABLE {users_uuid} ADD UNIQUE (uuid)");
@@ -299,7 +244,6 @@
     $ret[] = update_sql("ALTER TABLE {comments_uuid} ADD KEY (cid)");
     $ret[] = update_sql("ALTER TABLE {files_uuid} ADD KEY (fid)");
     $ret[] = update_sql("ALTER TABLE {node_uuid} ADD KEY (nid)");
-    $ret[] = update_sql("ALTER TABLE {nodequeue_queue_uuid} ADD KEY (qid)");
     $ret[] = update_sql("ALTER TABLE {role_uuid} ADD KEY (rid)");
     $ret[] = update_sql("ALTER TABLE {term_data_uuid} ADD KEY (tid)");
     $ret[] = update_sql("ALTER TABLE {users_uuid} ADD KEY (uid)");

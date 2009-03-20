@@ -360,10 +360,6 @@ function deploy_uuid_comment(&$a1, $op) {
     return db_result(db_query("SELECT uuid FROM {files_uuid} WHERE fid = %d", $fid));
   }
   
-  function deploy_uuid_get_nodequeue_uuid($qid) {
-    return db_result(db_query("SELECT uuid FROM {nodequeue_queue_uuid} WHERE qid = %d", $qid));
-  }
-  
   /**
    * Standard function to create a unique identifier.
    *
