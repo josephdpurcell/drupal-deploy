@@ -26,7 +26,7 @@ function deploy_server_overview() {
 
   $output = theme('table', $header, $rows);
 
-  $output .= l(t("Add a New Server"), "admin/build/deploy/server/add", array());
+  $output .= l(t("Add a new server"), "admin/build/deploy/server/add", array());
 
   return $output;
 }
