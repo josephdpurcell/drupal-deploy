@@ -100,7 +100,7 @@ function taxonomy_deploy_check_taxonomy($taxonomy) {
         // coming from the 'taxonomy' module. It just makes sense since they are both dealt with
         // completely differently, and it prevents me from doing some hackery like storing a
         // serialized array in the $data field.
-        deploy_add_to_plan($pid, 'taxonomy_term', $term['name'], $term['tid'], deploy_get_min_weight($pid)-1, DEPLOY_TAXONOMY_TERM_GROUP_WEIGHT);
+        deploy_add_to_plan($pid, 'taxonomy_term', 'taxonomy term: '. $term['name'], $term['tid'], deploy_get_min_weight($pid)-1, DEPLOY_TAXONOMY_TERM_GROUP_WEIGHT);
 
         // Having added this term to the plan, we now need to dependency check it
         // term's parents. This will continue recursively until we get to a root term.
@@ -125,7 +125,7 @@ function taxonomy_deploy_check_taxonomy($taxonomy) {
         // I hate doing this load here but i have to bite the bullet so that the
         // deployment listing makes sense.
         $vocabulary = taxonomy_vocabulary_load($vid);
-        deploy_add_to_plan($pid, 'taxonomy_vocabulary', $vocabulary->name, $vid, deploy_get_min_weight($pid)-1, DEPLOY_TAXONOMY_VOCABULARY_GROUP_WEIGHT);
+        deploy_add_to_plan($pid, 'taxonomy_vocabulary', 'taxonomy vocabulary: '. $vocabulary->name, $vid, deploy_get_min_weight($pid)-1, DEPLOY_TAXONOMY_VOCABULARY_GROUP_WEIGHT);
       }
     }
   }
