@@ -417,12 +417,13 @@ function deploy_check_batch() {
  *   The identifying data for this item
  * @param $description
  *   The item's description for feedback messages
+ * @param $context
+ *   Batch API context var for messages and results
  */
-function deploy_plan_check_item_batch($module, $data, $description) {
+function deploy_plan_check_item_batch($module, $data, $description, &$context) {
   deploy_plan_check_item($module, $data);
 
   // Update our progress information.
-  $context['sandbox']['progress']++;
   $context['message'] = t('Now processing %item', array('%item' => $description));
 }
 
@@ -463,13 +464,14 @@ function deploy_push_batch() {
  *
  * @param $item
  *   The item being deployed.
+ * @param $context
+ *   Batch API context var for messages and results
  */
-function deploy_item_batch($item) {
+function deploy_item_batch($item, &$context) {
   deploy_item($item);
 
   // Update our progress information. Error handling is all managed in deploy_item()
   // and logging is all done in the depoyment log, so we don't even worry about that.
-  $context['sandbox']['progress']++;
   $context['message'] = t('Now processing %item', array('%item' => $item['description']));
 }
 
