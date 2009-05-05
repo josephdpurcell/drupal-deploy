@@ -779,6 +779,12 @@ function deploy_plan($pid) {
  *   The item being deployed.
  */
 function deploy_item($item) {
+  // By default, xmlrpc.inc is only included when xmlrpc() is called. 
+  // Since I am using xmlrpcerror() as an error handler (unfortunately)
+  // there is an edge case where I'll need this loaded before I've called
+  // xmlrpc(). So I include it manually here.
+  include_once('./includes/xmlrpc.inc');
+
   // Static error flag so that we can use it between calls and not have to
   // handle errors in the batch process.
   $deploy_fatal = variable_get('deploy_fatal', FALSE);
