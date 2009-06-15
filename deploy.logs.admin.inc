@@ -32,6 +32,7 @@ function deploy_logs_overview() {
   );
 
   $output = theme('table', $header, $rows);
+  $output .= theme('pager');
 
   return $output;
 }
