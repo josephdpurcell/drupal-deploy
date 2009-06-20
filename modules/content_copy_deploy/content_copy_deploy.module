@@ -36,17 +36,6 @@ function content_copy_deploy_menu() {
  * Deploy content deployment 'hook'.
  */
 function content_copy_deploy($content_type) {
-  // There is a bug in batch API up through Drupal 6.10 that causes batch API
-  // to fail when a callback runs drupal_execute(). content_copy_export() is
-  // one such function, thereore we return an error if running an older
-  // version. For more info on this issue see [#297972].
-  $version = explode('.', VERSION);
-  $minor_version = explode('-', $version[1]);
-  if ((int)$minor_version < 11) {
-    xmlrpc_error($xmlrpcusererr + 1, t('Content type deployment requires Drupal 6.11 or greater on the deploying server.'));
-    return FALSE;
-  }
-
   if (module_exists('fieldgroup')) {
     $groups = array_keys(fieldgroup_groups($content_type));
   }
