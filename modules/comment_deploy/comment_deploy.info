@@ -1,0 +1,7 @@
+; $Id$
+name = "Deploy Comments"
+description = "Deploy comments using the Deployment framework"
+dependencies[] = deploy
+dependencies[] = comment
+package = Deployment
+core = 6.x
