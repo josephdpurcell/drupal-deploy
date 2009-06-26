@@ -37,7 +37,7 @@ function date_node_deploy(&$node) {
   // causes date values to get trashed. In order to get around this, we
   // actually need to node_load() each node as it comes through in order
   // to retrieve the original date value. !shoot($messenger)
-  $original_node = node_load($node->id);
+  $original_node = node_load($node->nid);
   $date_fields = date_deploy_get_date_fields();
   
   // The dates need to be saved as $node->field[delta]['value'][part]
