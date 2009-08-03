@@ -184,6 +184,6 @@ function node_deploy_operations_add_now_form_submit($form, &$form_state) {
     deploy_plan_cleanup();
 
     // Redirect to the log overview page for this push.
-    $form_state['redirect'] = "/admin/build/deploy/logs/details/$dlid";    
+    $form_state['redirect'] = "admin/build/deploy/logs/details/$dlid";    
   }
 }
