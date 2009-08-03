@@ -141,7 +141,7 @@
     $result = db_query("SELECT nid FROM {node}");
     while ($row = db_fetch_array($result)) {
       $uuid = uniqid(rand(), TRUE);
-      db_query("INSERT INTO node_uuid (nid, uuid) values (%d, '%s')", $row['nid'], $uuid);
+      db_query("INSERT INTO {node_uuid} (nid, uuid) values (%d, '%s')", $row['nid'], $uuid);
     }
   }
   
@@ -152,7 +152,7 @@
     $result = db_query("SELECT fid FROM {files}");
     while ($row = db_fetch_array($result)) {
       $uuid = uniqid(rand(), TRUE);
-      db_query("INSERT INTO files_uuid (fid, uuid) values (%d, '%s')", $row['fid'], $uuid);
+      db_query("INSERT INTO {files_uuid} (fid, uuid) values (%d, '%s')", $row['fid'], $uuid);
     }
   }
   
@@ -163,7 +163,7 @@
     $result = db_query("SELECT uid FROM {users}");
     while ($row = db_fetch_array($result)) {
       $uuid = uniqid(rand(), TRUE);
-      db_query("INSERT INTO users_uuid (uid, uuid) values (%d, '%s')", $row['uid'], $uuid);
+      db_query("INSERT INTO {users_uuid} (uid, uuid) values (%d, '%s')", $row['uid'], $uuid);
     }
   }
   
@@ -174,7 +174,7 @@
     $result = db_query("SELECT tid FROM {term_data}");
     while ($row = db_fetch_array($result)) {
       $uuid = uniqid(rand(), TRUE);
-      db_query("INSERT INTO term_data_uuid (tid, uuid) values (%d, '%s')", $row['tid'], $uuid);
+      db_query("INSERT INTO {term_data_uuid} (tid, uuid) values (%d, '%s')", $row['tid'], $uuid);
     }
   }
   
@@ -185,7 +185,7 @@
     $result = db_query("SELECT vid FROM {vocabulary}");
     while ($row = db_fetch_array($result)) {
       $uuid = uniqid(rand(), TRUE);
-      db_query("INSERT INTO vocabulary_uuid (vid, uuid) values (%d, '%s')", $row['vid'], $uuid);
+      db_query("INSERT INTO {vocabulary_uuid} (vid, uuid) values (%d, '%s')", $row['vid'], $uuid);
     }
   }
   
@@ -196,7 +196,7 @@
     $result = db_query("SELECT cid FROM {comments}");
     while ($row = db_fetch_array($result)) {
       $uuid = uniqid(rand(), TRUE);
-      db_query("INSERT INTO comments_uuid (cid, uuid) values (%d, '%s')", $row['cid'], $uuid);
+      db_query("INSERT INTO {comments_uuid} (cid, uuid) values (%d, '%s')", $row['cid'], $uuid);
     }
   }
   
