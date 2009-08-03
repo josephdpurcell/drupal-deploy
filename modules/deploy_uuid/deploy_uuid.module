@@ -331,7 +331,7 @@ function deploy_uuid_comment(&$a1, $op) {
       $result = db_query("SELECT n.nid, u.uuid, n.changed FROM {node} n INNER JOIN {node_uuid} u ON n.nid = u.nid WHERE u.uuid = '%s'", $uuid);
     }
     else {
-      $result = db_query("SELECT * FROM %s WHERE uuid = '%s'", $module . '_uuid', $uuid);      
+      $result = db_query("SELECT * FROM {%s} WHERE uuid = '%s'", $module . '_uuid', $uuid);      
     }
     return db_fetch_array($result);
   }
