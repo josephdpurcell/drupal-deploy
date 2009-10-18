@@ -1,0 +1,7 @@
+; $Id$
+name = "Deploy Files"
+description = "Deploy filefield files using the Deployment framework"
+dependencies[] = deploy
+dependencies[] = filefield
+package = Deployment
+core = 6.x
