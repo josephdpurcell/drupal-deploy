@@ -153,6 +153,10 @@ function deploy_list_form($form_state, $pid = NULL) {
     drupal_goto('/admin/build/deploy');
   }
   
+  // Set the page title to the name of the plan
+  $plan = deploy_get_plan($pid);
+  drupal_set_title(t('Deployment plan items - @plan', array('@plan' => $plan['name'])));
+
   // username cache so we don't have to user_load constantly
   $user_cache = array();
 
