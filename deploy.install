@@ -252,3 +252,17 @@ function deploy_update_6002() {
 
   return $update;
 }
+
+/**
+ * Implementation of hook_update().
+ *
+ * Add new auth_type field for pluggable authentication 
+ * and drop unused api_key field.
+ */
+function deploy_update_6003() {
+  $update = array();
+  
+  db_drop_field($update, 'deploy_servers', 'api_key');
+
+  return $update;
+}
