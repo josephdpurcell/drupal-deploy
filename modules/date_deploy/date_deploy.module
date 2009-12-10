@@ -13,7 +13,8 @@ function date_deploy_get_date_fields() {
   if (empty($date_fields)) {
     $fields = content_fields();
     foreach ($fields as $name => $field) {
-      if ($field['type'] == 'date') {
+      $date_types = array('datetime', 'date', 'datestamp');
+      if (in_array($field['type'], $date_types)) {
         $date_fields[$name] = $name;
       }
     }

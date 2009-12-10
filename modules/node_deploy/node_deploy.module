@@ -120,9 +120,6 @@ function node_deploy($nid) {
   // on the weight sorting in deploy.module, it should be "easy" now to replace
   // all our linked ids with their remote equivalents and go.
 
-  // Node ID
-  $node->nid = $remote_nid;
-
   // Node author. don't bother checking the remote key if it is admin or anonymous
   if ($node->uid > 1) {
     $remote_key = deploy_get_remote_key(deploy_uuid_get_user_uuid($node->uid), 'users');
@@ -195,6 +192,9 @@ function node_deploy($nid) {
   
   // Now let all the modules that extend node make their own adjustments
   module_invoke_all('node_deploy', $node);
+
+  // Node ID
+  $node->nid = $remote_nid;
 
   // And we're off.
   $nid = deploy_send(array('node.save'), array($node));
