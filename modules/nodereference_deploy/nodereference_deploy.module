@@ -89,7 +89,7 @@ function nodereference_node_deploy_check($node) {
       // If it doesn't exist or the local version is newer, add it to the deployment plan, 
       // with a weight of min(weight) - 1, and then run dependency checking on it
       $plan_node = node_load($nid);
-      if (!$remote_key || $remote_key['changed'] < $plan_node->changed) {
+      if ($plan_node && (!$remote_key || $remote_key['changed'] < $plan_node->changed)) {
         deploy_add_to_plan($pid, 'node', $plan_node->type .': '. $plan_node->title, $plan_node->nid, deploy_get_min_weight($pid)-1, DEPLOY_NODE_GROUP_WEIGHT);
         module_invoke_all('node_deploy_check', $plan_node);
       }
