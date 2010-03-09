@@ -230,7 +230,7 @@ function deploy_uuid_comment(&$a1, $op) {
    *
    * Add the UUID into all node edit fields so that drupal_executes and form submissions
    * handle this data properly. If you don't do this, then the uuid gets lost during
-   * a node save from drupal_execute().
+   * a node save from drupal_execute(). Same goes for the user register form.
    */
   function deploy_uuid_form_alter(&$form, $form_state, $form_id) {
     if (strpos($form_id, 'node_form') !== FALSE) {
@@ -238,6 +238,13 @@ function deploy_uuid_comment(&$a1, $op) {
       $form['uuid'] = array(
         '#type' => 'hidden',
         '#default_value' => isset($node->uuid) ? $node->uuid : '',
+      );
+    }
+
+    if (strpos($form_id, 'user_register') !== FALSE) {
+      $form['uuid'] = array(
+        '#type' => 'hidden',
+        '#default_value' => '',
       );
     }
   }
