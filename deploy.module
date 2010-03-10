@@ -306,17 +306,13 @@ function deploy_get_plan_options($show_internal = FALSE) {
  *   Group-centric weighting to control when the invidual modules are deployed.
  *   For more details see the comments for the constants defined at the top of this module.
  * @todo This needs to be refactored such that a) it detects errors properly and b) it returns
- *   a bool rather than just setting a message and going on.
+ *   a bool rather than just going on.
  */
 function deploy_add_to_plan($pid, $module, $description, $data, $weight = 0, $weight_group = 0) {
   global $user;
 
-  $result = db_query("INSERT INTO {deploy_plan_items} (pid, uid, ts, module, description, data, weight, weight_group) VALUES (%d, %d, %d, '%s', '%s', '%s', %d, %d)", $pid, $user->uid, time(), $module, $description, $data, $weight, $weight_group);
-  if (!$result) {
-    drupal_set_message(t("An error occured."));
-  }
-  else {
-//    drupal_set_message("$description successfully added to plan");
+  if (!empty($data) && !empty($module) && !empty($pid)) {
+    db_query("INSERT INTO {deploy_plan_items} (pid, uid, ts, module, description, data, weight, weight_group) VALUES (%d, %d, %d, '%s', '%s', '%s', %d, %d)", $pid, $user->uid, time(), $module, $description, $data, $weight, $weight_group);
   }
 }
 
