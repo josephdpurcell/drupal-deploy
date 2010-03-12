@@ -62,8 +62,28 @@ function node_deploy_menu() {
  *   Nid of the node we're trying to deploy
  */
 function node_deploy_check($nid) {
-  // Let dependent modules manage their dependencies for this node
+  // pid of the plan we're deploying
+  $pid = variable_get('deploy_pid', 0);
   $node = node_load($nid);
+
+  // If this node is a translation of another node, and this
+  // other node is not already on the remote server, add it
+  // to the plan.
+  if ($node->tnid && $node->tnid != $node->nid) {
+    if (!deploy_item_is_in_plan($pid, 'node', $node->tnid)) {
+      // Does this node exist on the remote server?
+      $remote_key = deploy_get_remote_key(deploy_uuid_get_node_uuid($node->tnid), 'node');
+
+      // If it doesn't exist or the local version is newer, add it to the deployment plan, 
+      // with a weight of min(weight) - 1, and then run dependency checking on it
+      $plan_node = node_load($node->tnid);
+      if (!$remote_key || $remote_key['changed'] < $plan_node->changed) {
+        deploy_add_to_plan($pid, 'node', $plan_node->type .': '. $plan_node->title, $plan_node->nid, deploy_get_min_weight($pid)-1, DEPLOY_NODE_GROUP_WEIGHT);
+        module_invoke_all('node_deploy_check', $plan_node);
+      }
+    }    
+  }
+
   if ($node) {
     module_invoke_all('node_deploy_check', $node);
   }
@@ -84,6 +104,19 @@ function node_deploy($nid) {
     return xmlrpc_error($xmlrpcusererr + 1, t('Node not found'));
   }
 
+  // Now go deploy it.
+  return node_deploy_node($node);
+}
+
+/**
+ * Deploy a node.
+ *
+ * @param $node
+ *   Node object we are deploying.
+ * @return
+ *   The nid of the new node.
+ */
+function node_deploy_node($node) {
   // Check remote node info. If the local node and the remote node
   // have the same 'changed' value (indicating that no new local changes
   // have been made) then just bail and don't bother going through the
@@ -94,6 +127,18 @@ function node_deploy($nid) {
   }
   $remote_nid = isset($remote_key['nid']) ? $remote_key['nid'] : NULL;
   
+  // If this node was translated from anotehr node, then set the node's
+  // tnid properly as well.
+  if ($node->tnid) {
+    if ($node->tnid == $node->nid) {
+      $node->tnid = $remote_nid;
+    }
+    else {
+      $uuid = deploy_uuid_get_node_uuid($node->tnid);
+      $remote_key = deploy_get_remote_key($uuid, 'node');
+      $node->tnid = isset($remote_key['nid']) ? $remote_key['nid'] : NULL;      
+    }
+  }
 
   // When this gets submitted to services, it will be passed through
   // drupal_execute() to be saved. The format drupal_execute() expects for
@@ -193,8 +238,10 @@ function node_deploy($nid) {
   // Now let all the modules that extend node make their own adjustments
   module_invoke_all('node_deploy', $node);
 
-  // Node ID
+  // Finally set the node's ID to match the remote nid
   $node->nid = $remote_nid;
+
+  watchdog('node deploy', print_r($node, TRUE));
 
   // And we're off.
   $nid = deploy_send(array('node.save'), array($node));
