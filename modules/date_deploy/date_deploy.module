@@ -39,6 +39,11 @@ function date_node_deploy(&$node) {
   // actually need to node_load() each node as it comes through in order
   // to retrieve the original date value. !shoot($messenger)
   $original_node = node_load($node->nid);
+
+  // If we couldn't load it then bail.
+  if (!$original_node = node_load($node->nid)) {
+    return;
+  }  
   $date_fields = date_deploy_get_date_fields();
   
   // The dates need to be saved as $node->field[delta]['value'][part]
