@@ -43,7 +43,7 @@ function content_copy_service_service() {
     array(
       '#method'   => 'content_copy.import',
       '#callback' => 'content_copy_service_import',
-      '#access arguments' => 'administer_content_types'
+      '#access arguments' => 'administer_content_types',
       '#file'     => array('file' => 'inc', 'module' => 'content_copy_service'),
       '#args'     => array(
         array(
@@ -61,7 +61,7 @@ function content_copy_service_service() {
     array(
       '#method'   => 'content_copy.export',
       '#callback' => 'content_copy_service_export',
-      '#access arguments' => 'administer_content_types'
+      '#access arguments' => 'administer_content_types',
       '#file'     => array('file' => 'inc', 'module' => 'content_copy_service'),
       '#args'     => array(
         array(
