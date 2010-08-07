@@ -46,7 +46,7 @@ function userreference_deploy_node_deploy_check(&$node) {
     // dealt with. So we just move on in this case.
     if (!deploy_item_is_in_plan($pid, 'user', $uid)) {
       // Does this user exist on the remote server?
-      $remote_key = deploy_get_remote_key(deploy_uuid_get_user_uuid($uid), 'user');
+      $remote_key = deploy_get_remote_key(deploy_uuid_get_user_uuid($uid), 'users');
 
       // If it doesn't exist or the local version is newer, add it to the deployment plan, 
       // with a weight of min(weight) - 1, and then run dependency checking on it
