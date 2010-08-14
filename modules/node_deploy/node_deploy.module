@@ -235,8 +235,6 @@ function node_deploy_node($node) {
   // Finally set the node's ID to match the remote nid
   $node->nid = $remote_nid;
 
-  watchdog('node deploy', print_r($node, TRUE));
-
   // And we're off.
   $nid = deploy_send(array('node.save'), array($node));
 
