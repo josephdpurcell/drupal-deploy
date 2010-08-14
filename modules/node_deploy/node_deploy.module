@@ -149,13 +149,7 @@ function node_deploy_node($node) {
   
   $form_state = array('storage' => NULL, 'submitted' => FALSE, 'post' => '$_POST');
 
-  $args_temp = array(
-    $form_id,
-    $form_state,
-    $node,
-  );
-
-  $form = call_user_func_array('drupal_retrieve_form', $args_temp);
+  $form = drupal_retrieve_form($form_id, $form_state, $node);
   drupal_prepare_form($form_id, $form, $form_state);
   drupal_process_form($form_id, $form, $form_state);
 
