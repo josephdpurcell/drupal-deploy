@@ -127,7 +127,7 @@ function node_deploy_node($node) {
   }
   $remote_nid = isset($remote_key['nid']) ? $remote_key['nid'] : NULL;
   
-  // If this node was translated from anotehr node, then set the node's
+  // If this node was translated from another node, then set the node's
   // tnid properly as well.
   if ($node->tnid) {
     if ($node->tnid == $node->nid) {
