@@ -693,6 +693,9 @@ function deploy_init_deployment($pid, $sid) {
   // associated data gets deleted.
   db_query("INSERT INTO {deploy_log} (plan, server, username, ts) VALUES ('%s', '%s', '%s', %d)", $plan['name'], $server['description'], $user->name, time());
   variable_set('deploy_log_id', db_last_insert_id('deploy_log', 'dlid'));
+  
+  // Allow other modules to do stuff before the content gets pushed.
+  module_invoke_all('deploy_pre_plan', $pid);
 }
 
 
@@ -820,11 +823,17 @@ function deploy_plan_cleanup() {
   // clear remote cache
   deploy_send(array('system.cacheClearAll'), array());
   
+  // Grab the pid so we can pass it to the post deploy hook.
+  $pid = variable_get('deploy_pid', '');
+  
   variable_del('deploy_server_url');
   variable_del('deploy_pid');
   variable_del('deploy_sessid');
   variable_del('deploy_log_id');
   variable_del('deploy_fatal');
+
+  // Allow other modules to do post-deployment tasks.
+  module_invoke_all('deploy_post_plan', $pid);
 }
 
 function deploy_get_remote_key($uuid, $module) {
