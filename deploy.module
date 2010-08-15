@@ -368,7 +368,7 @@ function deploy_pushform_submit($form, &$form_state) {
   else {
     $dlid = variable_get('deploy_log_id', '');
     deploy_plan_cleanup();
-    $form_state['redirect'] = "/admin/build/deploy/logs/details/$dlid";
+    $form_state['redirect'] = "admin/build/deploy/logs/details/$dlid";
   }
 }
 
