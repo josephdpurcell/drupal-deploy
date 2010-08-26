@@ -452,7 +452,7 @@ function deploy_push_batch() {
   // When complete, redirect to the log for this deployment.
   $dlid = variable_get('deploy_log_id', '');
   batch_set($batch);
-  batch_process("/admin/build/deploy/logs/details/$dlid");
+  batch_process("admin/build/deploy/logs/details/$dlid");
 }
 
 /**
