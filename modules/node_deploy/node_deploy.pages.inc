@@ -153,29 +153,10 @@ function node_deploy_operations_add_now_form($form_state, $nids) {
  */
 function node_deploy_operations_add_now_form_submit($form, &$form_state) {
   $sid = $form_state['values']['sid'];
-  $username = $form_state['values']['username'];
-  $password = $form_state['values']['password'];
-
-  // If there is already aplan for this vocabulary, then empty it and use it.
-  // Otherwise create one.
-  $pid = deploy_plan_exists('Nodes Now');
-  if (!$pid) {
-    $pid = deploy_create_plan('Nodes Now', 'Internal plan to deploy nodes', 1);
-  }
-  else {
-    deploy_empty_plan($pid);
-  }
-
-  $result = db_query("SELECT nid, title, type FROM {node} WHERE nid IN (%s)", $form_state['values']['nids']);
-  while ($row = db_fetch_array($result)) {
-    if (!deploy_item_is_in_plan($pid, 'node', $row['nid'])) {
-      deploy_add_to_plan($pid, 'node', $row['type'] .': '. $row['title'], $row['nid'], 0, DEPLOY_NODE_GROUP_WEIGHT);
-    }
-  }
+  $pid = node_deploy_operations_create_plan($form_state['values']['nids']);
 
   // Now do the deployment
-  deploy_init_deployment($pid, $sid);
-  if (deploy_set_session($username, $password)) {
+  if (deploy_plan_init($pid, $sid, $form_state['values'])) {
     // Redirect to the log overview page for this push.
     $form_state['redirect'] = "admin/build/deploy/deploy_check_batch";
   }
@@ -186,4 +167,27 @@ function node_deploy_operations_add_now_form_submit($form, &$form_state) {
     // Redirect to the log overview page for this push.
     $form_state['redirect'] = "admin/build/deploy/logs/details/$dlid";    
   }
+}
+
+/**
+ * Helper function that creates a deployment plan.
+ */
+function node_deploy_operations_create_plan($nids) {
+  // If there is already a plan for this, then empty it and use it.
+  // Otherwise create one.
+  $pid = deploy_plan_exists('Nodes Now');
+  if (!$pid) {
+    $pid = deploy_create_plan('Nodes Now', 'Internal plan to deploy nodes', 1);
+  }
+  else {
+    deploy_empty_plan($pid);
+  }
+
+  $result = db_query("SELECT nid, title, type FROM {node} WHERE nid IN (%s)", $nids);
+  while ($row = db_fetch_array($result)) {
+    if (!deploy_item_is_in_plan($pid, 'node', $row['nid'])) {
+      deploy_add_to_plan($pid, 'node', $row['type'] .': '. $row['title'], $row['nid'], 0, DEPLOY_NODE_GROUP_WEIGHT);
+    }
+  }
+  return $pid;
 }

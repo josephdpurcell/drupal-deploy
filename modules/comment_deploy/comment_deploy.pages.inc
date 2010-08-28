@@ -101,8 +101,6 @@ function comment_deploy_operations_add_now_form($form_state, $cids) {
  */
 function comment_deploy_operations_add_now_form_submit($form, &$form_state) {
   $sid = $form_state['values']['sid'];
-  $username = $form_state['values']['username'];
-  $password = $form_state['values']['password'];
 
   // If there is already a plan for these comments, then empty it and use it.
   // Otherwise create one. Every deployment needs to be attached to a plan, so
@@ -124,8 +122,7 @@ function comment_deploy_operations_add_now_form_submit($form, &$form_state) {
   }
 
   // Now do the deployment
-  deploy_init_deployment($pid, $sid);
-  if (deploy_set_session($username, $password)) {
+  if (deploy_plan_init($pid, $sid, $form_state['values'])) {
     // Redirect to the log overview page for this push.
     $form_state['redirect'] = "admin/build/deploy/deploy_check_batch";
   }
@@ -134,6 +131,6 @@ function comment_deploy_operations_add_now_form_submit($form, &$form_state) {
     deploy_plan_cleanup();
 
     // Redirect to the log overview page for this push.
-    $form_state['redirect'] = "/admin/build/deploy/logs/details/$dlid";    
+    $form_state['redirect'] = "admin/build/deploy/logs/details/$dlid";    
   }
 }

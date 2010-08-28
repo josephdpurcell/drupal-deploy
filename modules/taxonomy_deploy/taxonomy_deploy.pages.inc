@@ -39,8 +39,6 @@ function taxonomy_vocabulary_deploy_add_form($form_state, $vid) {
 function taxonomy_vocabulary_deploy_add_form_submit($form, &$form_state) {
   $sid = $form_state['values']['sid'];
   $vid = $form_state['values']['vid'];
-  $username = $form_state['values']['username'];
-  $password = $form_state['values']['password'];
   
   // If there is already aplan for this vocabulary, then empty it and use it.
   // Otherwise create one.
@@ -51,9 +49,8 @@ function taxonomy_vocabulary_deploy_add_form_submit($form, &$form_state) {
   else {
     deploy_empty_plan($pid);
   }
-  
-  deploy_init_deployment($pid, $sid);
-  if (deploy_set_session($username, $password)) {
+
+  if (deploy_plan_init($pid, $sid, $form_state['values'])) {
     $result = db_query("SELECT tid, vid, name FROM {term_data} WHERE vid = %d", $vid);
     while ($term = db_fetch_array($result)) {
       deploy_add_to_plan($pid, 'taxonomy_term', $term['name'], $term['tid'], 0, DEPLOY_TAXONOMY_TERM_GROUP_WEIGHT);
@@ -65,5 +62,12 @@ function taxonomy_vocabulary_deploy_add_form_submit($form, &$form_state) {
     taxonomy_deploy_deploy_check_cleanup($pid);
     
     $form_state['redirect'] = "admin/build/deploy/deploy_push_batch/$pid";
+  }
+  else {
+    $dlid = variable_get('deploy_log_id', '');
+    deploy_plan_cleanup();
+
+    // Redirect to the log overview page for this push.
+    $form_state['redirect'] = "admin/build/deploy/logs/details/$dlid";
   }
 }

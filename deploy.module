@@ -164,6 +164,13 @@ function deploy_menu() {
     'weight' => 1,
   );
 
+  // Server form AHAH callback.
+  $items['admin/build/deploy/ahah/auth-form'] = array(
+    'page callback' => 'deploy_ahah_auth_form',
+    'access arguments' => array('administer deployment'),
+    'type' => MENU_CALLBACK,
+  );
+
   // Deployment logs
   $items['admin/build/deploy/logs'] = array(
     'title' => 'Deployment Log',
@@ -199,7 +206,7 @@ function deploy_menu() {
     'title' => 'Push a plan live',
     'description' => 'Push a plan live',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('deploy_pushform'),
+    'page arguments' => array('deploy_plan_push_form'),
     'access arguments' => array('deploy items'),
     'type' => MENU_CALLBACK,
   );
@@ -326,43 +333,41 @@ function deploy_add_to_plan($pid, $module, $description, $data, $weight = 0, $we
  *   FAPI form state
  * @param $pid
  *   Unique identifier of the plan we're pushing.
+ * @param $sid
+ *   Which server to use for the deployment.
  * @return
  *   FAPI form definition
  * @ingroup forms
- * @see deploy_pushform_submit()
+ * @see deploy_plan_push_form_submit()
  */
-function deploy_pushform($form_state, $pid) {
+function deploy_plan_push_form($form_state, $pid, $sid = NULL) {
   $form = deploy_get_server_form();
-  
+
   $form['pid'] = array(
     '#type' => 'hidden',
     '#value' => $pid,
   );
-  
+
   return $form;
 }
 
 /**
- * Submit callback for deploy_pushform()
+ * Submit callback for deploy_plan_push_form()
  *
  * This is where the actual action takes place.
  *
  * @todo Check system config on remote host - installed modules, proper versions, etc.
  * @todo Better error message handling that is not dependent on xmlrpc_error.
  */
-function deploy_pushform_submit($form, &$form_state) {
+function deploy_plan_push_form_submit($form, &$form_state) {
   // Setup some data
   global $user;
   $pid = $form_state['values']['pid'];
   $sid = $form_state['values']['sid'];
-  $username = $form_state['values']['username'];
-  $password = $form_state['values']['password'];
-
-  deploy_init_deployment($pid, $sid);
 
   // If a session is successfully created, then go on to the deploy_check
   // batch process. Otherwise quit out and show the error log.
-  if (deploy_set_session($username, $password)) {
+  if (deploy_plan_init($pid, $sid, $form_state['values'])) {
     $form_state['redirect'] = "admin/build/deploy/deploy_check_batch";
   }
   else {
@@ -379,6 +384,8 @@ function deploy_check_batch() {
   $operations = array();
   $pid = variable_get('deploy_pid', '');
   $items = deploy_get_plan_items($pid);
+  
+  watchdog('plan items', print_r($items, TRUE));
 
   // The batch operations are calls to deploy_plan_check_item_batch(), which is
   // just a wrapper for deploy_plan_check_item() plus the batch api messaging.
@@ -401,6 +408,7 @@ function deploy_check_batch() {
     'error_message' => t('Deployment dependency checking has encountered an error.'),
   );
   batch_set($batch);
+  
   batch_process("admin/build/deploy/deploy_push_batch");
 }
 
@@ -604,17 +612,12 @@ function deploy_get_min_weight($pid) {
  *   Results of the remote call.
  */
 function deploy_send($protocol_args, $function_args) {
-  // In the end $protocol_args needs to be URL of XMLRPC endpoint, function name, session ID.
-  // The one exception to this is system.connect, which never requires a session id (it is the
-  // equivalent of your first page hit to a drupal site, establishing an anonymous session.)
-  $url = variable_get('deploy_server_url', '');
-  if ($protocol_args[0] == 'system.connect') {
-    $protocol_args = array($url, $protocol_args[0]);
-  }
-  else {
-    $sessid = variable_get('deploy_sessid', '');
-    $protocol_args = array($url, $protocol_args[0], $sessid);
-  }
+  // Get the active server.
+  $server = variable_get('deploy_server', array());
+
+  array_unshift($protocol_args, $server['url']);
+  deploy_auth_invoke($server['auth_type'], 'arguments callback', $protocol_args, $function_args);
+
   return call_user_func_array('xmlrpc', array_merge($protocol_args, $function_args));
 }
 
@@ -670,18 +673,29 @@ function deploy_delete_plan($pid) {
   db_query("DELETE FROM {deploy_plan} WHERE pid = %d", $pid);
 }
 
-function deploy_init_deployment($pid, $sid) {
+/**
+ * Initiate depolyment.
+ *
+ * @param $pid
+ *   ID of the plan to deploy.
+ * @param $sid
+ *   ID of the server to deploy to.
+ * @param $settings
+ *   Server settings that was posted from the server form.
+ */
+function deploy_plan_init($pid, $sid, $settings = array()) {
   include_once('./includes/xmlrpc.inc');
 
   global $user;
 
   $plan = deploy_get_plan($pid);
   $server = deploy_get_server($sid);
-  $url = $server['url'];
+  // Also add settings that came from the submitted server form.
+  $server['settings'] = $settings;
 
   // Save this data out so the other modules can get it. Not sure of a better
   // way to handle this.
-  variable_set('deploy_server_url', $url);
+  variable_set('deploy_server', $server);
   variable_set('deploy_pid', $pid);
 
   // This used to be a static within deploy_item(), but batch API breaks
@@ -696,34 +710,10 @@ function deploy_init_deployment($pid, $sid) {
   
   // Allow other modules to do stuff before the content gets pushed.
   module_invoke_all('deploy_pre_plan', $pid);
+
+  return deploy_auth_invoke($server['auth_type'], 'init callback', $server);
 }
 
-
-/**
- * Setup a user session for deployment.
- */
-function deploy_set_session($username, $password) {
-  // In order to prevent bots from cluttering up the sessions table, you must
-  // have an active anonymous session before logging in to Drupal. So that is
-  // the first thing we do with system.connect. This session ID is saved
-  // to the 'deploy_sessid' variable, which all other xmlrpc calls to the
-  // remote server passes.
-  $result = deploy_send(array('system.connect'), array());
-  variable_set('deploy_sessid', $result['sessid']);
-
-  // Then we can log in.
-  $result = deploy_send(array('user.login'), array($username, $password));
-
-  // If it fails, then add a message to the log. Otherwise set the session ID into
-  // a drupal variable for the other functions to grab.
-  if ($result === FALSE) {
-    db_query("INSERT INTO {deploy_log_details} (dlid, module, description, result, message) VALUES (%d, '%s', '%s', '%s', '%s')", variable_get('deploy_log_id', ''), 'login', 'Remote user login', 'Error', xmlrpc_error_msg());
-  }
-  else {
-    variable_set('deploy_sessid', $result['sessid']);
-    return TRUE;
-  }
-}
 
 /**
  * Run the dependency checking hooks for the specified deployment plan.
@@ -826,9 +816,11 @@ function deploy_plan_cleanup() {
   // Grab the pid so we can pass it to the post deploy hook.
   $pid = variable_get('deploy_pid', '');
   
-  variable_del('deploy_server_url');
+  $server = variable_get('deploy_server', '');
+  deploy_auth_invoke($server['auth_type'], 'cleanup callback');
+
+  variable_del('deploy_server');
   variable_del('deploy_pid');
-  variable_del('deploy_sessid');
   variable_del('deploy_log_id');
   variable_del('deploy_fatal');
 
@@ -858,7 +850,7 @@ function deploy_get_remote_key($uuid, $module) {
 }
 
 /**
- * Standard form with server list, username, and password. Used in many places.
+ * Standard form with server list. Used in many places.
  */
 function deploy_get_server_form() {
   $servers = deploy_get_servers();
@@ -866,35 +858,73 @@ function deploy_get_server_form() {
     drupal_set_message(t("There are no servers defined. Please define a server using the Servers tab before pushing your deployment plan."));
     drupal_goto("admin/build/deploy");
   }
-  
+  // Rebuild the server list so we also have an empty option.
+  $options = array('' => t('-- Select a server'));
+  foreach ($servers as $sid => $server) {
+    $options[$sid] = $server;
+  }
+
   $form['sid'] = array(
     '#title' => t('Server'),
     '#type' => 'select',
-    '#options' => $servers,
-    '#description' => t('The server you want to deploy to'),
+    '#options' => $options,
+    '#description' => t('Select the server you want to deploy to'),
+    '#required' => TRUE,
+    '#ahah' => array(
+      'path' => 'admin/build/deploy/ahah/auth-form',
+      'wrapper' => 'deploy-auth-wrapper',
+      'method' => 'replace',
+    ),
   );
-  $form['username'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Username'),
-    '#size' => 30,
-    '#maxlength' => 60,
-    '#default_value' => variable_get('deploy_remote_username', ''),
-    '#description' => t('Username for the remote user Deploy should log in as.'),
+
+  $form['auth_wrapper'] = array(
+    '#prefix' => '<div id="deploy-auth-wrapper">',
+    '#suffix' => '</div>',
   );
-  $form['password'] = array(
-    '#type' => 'password',
-    '#title' => t('Password'),
-    '#size' => 20,
-    '#maxlength' => 32,
-    '#default_value' => variable_get('deploy_remote_password', ''),
-    '#description' => t('Password of the remote user Deploy should log in as.'),
+
+  // This form element will be replaced with the response from an AHAH request.
+  $form['auth_wrapper']['settings'] = array(
+    '#type' => 'hidden',
   );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Push Deployment Plan'),
   );
-  
+
   return $form;
+}
+
+/**
+ * A generic AHAH form callback that returns the authentication form for a
+ * server or a authentication type.
+ */
+function deploy_ahah_auth_form() {
+  $cached_form_state = array();
+  $cached_form = form_get_cache($_POST['form_build_id'], $cached_form_state);
+  $server = isset($_POST['sid']) ? deploy_get_server($_POST['sid']) : array();
+
+  if (isset($_POST['auth_type'])) {
+    $auth_type = $_POST['auth_type'];
+  }
+  elseif (isset($server['auth_type'])) {
+    $auth_type = $server['auth_type'];
+  }
+
+  $settings = deploy_auth_invoke($auth_type, 'form callback', $server);
+  $cached_form['auth_wrapper']['settings'] = $settings;
+  form_set_cache($_POST['form_build_id'], $cached_form, $cached_form_state);
+  $form_state = array('submitted' => FALSE);
+  $options = form_builder('deploy_ahah_auth_form', $cached_form['auth_wrapper'], $form_state);
+  $output = drupal_render($options);
+
+  print drupal_to_js(
+    array(
+      'status' => TRUE,
+      'data' => $output,
+    )
+  );
+  exit;
 }
 
 /**
@@ -905,4 +935,219 @@ function deploy_views_api() {
     'api' => 2,
     'path' => drupal_get_path('module', 'deploy') . '/includes',
   );
+}
+
+/**
+ * Invokes an authentication callback.
+ */
+function deploy_auth_invoke($type_name, $callback_type, &$a1 = NULL, &$a2 = NULL, &$a3 = NULL) {
+  $type = deploy_get_auth_type($type_name);
+
+  if (!isset($type[$callback_type]) || $type[$callback_type] === TRUE) {
+    return TRUE;
+  }
+  else {
+    $function = $type[$callback_type];
+    return $function($a1, $a2, $a3);
+  }
+}
+
+/**
+ * Get all the available authentication types.
+ *
+ * @return
+ *   An associative array of the authentication type definitions.
+ */
+function deploy_get_auth_types() {
+  static $types = array();
+
+  if (!empty($types)) {
+    return $types;
+  }
+
+  $auth_modules = module_implements('deploy_auth_info');
+  foreach ($auth_modules as $module) {
+    $items = module_invoke($module, 'deploy_auth_info');
+    // Add the machine readable name to the item it self.
+    foreach ($items as $name => $item) {
+      $item['name'] = $name;
+      $types[$name] = $item;
+    }
+  }
+  // Let other modules alter all authentication types.
+  drupal_alter('deploy_auth_type', $types);
+  return $types;
+}
+
+/**
+ * Get a specific authentication type.
+ *
+ * @param $name
+ *   The name of the type to get.
+ * @return
+ *   The authentication type definition.
+ */
+function deploy_get_auth_type($name) {
+  $types = deploy_get_auth_types();
+  return $types[$name];
+}
+
+/**
+ * Returns a hash to be used with the key authentication.
+ *
+ * @param $key
+ *   The API key to be used in the hash.
+ * @param $timestamp
+ *    The timestamp to be used in the hash.
+ * @param $domain
+ *   The domain to be used in the hash.
+ * @param $nonce
+ *   The nonce to be used in the hash.
+ * @param $method
+ *   The method to be used in the hash.
+ * @todo
+ *   Add signed arguments.
+ */
+function deploy_get_auth_key_hash($key, $timestamp, $domain, $nonce, $method) {
+  $hash_parameters = array($timestamp, $domain, $nonce, $method);
+  return hash_hmac('sha256', implode(';', $hash_parameters), $key);
+}
+
+/**
+ * Implementation of hook_deploy_auth_info().
+ *
+ * This hook implements support for the two basic authentication types
+ * that comes with the Services module by default. Those are authentication
+ * with just a valid session id, or authentication with just an API key.
+ *
+ * Session authentication (with username and password) does only make
+ * sense when deploying against another Drupal sites (which isn't always the
+ * case).
+ *
+ * @return
+ *   An array of this modules' authentication types.
+ * @todo
+ *   Make it so callbacks can be stored in a separate file.
+ */
+function deploy_deploy_auth_info() {
+  $items['deploy_key'] = array(
+    'title' => t('Key authentication'),
+    'description' => t('All method calls must include a valid token to authenticate themselves with the server.'),
+    'form callback' => 'deploy_auth_key_form',
+    'arguments callback' => 'deploy_auth_key_arguments',
+  );
+  $items['deploy_sessid'] = array(
+    'title' => t('Session id'),
+    'description' => t('All method calls must include a valid session id.'),
+    'form callback' => 'deploy_auth_sessid_form',
+    'init callback' => 'deploy_auth_sessid_init',
+    'arguments callback' => 'deploy_auth_sessid_arguments',
+    'cleanup callback' => 'deploy_auth_sessid_cleanup',
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of the init callback.
+ */
+function deploy_auth_sessid_init($server = array()) {
+  // In order to prevent bots from cluttering up the sessions table, you must
+  // have an active anonymous session before logging in to Drupal. So that is
+  // the first thing we do with system.connect. This session ID is saved
+  // to the 'deploy_sessid' variable, which all other xmlrpc calls to the
+  // remote server passes.
+  $result = deploy_send(array('system.connect'), array());
+  variable_set('deploy_auth_sessid', $result['sessid']);
+
+  // Then we can log in.
+  $result = deploy_send(array('user.login'), array($server['settings']['username'], $server['settings']['password']));
+
+  // If it fails, then add a message to the log. Otherwise set the session ID into
+  // a drupal variable for the other functions to grab.
+  if ($result === FALSE) {
+    db_query("INSERT INTO {deploy_log_details} (dlid, module, description, result, message) VALUES (%d, '%s', '%s', '%s', '%s')", variable_get('deploy_log_id', ''), 'login', 'Remote user login', 'Error', xmlrpc_error_msg());
+  }
+  else {
+    variable_set('deploy_auth_sessid', $result['sessid']);
+    return TRUE;
+  }
+}
+
+/**
+ * Implementation of the arguments callback.
+ */
+function deploy_auth_key_arguments(&$protocol_args, &$function_args) {
+  // Get the active server.
+  $server = variable_get('deploy_server', array());
+
+  $timestamp = time();
+  $method = $protocol_args[1];
+  // Use Drupal's built in password generator to generate a random string.
+  $nonce = user_password();
+
+  $hash = deploy_get_auth_key_hash($server['settings']['key'], $timestamp, $server['settings']['domain'], $nonce, $method);
+  array_push($protocol_args, $hash, $server['settings']['domain'], $timestamp, $nonce);
+}
+
+/**
+ * Implementation of the arguments callback.
+ */
+function deploy_auth_sessid_arguments(&$protocol_args, &$function_args) {
+  // Check the method name. The server URL is the first argument.
+  if ($protocol_args[1] != 'system.connect') {
+    $sessid = variable_get('deploy_auth_sessid', '');
+    array_push($protocol_args, $sessid);
+  }
+}
+
+/**
+ * Implementation of the cleanup callback.
+ */
+function deploy_auth_sessid_cleanup() {
+  variable_del('deploy_auth_sessid');
+}
+
+/**
+* Implementation of the form callback for the authentication.
+*/
+function deploy_auth_key_form($server = array()) {
+  $form['key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('API key'),
+    '#description' => t('The API key to use when authenticating with the remote server.'),
+    '#required' => TRUE,
+  );
+  $form['domain'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Domain'),
+    '#description' => t('Domain using this key (note this is not necessarily the same as your domain name).'),
+    '#required' => TRUE,
+ );
+
+ return $form;
+}
+
+/**
+ * Implementation of the form callback for the authentication.
+ */
+function deploy_auth_sessid_form($server = array()) {
+  $form['username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Username'),
+    '#size' => 30,
+    '#maxlength' => 60,
+    '#description' => t('Username on the remote site.'),
+    '#required' => TRUE,
+  );
+  $form['password'] = array(
+    '#type' => 'password',
+    '#title' => t('Password'),
+    '#size' => 20,
+    '#maxlength' => 32,
+    '#description' => t('Password of the remote user Deploy should log in as.'),
+    '#required' => TRUE,
+  );
+
+  return $form;
 }

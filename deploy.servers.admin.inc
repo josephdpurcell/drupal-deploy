@@ -12,11 +12,12 @@
  *   Themed table output.
  */
 function deploy_server_overview() {
-  $header = array(t('Name'), t('URL'), array('data' => t('Operations'), 'colspan' => 2));
+  $header = array(t('Name'), t('URL'), t('Authentication type'), array('data' => t('Operations'), 'colspan' => 2));
 
   $result = db_query("SELECT * FROM {deploy_servers}");
   while ($row = db_fetch_array($result)) {
-    $row = array(check_plain($row['description']), check_plain($row['url']), l(t('edit'), 'admin/build/deploy/server/'. $row['sid']), l(t('delete'), 'admin/build/deploy/delete/server/'. $row['sid']));
+    $auth_type = deploy_get_auth_type($row['auth_type']);
+    $row = array(check_plain($row['description']), check_plain($row['url']), $auth_type['title'], l(t('edit'), 'admin/build/deploy/server/'. $row['sid']), l(t('delete'), 'admin/build/deploy/delete/server/'. $row['sid']));
     $rows[] = $row;
   }
 
@@ -48,7 +49,7 @@ function deploy_server_form($form_state, $sid = NULL) {
   $server = NULL;
 
   // If we got a SID, get the plan's details.
-  if (!is_null($sid)) {
+  if (!empty($sid)) {
     $server = deploy_get_server($sid);
     $form['sid'] = array(
       '#type' => 'hidden',
@@ -74,6 +75,22 @@ function deploy_server_form($form_state, $sid = NULL) {
     '#default_value' => $server['url'],
     '#description' => t('Domain name and path to xmlrpc service.'),
   );
+
+  $auth_options = array('' => t('-- Select a type'));
+  $auth_types = deploy_get_auth_types();
+  foreach ($auth_types as $key => $type) {
+    $auth_options[$key] = $type['title'];
+  }
+
+  $form['auth_type'] = array(
+    '#title' => t('Authentication type'),
+    '#description' => t('Select which authentication type to be used when deploying to this specific server.'),
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#options' => $auth_options,
+    '#default_value' => $server['auth_type'],
+  );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save Deployment Server'),
@@ -88,16 +105,17 @@ function deploy_server_form($form_state, $sid = NULL) {
 function deploy_server_form_submit($form, &$form_state) {
   $url = $form_state['values']['url'];
   $description = $form_state['values']['description'];
+  $auth_type = $form_state['values']['auth_type'];
 
   // If 'sid' exists in the submitted form, then this is an edit. Otherwise it is
   // a new server.
   if (array_key_exists('sid', $form_state['values'])) {
     $sid = $form_state['values']['sid'];
-    db_query("UPDATE {deploy_servers} SET description = '%s', url = '%s' WHERE sid = %d", $description, $url, $sid);
+    db_query("UPDATE {deploy_servers} SET description = '%s', url = '%s', auth_type = '%s' WHERE sid = %d", $description, $url, $auth_type, $sid);
     drupal_set_message(t('Deployment server updated'));
   }
   else {
-    db_query("INSERT INTO {deploy_servers} (description, url) VALUES ('%s', '%s')", $description, $url);
+    db_query("INSERT INTO {deploy_servers} (description, url, auth_type) VALUES ('%s', '%s', '%s')", $description, $url, $auth_type);
     drupal_set_message(t('Deployment server added'));
   }
 
