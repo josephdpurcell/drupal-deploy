@@ -70,5 +70,19 @@ function content_copy_service_service() {
           '#description'  => t('The content type to export'))),
       '#return'   => 'string',
       '#help'     => t('Export a content type macro')),
+
+      // content_copy.content_type_exists
+      array(
+        '#method'   => 'content_copy.content_type_exists',
+        '#callback' => 'content_copy_content_type_exists',
+        '#access arguments' => 'administer_content_types',
+        '#file'     => array('file' => 'inc', 'module' => 'content_copy_service'),
+        '#args'     => array(
+          array(
+            '#name'         => 'type_name',
+            '#type'         => 'string',
+            '#description'  => t('The content type to check'))),
+        '#return'   => 'bool',
+        '#help'     => t('Check to see if a specified content type exists.')),
   );
 }

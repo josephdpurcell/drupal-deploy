@@ -58,3 +58,13 @@ function content_copy_service_export($type_name) {
 
   return $retval;
 }
+
+/**
+ * Content type exists service callback
+ */
+function content_copy_content_type_exists($type_name) {
+  if (array_key_exists($type_name, node_get_types())) {
+    return TRUE;
+  }  
+  return FALSE;
+}
