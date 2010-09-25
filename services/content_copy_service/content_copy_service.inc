@@ -8,8 +8,7 @@
  * Content copy import service callback
  */
 function content_copy_service_import($type_name, $export) {
-  $types = content_copy_types();
-  if (!array_key_exists($type_name, $types)) {
+  if (!content_copy_content_type_exists($type_name)) {
     $type_name = '<create>';
   }
 
@@ -36,7 +35,7 @@ function content_copy_service_import($type_name, $export) {
  * Content copy export service callback
  */
 function content_copy_service_export($type_name) {
-  if (!array_key_exists($type_name, node_get_types())) {
+  if (!content_copy_content_type_exists($type_name)) {
     return services_error("Content type $type_name does not exist");
   }
   
