@@ -229,7 +229,7 @@ function deploy_list_multiple_delete_confirm($form_state, $items) {
 function deploy_list_multiple_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
     foreach ($form_state['values']['items'] as $iid => $value) {
-      db_query('DELETE FROM {deploy_plan_items} WHERE iid = %d', $iid);
+      deploy_plan_item_delete(array('iid' => $iid));
     }
     drupal_set_message(t('The plan items have been removed.'));
   }

@@ -49,3 +49,22 @@ function views_deploy($view_name) {
   
   return deploy_send(array('views.import'), array($view->export(), $view_name));
 }
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function views_deploy_form_alter(&$form, &$form_state, $form_id) {
+  // Add our own submit callback that will remove the deleted view from all
+  // plans.
+  if ($form_id == 'views_ui_delete_confirm') {
+    $form['#submit'][] = 'views_deploy_delete_form_submit';
+  }
+}
+
+/**
+ * Submit handler for the Views delete form.
+ */
+function views_deploy_delete_form_submit($form, &$form_state) {
+  // Remove the deleted view from all plans.
+  deploy_plan_item_delete(array('module' => 'views', 'data' => $form_state['view']->name));
+}

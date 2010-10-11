@@ -98,46 +98,6 @@ function comment_deploy_check($cid) {
 }
 
 /**
- * Implementation of hook_comment(),
- *
- * This all relates to managing the mapped cid->uuid mapping.
- *
- * $a1 Dependent on the action being performed.
- *
- *     * For "validate","update","insert", passes in an array of form values submitted by the user.
- *     * For all other operations, passes in the comment the action is being performed on. 
- *
- * $op What kind of action is being performed. Possible values:
- *
- *     * "insert": The comment is being inserted.
- *     * "update": The comment is being updated.
- *     * "view": The comment is being viewed. This hook can be used to add additional data to the comment before theming.
- *     * "validate": The user has just finished editing the comment and is trying to preview or submit it. This hook can be used to check or even modify the node. Errors should be set with form_set_error().
- *     * "publish": The comment is being published by the moderator.
- *     * "unpublish": The comment is being unpublished by the moderator.
- *     * "delete": The comment is being deleted by the moderator.
- *
- * @see hook_user() in user_deploy.module for some thoughts on how this
- *   might possibly be reworked.
- */
-function comment_deploy_comment(&$a1, $op) {
-  switch ($op) {
-    case 'insert':
-    case 'update':
-    case 'publish':
-    case 'unpublish':
-      // $a1 is passed by reference and if we muck with it, things go screwy. So we need
-      // to make a local copy to pass through to deployment. 
-      //$comment = $a1;
-      //comment_deploy_send_comment($comment);
-      break;
-    
-    case 'delete':
-      db_query("delete from {comments_uuid} where cid = %d", $a1->cid);
-  }
-}
-
-/**
  * Implementation of hook_deploy(),
  *
  * @param $nid

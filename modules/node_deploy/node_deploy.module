@@ -54,6 +54,16 @@ function node_deploy_menu() {
 }
 
 /**
+ * Implementation of hook_nodeapi().
+ */
+function node_deploy_nodeapi(&$node, $op, $a3, $a4) {
+  // Remove the deleted node from all plans.
+  if ($op == 'delete') {
+    deploy_plan_item_delete(array('module' => 'node', 'data' => $node->nid));
+  }
+}
+
+/**
  * Implementation of hook_deploy_check().
  *
  * Used to manage deployment dependencies

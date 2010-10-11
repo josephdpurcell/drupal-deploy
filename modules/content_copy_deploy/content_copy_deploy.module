@@ -33,6 +33,16 @@ function content_copy_deploy_menu() {
 }
 
 /**
+ * Implementation of hook_node_type().
+ */
+function content_copy_node_type($op, $info) {
+  // Remove the deleted content type from all plans.
+  if ($op == 'delete') {
+    deploy_plan_item_delete(array('module' => 'content_copy', 'data' => $info->type));
+  }
+}
+
+/**
  * Deploy content deployment 'hook'.
  */
 function content_copy_deploy($content_type) {

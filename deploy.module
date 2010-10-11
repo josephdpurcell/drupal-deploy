@@ -1151,3 +1151,26 @@ function deploy_auth_sessid_form($server = array()) {
 
   return $form;
 }
+
+/**
+ * Delete item from plan.
+ *
+ * @param $conditions
+ *   An array of fields and values used to build a sql WHERE clause indicating
+ *   what items should be deleted.
+ */
+function deploy_plan_item_delete($conditions = array()) {
+  $schema = drupal_get_schema('deploy_plan_items');
+  $where = array();
+
+  // Build an array of fields with the appropriate placeholders for use in
+  // db_query().
+  foreach ($conditions as $field => $value) {
+    $where[] = $field . ' = ' . db_type_placeholder($schema['fields'][$field]['type']);
+  }
+
+  // Now implode that array into an actual WHERE clause.
+  $where = implode(' AND ', $where);
+
+  db_query('DELETE FROM {deploy_plan_items} WHERE ' . $where, $conditions);
+}
