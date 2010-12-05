@@ -33,7 +33,14 @@ function nodereference_node_deploy(&$node) {
             if ($remote_data) {
               $field[$key]['nid'] = array('nid' => '[nid:'. $remote_data['nid'] .']');
             }          
-
+          }
+          elseif(is_numeric($key)) {
+            // Then this is a select list so we get the data in a different format.
+            $uuid = deploy_uuid_get_node_uuid($nodereference['nid']);
+            $remote_data = deploy_get_remote_key(deploy_uuid_get_node_uuid($nodereference['nid']), 'node');
+            if ($remote_data) {
+              $field[$key]['nid'] = $remote_data['nid'];
+            }  
           }
         }
       }
