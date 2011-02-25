@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function deploy_uuid_service_access() {
   return TRUE;

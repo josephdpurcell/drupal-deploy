@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Service for the management of system settings that used Drupals'

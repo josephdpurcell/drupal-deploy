@@ -1,4 +1,3 @@
-; $Id$
 name = User Deployment
 description = Deployment for users
 package = Deployment

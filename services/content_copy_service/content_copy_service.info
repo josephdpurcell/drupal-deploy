@@ -1,4 +1,3 @@
-; $Id$
 name = "Content Copy Service"
 description = "Provides an interface to CCK's content copy module"
 dependencies[] = services 

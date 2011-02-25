@@ -1,4 +1,3 @@
-; $Id$
 name = UUID Service
 description = Web Service to retrieve remote IDs based on a UUID
 package = Services - services

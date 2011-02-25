@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Contains install and update functions for Deploy.

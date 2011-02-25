@@ -1,4 +1,3 @@
-; $Id$
 name = Node Deployment
 description = Deployment for nodes
 package = Deployment

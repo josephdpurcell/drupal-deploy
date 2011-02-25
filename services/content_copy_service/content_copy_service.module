@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Service for importing or exporting CCK content types.

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Deployment API which enables modules to deploy items between servers.

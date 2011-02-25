@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Page handlers for deploy logs admin.

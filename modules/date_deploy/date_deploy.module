@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * Get an array listing the names of all date fields.
  *
