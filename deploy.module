@@ -689,6 +689,12 @@ function deploy_plan_init($pid, $sid, $settings = array()) {
 
   $plan = deploy_get_plan($pid);
   $server = deploy_get_server($sid);
+
+  // Abort if we didn't find a plan or server.
+  if (empty($plan) || empty($server)) {
+    return FALSE;
+  }
+
   // Also add settings that came from the submitted server form.
   $server['settings'] = $settings;
 
