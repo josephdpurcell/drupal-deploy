@@ -15,29 +15,26 @@ include_once('./'. drupal_get_path('module', 'node') .'/node.pages.inc');
  */
 function node_deploy_menu() {
   $items = array();
-  $plans = deploy_get_plans();
 
-  // If there are any plans created, expose the Deploy tab on all nodes.
-  if (!empty($plans)) {
-    $items['node/%node/deploy'] = array(
-      'title' => t('Deploy'),
-      'description' => t('Add a node to a deployment plan.'),
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('node_deploy_add_form', 1),
-      'access arguments' => array('add items to deployment plan'),
-      'file' => 'node_deploy.pages.inc',
-      'type' => MENU_LOCAL_TASK
-    );
-    $items['node_operations/deploy'] = array(
-      'title' => t('Deploy'),
-      'description' => t('Add nodes to a deployment plan.'),
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('node_deploy_operations_add_form', 2),
-      'access arguments' => array('add items to deployment plan'),
-      'file' => 'node_deploy.pages.inc',
-      'type' => MENU_CALLBACK
-    );
-  }
+  $items['node/%node/deploy'] = array(
+    'title' => t('Deploy'),
+    'description' => t('Add a node to a deployment plan.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('node_deploy_add_form', 1),
+    'access arguments' => array('add items to deployment plan'),
+    'file' => 'node_deploy.pages.inc',
+    'type' => MENU_LOCAL_TASK
+  );
+
+  $items['node_operations/deploy'] = array(
+    'title' => t('Deploy'),
+    'description' => t('Add nodes to a deployment plan.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('node_deploy_operations_add_form', 2),
+    'access arguments' => array('add items to deployment plan'),
+    'file' => 'node_deploy.pages.inc',
+    'type' => MENU_CALLBACK
+  );
 
   $items['node_operations/deploy_now'] = array(
     'title' => t('Deploy'),
