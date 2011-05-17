@@ -132,7 +132,7 @@ function node_deploy_node($node) {
     return $remote_key['nid'];
   }
   $remote_nid = isset($remote_key['nid']) ? $remote_key['nid'] : NULL;
-  
+
   // If this node was translated from another node, then set the node's
   // tnid properly as well.
   if ($node->tnid) {
@@ -234,12 +234,21 @@ function node_deploy_node($node) {
   // this is getting set unintentionally causing all node bodies to break before
   // the first character and I'm not sure why yet. Hammer solution in play.
   unset($node->teaser_js);
-  
+  // We add the remote_nid to the node here so that when we invoke the node_deploy
+  // hook, other modules have this extra information in case they need it.
+  $node->remote_nid = $remote_nid;
   // Now let all the modules that extend node make their own adjustments
   module_invoke_all('node_deploy', $node);
 
   // Finally set the node's ID to match the remote nid
-  $node->nid = $remote_nid;
+  if (isset($node->remote_nid)) {
+    $node->nid = $node->remote_nid;
+  }
+  else {
+    unset($node->nid);
+  }
+  // We don't need this anymore.
+  unset($node->remote_nid);
 
   // And we're off.
   $nid = deploy_send(array('node.save'), array($node));

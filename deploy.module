@@ -854,6 +854,26 @@ function deploy_get_remote_key($uuid, $module) {
   return $remote_data;
 }
 
+function deploy_get_remote_book($uuid) {
+  // As remote keys are retrieved, they are cached in this static var. On
+  // the next request, if that key exists, just return it rather than going
+  // for another round trip. The format is
+  //
+  // $key_cache[$uuid] = $remote_key
+  static $key_cache = array();
+
+  if (isset($key_cache[$uuid])) {
+    return $key_cache[$uuid];
+  }
+
+  $remote_data = deploy_send(array('deploy_uuid.get_book'), array($uuid));
+  if ($remote_data) {
+    $key_cache[$uuid] = $remote_data;
+  }
+
+  return $remote_data;
+}
+
 /**
  * Standard form with server list. Used in many places.
  */

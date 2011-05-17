@@ -26,5 +26,21 @@ function deploy_uuid_service_service() {
       '#return'           => 'array',
       '#help'             => t('Return the primary key which matches a UUID.')
     ),
+    // uuid.get_book
+    array(
+      '#method'           => 'deploy_uuid.get_book',
+      '#callback'         => 'deploy_uuid_service_get_book',
+      '#access callback'  => 'deploy_uuid_service_access',
+      '#file'             => array('file' => 'inc', 'module' => 'deploy_uuid_service'),
+      '#args'             => array(
+        array(
+          '#name'           => 'uuid',
+          '#type'           => 'string',
+          '#description'    => t('A UUID.')
+        ),
+      ),
+      '#return'           => 'array',
+      '#help'             => t('Return the book info for the given UUID.')
+    ),
   );
 }
