@@ -80,9 +80,17 @@ function date_deploy_rebuild_date_datetime($date, $field) {
       // don't need to handle it here. For whatever reason "0" is not valid via
       // FAPI for "minute", only "00".
       case 'date_select':
-        $parts = date_parse($datetime->format($format));
+        // We don't use date_parse() here since that function isn't supported
+        // in all version with RHEL. See http://drupal.org/node/924454 .
+        $timestamp = $datetime->format('U');
+        $parts['year'] = date('Y', $timestamp);
+        $parts['month'] = date('n', $timestamp);
+        $parts['day'] = date('j', $timestamp);
+        $parts['hour'] = date('G', $timestamp);
+        $parts['minute'] = date('i', $timestamp);
+        $parts['second'] = date('s', $timestamp);
+
         $rebuild[$key] = array_intersect_key($parts, array_flip(array('year', 'month', 'day', 'hour', 'minute', 'second')));
-        $rebuild[$key]['minute'] = str_pad($rebuild[$key]['minute'], 2, '0', STR_PAD_LEFT);
         break;
 
       // Granularity has yet to be taken into account, so we'll have to handle
