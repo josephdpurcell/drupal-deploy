@@ -17,31 +17,34 @@
  * @see node_deploy_add_form_submit()
  */
 function node_deploy_add_form($form_state, $node) {
-  $form['pid'] = array(
-    '#title' => t('Deployment Plan'),
-    '#type' => 'select',
-    '#options' => deploy_get_plan_options(),
-    '#required' => TRUE,
-    '#description' => t('The deployment plan to add this !type to.', array('!type' => $node->type)),
-  );
-  $form['nid'] = array(
-    '#type' => 'hidden',
-    '#default_value' => $node->nid,
-  );
-
-  // This is kind of a hack, but it allows us to get the title into the
-  // deployment plan without a node_load() or query on the other side.
-  $form['title'] = array(
-    '#type' => 'hidden',
-    '#default_value' => $node->title,
-  );
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Submit'),
-  );
-
-  return $form;
+  $options = deploy_get_plan_options();
+  if (!empty($options)) {
+    $form['pid'] = array(
+      '#title' => t('Deployment Plan'),
+      '#type' => 'select',
+      '#options' => $options,
+      '#required' => TRUE,
+      '#description' => t('The deployment plan to add this !type to.', array('!type' => $node->type)),
+    );
+    $form['nid'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $node->nid,
+    );
+  
+    // This is kind of a hack, but it allows us to get the title into the
+    // deployment plan without a node_load() or query on the other side.
+    $form['title'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $node->title,
+    );
+  
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+    );
+    return $form;
+  }
+  return array('empty' => array('#value' => t('You currently do not have any plans set up.')));
 }
 
 /**
