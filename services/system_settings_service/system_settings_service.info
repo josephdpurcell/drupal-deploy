@@ -1,5 +1,0 @@
-name = "System Settings Service"
-description = "Provides a services interface to export and import system settings."
-dependencies[] = services
-package = Services - services
-core = 6.x

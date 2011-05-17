@@ -1,5 +1,4 @@
-; $Id:
 name = Deployment
-description = "Framework to deploy Drupal data between servers"
+description = Allows content to be deployed between servers. Either to be used as a content staging solution or to deploy content across a cluster of different sites.
 package = Deployment
-core = 6.x
+core = 7.x

@@ -1,6 +1,0 @@
-name = "Deploy Views"
-description = "Deploy views using the Deployment framework"
-dependencies[] = deploy
-dependencies[] = views
-package = Deployment
-core = 6.x

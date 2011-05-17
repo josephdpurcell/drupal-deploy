@@ -1,6 +1,0 @@
-name = "Deploy Content Type"
-description = "Deploy content types using the Deployment framework"
-package = Deployment
-dependencies[] = deploy
-dependencies[] = content_copy
-core = 6.x

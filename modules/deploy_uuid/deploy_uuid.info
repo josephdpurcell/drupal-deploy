@@ -1,4 +1,0 @@
-name = UUID
-description = UUID mapping for deploy module
-package = Deployment
-core = 6.x

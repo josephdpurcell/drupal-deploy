@@ -1,5 +1,0 @@
-name = "Deploy System Settings"
-description = "Deploy system settings using the Deployment framework"
-dependencies[] = deploy
-package = Deployment
-core = 6.x

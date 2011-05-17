@@ -1,6 +1,0 @@
-name = "Deploy Nodereferences"
-description = "Deploy CCK nodereference fields using the Deployment framework"
-dependencies[] = deploy
-dependencies[] = nodereference
-package = Deployment
-core = 6.x

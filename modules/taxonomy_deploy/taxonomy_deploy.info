@@ -1,5 +1,0 @@
-name = Taxonomy Deployment
-description = Deployment for taxonomy terms and vocabularies
-package = Deployment
-dependencies[] = deploy
-core = 6.x

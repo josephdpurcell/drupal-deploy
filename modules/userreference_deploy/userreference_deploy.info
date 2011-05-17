@@ -1,7 +1,0 @@
-name = "Deploy Userreferences"
-description = "Deploy CCK userreference fields using the Deployment framework"
-dependencies[] = deploy
-dependencies[] = userreference
-dependencies[] = user_deploy
-package = Deployment
-core = 6.x
