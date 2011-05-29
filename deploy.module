@@ -1,1 +1,124 @@
 <?php
+
+/**
+ * Implementation of hook_ctools_plugin_type().
+ */
+function deploy_ctools_plugin_type() {
+  return array(
+    'endpoints' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'fetchers' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'workers' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_deploy_workers().
+ */
+function deploy_deploy_workers() {
+  $path = drupal_get_path('module', 'deploy') .'/plugins';
+  return array(
+    'DeployWorkerDefault' => array(
+      'name' => 'Default worker',
+      'description' => 'A simple worker that deploys all resources directly to the endpoint on the same request. Works best with small deployments.',
+      'handler' => array(
+        'class' => 'DeployWorkerDefault',
+        'file' => 'DeployWorkerDefault.inc',
+        'path' => $path,
+      ),
+    ),
+    'DeployWorkerQueue' => array(
+      'name' => 'Queue API worker',
+      'description' => 'Adds all resources for deployment to the Queue API. Works best with larger deployments.',
+      'handler' => array(
+        'class' => 'DeployWorkerQueue',
+        'file' => 'DeployWorkerQueue.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}
+
+/**
+ * Get all fetcher plugins.
+ */
+function deploy_get_fetchers() {
+  ctools_include('plugins');
+  return ctools_get_plugins('deploy', 'fetchers');
+}
+
+/**
+ * Get a fetcher plugin.
+ */
+function deploy_get_fetcher($name) {
+  ctools_include('plugins');
+  return ctools_get_plugins('deploy', 'fetchers', $name);
+}
+
+/**
+ * Get all fetcher plugins.
+ */
+function deploy_get_workers() {
+  ctools_include('plugins');
+  return ctools_get_plugins('deploy', 'workers');
+}
+
+/**
+ * Get a fetcher plugin.
+ */
+function deploy_get_worker($name) {
+  ctools_include('plugins');
+  return ctools_get_plugins('deploy', 'workers', $name);
+}
+
+/**
+ * Object factory for a deployment setup.
+ */
+function deploy_setup_create($schema, $data) {
+  $config = array();
+  $fetcher = new $data->fetcher($config);
+  $worker = new $data->worker($fetcher);
+
+  $setup = new DeploySetup($worker);
+  foreach ($data as $key => $value) {
+    $setup->{$key} = $value;
+  }
+
+  return $setup;
+}
+
+/**
+ * Loader callback for a deployment setup.
+ */
+function deploy_setup_load($name) {
+  ctools_include('export');
+  $result = ctools_export_load_object('deploy_setups', 'names', array($name));
+  if (isset($result[$name])) {
+    return $result[$name];
+  }
+}
+
+/**
+ * Object factory for a deployment endpoint.
+ */
+function deploy_endpoint_create($schema, $data) {
+
+}
+
+/**
+ * Loader callback for a deployment endpoint.
+ */
+function deploy_endpoint_load($name) {
+
+}

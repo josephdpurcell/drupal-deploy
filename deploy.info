@@ -2,3 +2,10 @@ name = Deployment
 description = Allows content to be deployed between servers. Either to be used as a content staging solution or to deploy content across a cluster of different sites.
 package = Deployment
 core = 7.x
+
+files[] = includes/DeployEndpoint.inc
+files[] = includes/DeployFetcher.inc
+files[] = includes/DeploySetup.inc
+files[] = includes/DeployWorker.inc
+
+files[] = plugins/DeployWorkerDefault.inc

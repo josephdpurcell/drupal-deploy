@@ -1,0 +1,134 @@
+<?php
+// $Id: dynamic_formatters.install,v 1.1.2.4 2011/01/22 20:11:54 dixon Exp $
+
+/**
+ * Implementation of hook_schema().
+ *
+ * @todo
+ *   Add indexes.
+ */
+function deploy_schema() {
+  $schema = array();
+
+  $schema['deploy_setups'] = array(
+    'description' => 'Base table holding deployment setups.',
+    'export' => array(
+      'api' => array(
+        'owner' => 'deploy',
+        'api' => 'deploy_setups',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+      'key' => 'name',
+      'key name' => 'Name',
+      'primary key' => 'sid',
+      'identifier' => 'setup',
+      'object factory' => 'deploy_setup_create',
+      'load callback' => 'deploy_setup_load',
+      'default hook' => 'deploy_setups_default',
+    ),
+    'fields' => array(
+      'sid' => array(
+        'description' => 'Serial id for this setup. Only used for internal lookups.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Machine-readable name for this setup.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'Administrative title for this setup.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'Administrative description for this setup.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'fetcher' => array(
+        'description' => 'Fetcher used for this setup.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ),
+      'worker' => array(
+        'description' => 'Worker used for this setup.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ),
+      'config' => array(
+        'description' => 'Serialized configuration data this setup.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('sid', 'name'),
+  );
+
+  $schema['deploy_endpoints'] = array(
+    'description' => 'Base table holding deployment endpoints.',
+    'export' => array(
+      'api' => array(
+        'owner' => 'deploy',
+        'api' => 'deploy_endpoints',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+      'key' => 'name',
+      'key name' => 'Name',
+      'primary key' => 'eid',
+      'identifier' => 'endpoint',
+      'object factory' => 'deploy_endpoint_create',
+      'load callback' => 'deploy_endpoint_load',
+      'default hook' => 'deploy_endpoints_default',
+    ),
+    'fields' => array(
+      'eid' => array(
+        'description' => 'Serial id for this endpoint. Only used for internal lookups.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Machine-readable name for this endpoint.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'Administrative title for this endpoint.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'Administrative description for this endpoint.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'config' => array(
+        'description' => 'Serialized configuration data this endpoint.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('eid', 'name'),
+  );
+
+  return $schema;
+}

@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * Implementation of hook_deploy_fetchers().
+ */
+function deploy_fetcher_views_deploy_fetchers() {
+  $path = drupal_get_path('module', 'deploy_fetcher_views') .'/plugins';
+  return array(
+    'DeployFetcherViews' => array(
+      'name' => 'Views fetcher',
+      'description' => 'Use a view to filter out what content that should be deployed.',
+      'handler' => array(
+        'class' => 'DeployFetcherViews',
+        'file' => 'DeployFetcherViews.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}

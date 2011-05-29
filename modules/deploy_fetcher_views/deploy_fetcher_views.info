@@ -1,0 +1,8 @@
+name = Deployment Views fetcher
+description = Fetch content to deploy through a view.
+package = Deployment
+core = 7.x
+dependencies[] = deploy
+dependencies[] = views
+
+files[] = plugins/DeployFetcherViews.inc
