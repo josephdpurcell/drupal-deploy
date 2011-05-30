@@ -27,7 +27,7 @@ function deploy_ctools_plugin_type() {
  * Implementation of hook_deploy_processors().
  */
 function deploy_deploy_processors() {
-  $path = drupal_get_path('module', 'deploy') .'/plugins';
+  $path = drupal_get_path('module', 'deploy') . '/plugins';
   return array(
     'DeployProcessorQueue' => array(
       'name' => 'Queue API processor',
