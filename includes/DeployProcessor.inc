@@ -4,6 +4,6 @@ interface DeployProcessor {
 
   function __construct(DeployProvider $provider);
 
-  function deploy(DeployEndpoint $endpoint);
+  function process(DeployEndpoint $endpoint);
 
 }

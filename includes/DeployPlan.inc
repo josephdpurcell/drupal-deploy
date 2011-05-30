@@ -16,7 +16,7 @@ class DeployPlan {
 
   function deploy() {
     foreach ($this->endpoints as $endpoint) {
-      $this->processor->deploy($endpoint);
+      $this->processor->process($endpoint);
     }
   }
 

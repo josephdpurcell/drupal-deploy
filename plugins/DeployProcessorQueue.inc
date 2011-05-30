@@ -8,7 +8,7 @@ class DeployProcessorQueue implements DeployProcessor {
     $this->provider = $provider;
   }
 
-  function deploy(DeployEndpoint $endpoint) {
+  function process(DeployEndpoint $endpoint) {
     foreach ($this->provider->getResources() as $resource) {
       // @todo Add resource and endpoint to queue.
     }

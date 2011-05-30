@@ -8,8 +8,8 @@ class DeployProcessorMemory implements DeployProcessor {
     $this->provider = $provider;
   }
 
-  function deploy(DeployEndpoint $endpoint) {
-    $endpoint->render($this->provider->getResources());
+  function process(DeployEndpoint $endpoint) {
+    $endpoint->deploy($this->provider->getResources());
   }
 
 }

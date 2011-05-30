@@ -4,11 +4,11 @@ class DeployEndpointAtom implements DeployEndpoint {
 
   var $config = array();
 
-  function __construct(array $cofig) {
+  function __construct(Array $cofig) {
     $this->config = $config;
   }
 
-  function render(array $resources) {
+  function deploy(Array $resources) {
 
   }
 
