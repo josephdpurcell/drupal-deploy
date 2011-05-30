@@ -17,17 +17,21 @@ class deploy_ui_plan extends ctools_export_ui {
     $item = $form_state['item'];
 
     // Basics.
-    $form['name'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Machine-readable name'),
-      '#default_value' => $item->name,
-      '#required' => TRUE,
-    );
     $form['title'] = array(
       '#type' => 'textfield',
       '#title' => t('Title'),
       '#default_value' => $item->title,
       '#required' => TRUE,
+    );
+    $form['name'] = array(
+      '#type' => 'machine_name',
+      '#title' => t('Machine-readable name'),
+      '#default_value' => $item->name,
+      '#required' => TRUE,
+      '#machine_name' => array(
+        'exists' => 'deploy_plan_load',
+        'source' => array('title'),
+      ),
     );
     $form['description'] = array(
       '#type' => 'textarea',
