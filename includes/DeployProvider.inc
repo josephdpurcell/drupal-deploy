@@ -1,6 +1,6 @@
 <?php
 
-interface DeployFetcher {
+interface DeployProvider {
 
   function __construct(Array $config);
 

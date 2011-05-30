@@ -1,8 +1,8 @@
 <?php
 
-interface DeployWorker {
+interface DeployProcessor {
 
-  function __construct(DeployFetcher $fetcher);
+  function __construct(DeployProvider $provider);
 
   function deploy(DeployEndpoint $endpoint);
 

@@ -1,5 +1,4 @@
 <?php
-// $Id: dynamic_formatters.install,v 1.1.2.4 2011/01/22 20:11:54 dixon Exp $
 
 /**
  * Implementation of hook_schema().
@@ -10,70 +9,70 @@
 function deploy_schema() {
   $schema = array();
 
-  $schema['deploy_setups'] = array(
-    'description' => 'Base table holding deployment setups.',
+  $schema['deploy_plans'] = array(
+    'description' => 'Base table holding deployment plans.',
     'export' => array(
       'api' => array(
         'owner' => 'deploy',
-        'api' => 'deploy_setups',
+        'api' => 'deploy_plans',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
       'key' => 'name',
       'key name' => 'Name',
-      'primary key' => 'sid',
-      'identifier' => 'setup',
-      'object factory' => 'deploy_setup_create',
-      'load callback' => 'deploy_setup_load',
-      'default hook' => 'deploy_setups_default',
+      'primary key' => 'pid',
+      'identifier' => 'plan',
+      'object factory' => 'deploy_plan_create',
+      'load callback' => 'deploy_plan_load',
+      'default hook' => 'deploy_plans_default',
     ),
     'fields' => array(
-      'sid' => array(
-        'description' => 'Serial id for this setup. Only used for internal lookups.',
+      'pid' => array(
+        'description' => 'Serial id for this plan. Only used for internal lookups.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
       ),
       'name' => array(
-        'description' => 'Machine-readable name for this setup.',
+        'description' => 'Machine-readable name for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
       'title' => array(
-        'description' => 'Administrative title for this setup.',
+        'description' => 'Administrative title for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
       'description' => array(
-        'description' => 'Administrative description for this setup.',
+        'description' => 'Administrative description for this plan.',
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
       ),
-      'fetcher' => array(
-        'description' => 'Fetcher used for this setup.',
+      'provider' => array(
+        'description' => 'Provider used for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
-      'worker' => array(
-        'description' => 'Worker used for this setup.',
+      'processor' => array(
+        'description' => 'Processor used for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
       'config' => array(
-        'description' => 'Serialized configuration data this setup.',
+        'description' => 'Serialized configuration data this plan.',
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,
         'serialize' => TRUE,
       ),
     ),
-    'primary key' => array('sid', 'name'),
+    'primary key' => array('pid', 'name'),
   );
 
   $schema['deploy_endpoints'] = array(

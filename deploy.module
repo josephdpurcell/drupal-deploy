@@ -10,12 +10,12 @@ function deploy_ctools_plugin_type() {
       'use hooks' => TRUE,
       'classes' => array('handler'),
     ),
-    'fetchers' => array(
+    'providers' => array(
       'cache' => TRUE,
       'use hooks' => TRUE,
       'classes' => array('handler'),
     ),
-    'workers' => array(
+    'processors' => array(
       'cache' => TRUE,
       'use hooks' => TRUE,
       'classes' => array('handler'),
@@ -24,26 +24,26 @@ function deploy_ctools_plugin_type() {
 }
 
 /**
- * Implementation of hook_deploy_workers().
+ * Implementation of hook_deploy_processors().
  */
-function deploy_deploy_workers() {
+function deploy_deploy_processors() {
   $path = drupal_get_path('module', 'deploy') .'/plugins';
   return array(
-    'DeployWorkerDefault' => array(
-      'name' => 'Default worker',
-      'description' => 'A simple worker that deploys all resources directly to the endpoint on the same request. Works best with small deployments.',
+    'DeployProcessorQueue' => array(
+      'name' => 'Queue API processor',
+      'description' => 'Adds all resources for deployment to the Queue API. Works best with larger deployments where deployment speed is not critical.',
       'handler' => array(
-        'class' => 'DeployWorkerDefault',
-        'file' => 'DeployWorkerDefault.inc',
+        'class' => 'DeployProcessorQueue',
+        'file' => 'DeployProcessorQueue.inc',
         'path' => $path,
       ),
     ),
-    'DeployWorkerQueue' => array(
-      'name' => 'Queue API worker',
-      'description' => 'Adds all resources for deployment to the Queue API. Works best with larger deployments.',
+    'DeployProcessorMemory' => array(
+      'name' => 'Memory processor',
+      'description' => 'A simple processor that deploys all resources to all endpoints in memory. Works best when triggered from Drush.',
       'handler' => array(
-        'class' => 'DeployWorkerQueue',
-        'file' => 'DeployWorkerQueue.inc',
+        'class' => 'DeployProcessorMemory',
+        'file' => 'DeployProcessorMemory.inc',
         'path' => $path,
       ),
     ),
@@ -51,59 +51,59 @@ function deploy_deploy_workers() {
 }
 
 /**
- * Get all fetcher plugins.
+ * Get all provider plugins.
  */
-function deploy_get_fetchers() {
+function deploy_get_providers() {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'fetchers');
+  return ctools_get_plugins('deploy', 'providers');
 }
 
 /**
- * Get a fetcher plugin.
+ * Get a provider plugin.
  */
-function deploy_get_fetcher($name) {
+function deploy_get_provider($name) {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'fetchers', $name);
+  return ctools_get_plugins('deploy', 'providers', $name);
 }
 
 /**
- * Get all fetcher plugins.
+ * Get all processor plugins.
  */
-function deploy_get_workers() {
+function deploy_get_processors() {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'workers');
+  return ctools_get_plugins('deploy', 'processors');
 }
 
 /**
- * Get a fetcher plugin.
+ * Get a processor plugin.
  */
-function deploy_get_worker($name) {
+function deploy_get_processor($name) {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'workers', $name);
+  return ctools_get_plugins('deploy', 'processors', $name);
 }
 
 /**
- * Object factory for a deployment setup.
+ * Object factory for a deployment plan.
  */
-function deploy_setup_create($schema, $data) {
+function deploy_plan_create($schema, $data) {
   $config = array();
-  $fetcher = new $data->fetcher($config);
-  $worker = new $data->worker($fetcher);
+  $provider = new $data->provider($config);
+  $processor = new $data->processor($provider);
 
-  $setup = new DeploySetup($worker);
+  $plan = new DeployPlan($processor);
   foreach ($data as $key => $value) {
-    $setup->{$key} = $value;
+    $plan->{$key} = $value;
   }
 
-  return $setup;
+  return $plan;
 }
 
 /**
- * Loader callback for a deployment setup.
+ * Loader callback for a deployment plan.
  */
-function deploy_setup_load($name) {
+function deploy_plan_load($name) {
   ctools_include('export');
-  $result = ctools_export_load_object('deploy_setups', 'names', array($name));
+  $result = ctools_export_load_object('deploy_plans', 'names', array($name));
   if (isset($result[$name])) {
     return $result[$name];
   }

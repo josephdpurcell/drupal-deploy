@@ -1,13 +1,13 @@
 <?php
 
-class deploy_ui_setup extends ctools_export_ui {
+class deploy_ui_plan extends ctools_export_ui {
 
   /**
    * Pseudo implementation of hook_menu_alter().
    */
   function hook_menu(&$items) {
     parent::hook_menu($items);
-    $items['admin/structure/deploy/setups']['type'] = MENU_LOCAL_TASK;
+    $items['admin/structure/deploy/plans']['type'] = MENU_LOCAL_TASK;
   }
 
   /**
@@ -35,17 +35,17 @@ class deploy_ui_setup extends ctools_export_ui {
       '#default_value' => $item->description,
     );
 
-    // Fetchers.
-    $fetchers = deploy_get_fetchers();
+    // Providers.
+    $providers = deploy_get_providers();
     $options = array();
-    foreach ($fetchers as $key => $fetcher) {
+    foreach ($providers as $key => $provider) {
       $options[$key] = array(
-        'name' => $fetcher['name'],
-        'description' => $fetcher['description'],
+        'name' => $provider['name'],
+        'description' => $provider['description'],
       );
     }
-    $form['fetcher'] = array(
-      '#prefix' => '<label>' . t('Fetcher') . '</label>',
+    $form['provider'] = array(
+      '#prefix' => '<label>' . t('Provider') . '</label>',
       '#type' => 'tableselect',
       '#required' => TRUE,
       '#multiple' => FALSE,
@@ -54,20 +54,20 @@ class deploy_ui_setup extends ctools_export_ui {
         'description' => t('Description'),
       ),
       '#options' => $options,
-      '#default_value' => $item->fetcher,
+      '#default_value' => $item->provider,
     );
 
-    // Workers.
-    $workers = deploy_get_workers();
+    // Processors.
+    $processors = deploy_get_processors();
     $options = array();
-    foreach ($workers as $key => $worker) {
+    foreach ($processors as $key => $processor) {
       $options[$key] = array(
-        'name' => $worker['name'],
-        'description' => $worker['description'],
+        'name' => $processor['name'],
+        'description' => $processor['description'],
       );
     }
-    $form['worker'] = array(
-      '#prefix' => '<label>' . t('Worker') . '</label>',
+    $form['processor'] = array(
+      '#prefix' => '<label>' . t('Processor') . '</label>',
       '#type' => 'tableselect',
       '#required' => TRUE,
       '#multiple' => FALSE,
@@ -76,7 +76,7 @@ class deploy_ui_setup extends ctools_export_ui {
         'description' => t('Description'),
       ),
       '#options' => $options,
-      '#default_value' => $item->worker,
+      '#default_value' => $item->processor,
     );
 
     // @todo: Add tableselect for endpoints.
@@ -89,23 +89,23 @@ class deploy_ui_setup extends ctools_export_ui {
     $form_state['item']->name = $form_state['values']['name'];
     $form_state['item']->title = $form_state['values']['title'];
     $form_state['item']->description = $form_state['values']['description'];
-    $form_state['item']->fetcher = $form_state['values']['fetcher'];
-    $form_state['item']->worker = $form_state['values']['worker'];
+    $form_state['item']->provider = $form_state['values']['provider'];
+    $form_state['item']->processor = $form_state['values']['processor'];
   }
 
-  function edit_form_fetcher(&$form, &$form_state) {
-
-  }
-
-  function edit_form_fetcher_submit(&$form, &$form_state) {
+  function edit_form_provider(&$form, &$form_state) {
 
   }
 
-  function edit_form_worker(&$form, &$form_state) {
+  function edit_form_provider_submit(&$form, &$form_state) {
 
   }
 
-  function edit_form_worker_submit(&$form, &$form_state) {
+  function edit_form_processor(&$form, &$form_state) {
+
+  }
+
+  function edit_form_processor_submit(&$form, &$form_state) {
 
   }
 

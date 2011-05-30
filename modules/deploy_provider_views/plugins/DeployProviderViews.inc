@@ -1,10 +1,10 @@
 <?php
 
-class DeployFetcherViews implements DeployFetcher {
+class DeployProviderViews implements DeployProvider {
 
   var $config = array();
 
-  function __construct(array $config) {
+  function __construct(Array $config) {
     $this->config = $config;
   }
 

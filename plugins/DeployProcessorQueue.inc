@@ -1,9 +1,15 @@
 <?php
 
-class DeployWorkerQueue extends DeployWorkerDefault {
+class DeployProcessorQueue implements DeployProcessor {
+
+  var $provider = NULL;
+
+  function __construct(DeployProvider $provider) {
+    $this->provider = $provider;
+  }
 
   function deploy(DeployEndpoint $endpoint) {
-    foreach ($this->fetcher->getResources() as $resource) {
+    foreach ($this->provider->getResources() as $resource) {
       // @todo Add resource and endpoint to queue.
     }
   }

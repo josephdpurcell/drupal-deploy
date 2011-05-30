@@ -1,13 +1,13 @@
 <?php
 
-class DeploySetup {
+class DeployPlan {
 
-  var $worker = NULL;
+  var $processor = NULL;
 
   var $endpoints = array();
 
-  function __construct(DeployWorker $worker) {
-    $this->worker = $worker;
+  function __construct(DeployProcessor $processor) {
+    $this->processor = $processor;
   }
 
   function addEndpoint(DeployEndpoint $endpoint) {
@@ -16,7 +16,7 @@ class DeploySetup {
 
   function deploy() {
     foreach ($this->endpoints as $endpoint) {
-      $worker->deploy($endpoint);
+      $this->processor->deploy($endpoint);
     }
   }
 

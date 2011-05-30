@@ -1,15 +1,15 @@
 <?php
 
-class DeployWorkerDefault implements DeployWorker {
+class DeployProcessorMemory implements DeployProcessor {
 
-  var $fetcher = NULL;
+  var $provider = NULL;
 
-  function __construct(DeployFetcher $fetcher) {
-    $this->fetcher = $fetcher;
+  function __construct(DeployProvider $provider) {
+    $this->provider = $provider;
   }
 
   function deploy(DeployEndpoint $endpoint) {
-    $endpoint->render($this->fetcher->getResources());
+    $endpoint->render($this->provider->getResources());
   }
 
 }

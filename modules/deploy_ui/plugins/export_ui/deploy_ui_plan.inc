@@ -1,32 +1,32 @@
 <?php
 
 $plugin = array(
-  'schema' => 'deploy_setups',
+  'schema' => 'deploy_plans',
   'access' => 'administer deployments',
 
   'menu' => array(
     'menu prefix' => 'admin/structure/deploy',
-    'menu item' => 'setups',
-    'menu title' => 'Setups',
+    'menu item' => 'plans',
+    'menu title' => 'Plans',
   ),
 
-  'title singular' => t('setup'),
-  'title singular proper' => t('Setup'),
-  'title plural' => t('setups'),
-  'title plural proper' => t('Setups'),
+  'title singular' => t('plan'),
+  'title singular proper' => t('Plan'),
+  'title plural' => t('plans'),
+  'title plural proper' => t('Plans'),
 
   'use wizard' => TRUE,
 
   'handler' => array(
-    'class' => 'deploy_ui_setup',
+    'class' => 'deploy_ui_plan',
     'parent' => 'ctools_export_ui',
   ),
 
   'form info' => array(
     'order' => array(
       'basic' => t('Basics'),
-      'fetcher' => t('Fetcher'),
-      'worker' => t('Worker'),
+      'provider' => t('Provider'),
+      'processor' => t('Processor'),
       'endpoint' => t('Endpoints'),
     ),
   ),

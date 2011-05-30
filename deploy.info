@@ -4,8 +4,8 @@ package = Deployment
 core = 7.x
 
 files[] = includes/DeployEndpoint.inc
-files[] = includes/DeployFetcher.inc
-files[] = includes/DeploySetup.inc
-files[] = includes/DeployWorker.inc
+files[] = includes/DeployPlan.inc
+files[] = includes/DeployProcessor.inc
+files[] = includes/DeployProvider.inc
 
-files[] = plugins/DeployWorkerDefault.inc
+files[] = plugins/DeployProcessorMemory.inc
