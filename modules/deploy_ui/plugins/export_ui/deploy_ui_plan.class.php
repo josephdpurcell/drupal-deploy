@@ -90,19 +90,28 @@ class deploy_ui_plan extends ctools_export_ui {
    * Submit callback for basic config.
    */
   function edit_form_submit(&$form, &$form_state) {
-    $form_state['item']->name = $form_state['values']['name'];
-    $form_state['item']->title = $form_state['values']['title'];
-    $form_state['item']->description = $form_state['values']['description'];
-    $form_state['item']->provider = $form_state['values']['provider'];
-    $form_state['item']->processor = $form_state['values']['processor'];
+    $item = $form_state['item'];
+
+    $item->name = $form_state['values']['name'];
+    $item->title = $form_state['values']['title'];
+    $item->description = $form_state['values']['description'];
+    $item->provider = $form_state['values']['provider'];
+    $item->processor = $form_state['values']['processor'];
   }
 
   function edit_form_provider(&$form, &$form_state) {
+    $item = $form_state['item'];
+    $item->config = unserialize($item->config);
 
+    $provider_class = $item->provider;
+    $provider = new $provider_class((array)$item->config['provider']);
+    $form['config'] = array('#tree' => TRUE);
+    $form['config']['provider'] = $provider->configForm($form_state);
   }
 
   function edit_form_provider_submit(&$form, &$form_state) {
-
+    $item = $form_state['item'];
+    $item->config = $form_state['values']['config'];
   }
 
   function edit_form_processor(&$form, &$form_state) {

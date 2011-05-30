@@ -2,7 +2,7 @@
 
 interface DeployProvider {
 
-  function __construct(Array $config);
+  function __construct(Array $config = array());
 
   function getResources();
 
