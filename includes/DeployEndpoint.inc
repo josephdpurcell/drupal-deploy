@@ -2,8 +2,10 @@
 
 interface DeployEndpoint {
 
-  function __construct(Array $config);
+  function __construct(Array $config = array());
 
-  function deploy(DeployResource $resource);
+  function deploy(Array $resources);
+
+  function configForm(&$form_state);
 
 }

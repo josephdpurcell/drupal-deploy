@@ -9,6 +9,10 @@ function deploy_ctools_plugin_type() {
       'cache' => TRUE,
       'use hooks' => TRUE,
       'classes' => array('handler'),
+      // Endpoints are one type of plugins, that end users can create multiple
+      // instances of, stored in the database.
+      'child plugins' => TRUE,
+      'get children' => 'deploy_get_endpoint_children',
     ),
     'providers' => array(
       'cache' => TRUE,
@@ -53,15 +57,15 @@ function deploy_deploy_processors() {
 /**
  * Get all provider plugins.
  */
-function deploy_get_providers() {
+function deploy_get_provider_plugins() {
   ctools_include('plugins');
   return ctools_get_plugins('deploy', 'providers');
 }
 
 /**
- * Get a provider plugin.
+ * Get one provider plugin.
  */
-function deploy_get_provider($name) {
+function deploy_get_provider_plugin($name) {
   ctools_include('plugins');
   return ctools_get_plugins('deploy', 'providers', $name);
 }
@@ -69,26 +73,52 @@ function deploy_get_provider($name) {
 /**
  * Get all processor plugins.
  */
-function deploy_get_processors() {
+function deploy_get_processor_plugins() {
   ctools_include('plugins');
   return ctools_get_plugins('deploy', 'processors');
 }
 
 /**
- * Get a processor plugin.
+ * Get one processor plugin.
  */
-function deploy_get_processor($name) {
+function deploy_get_processor_plugin($name) {
   ctools_include('plugins');
   return ctools_get_plugins('deploy', 'processors', $name);
+}
+
+/**
+ * Get all endpoint plugins.
+ */
+function deploy_get_endpoint_plugins() {
+  ctools_include('plugins');
+  return ctools_get_plugins('deploy', 'endpoints');
+}
+
+/**
+ * Get one endpoint plugin.
+ */
+function deploy_get_endpoint_plugin($name) {
+  ctools_include('plugins');
+  return ctools_get_plugins('deploy', 'endpoints', $name);
+}
+
+/**
+ * Get endpoint plugin children.
+ */
+function deploy_get_endpoint_children($plugin, $parent) {
+  dpm($plugin);
+  dpm($parent);
 }
 
 /**
  * Object factory for a deployment plan.
  */
 function deploy_plan_create($schema, $data) {
-  $config = array();
-  $provider = new $data->provider($config);
-  $processor = new $data->processor($provider);
+  $provider_class = $data->provider;
+  $processor_class = $data->processor;
+
+  $provider = new $provider_class((array)$data->config['provider']);
+  $processor = new $processor_class($provider, (array)$data->config['processor']);
 
   $plan = new DeployPlan($processor);
   foreach ($data as $key => $value) {
@@ -113,12 +143,23 @@ function deploy_plan_load($name) {
  * Object factory for a deployment endpoint.
  */
 function deploy_endpoint_create($schema, $data) {
+  $endpoint_class = $data->endpoint;
 
+  $endpoint = new $endpoint_class((array)$data->config);
+  foreach ($data as $key => $value) {
+    $endpoint->{$key} = $value;
+  }
+
+  return $endpoint;
 }
 
 /**
  * Loader callback for a deployment endpoint.
  */
 function deploy_endpoint_load($name) {
-
+  ctools_include('export');
+  $result = ctools_export_load_object('deploy_endpoints', 'names', array($name));
+  if (isset($result[$name])) {
+    return $result[$name];
+  }
 }

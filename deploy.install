@@ -94,32 +94,38 @@ function deploy_schema() {
     ),
     'fields' => array(
       'eid' => array(
-        'description' => 'Serial id for this endpoint. Only used for internal lookups.',
+        'description' => 'Serial id for this endpoint instance. Only used for internal lookups.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
       ),
       'name' => array(
-        'description' => 'Machine-readable name for this endpoint.',
+        'description' => 'Machine-readable name for this endpoint instance.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
       'title' => array(
-        'description' => 'Administrative title for this endpoint.',
+        'description' => 'Administrative title for this endpoint instance.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
       'description' => array(
-        'description' => 'Administrative description for this endpoint.',
+        'description' => 'Administrative description for this endpoint instance.',
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
       ),
+      'endpoint' => array(
+        'description' => 'Endpoint class used for this endpoint instance.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ),
       'config' => array(
-        'description' => 'Serialized configuration data this endpoint.',
+        'description' => 'Serialized configuration data this endpoint instance.',
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,

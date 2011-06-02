@@ -1,0 +1,5 @@
+name = Atom deployment endpoint
+description = Provides an Atom endpoint for deployment plans that clients or sub sites can fetch content from.
+package = Deployment
+core = 7.x
+dependencies[] = deploy

@@ -4,10 +4,14 @@ class deploy_ui_plan extends ctools_export_ui {
 
   /**
    * Pseudo implementation of hook_menu_alter().
+   *
+   * @todo
+   *   Can we do this in $plugin instead?
    */
   function hook_menu(&$items) {
     parent::hook_menu($items);
     $items['admin/structure/deploy/plans']['type'] = MENU_LOCAL_TASK;
+    $items['admin/structure/deploy/plans']['weight'] = -10;
   }
 
   /**
@@ -40,7 +44,7 @@ class deploy_ui_plan extends ctools_export_ui {
     );
 
     // Providers.
-    $providers = deploy_get_providers();
+    $providers = deploy_get_provider_plugins();
     $options = array();
     foreach ($providers as $key => $provider) {
       $options[$key] = array(
@@ -62,7 +66,7 @@ class deploy_ui_plan extends ctools_export_ui {
     );
 
     // Processors.
-    $processors = deploy_get_processors();
+    $processors = deploy_get_processor_plugins();
     $options = array();
     foreach ($processors as $key => $processor) {
       $options[$key] = array(
@@ -124,7 +128,14 @@ class deploy_ui_plan extends ctools_export_ui {
 
   function edit_form_provider_submit(&$form, &$form_state) {
     $item = $form_state['item'];
-    $item->config['provider'] = $form_state['values']['config']['provider'];
+
+    if (!empty($form_state['values']['config']['provider'])) {
+      $item->config['provider'] = $form_state['values']['config']['provider'];
+    }
+    else {
+      // Ensure that we will always have a provider config key.
+      $item->config['provider'] = array();
+    }
   }
 
   function edit_form_processor(&$form, &$form_state) {
@@ -137,9 +148,12 @@ class deploy_ui_plan extends ctools_export_ui {
     $provider_class = $item->provider;
     $processor_class = $item->processor;
 
-    // Construct the provider object which is a dependency of the processor.
+    // Construct the provider object which is a dependency of the processor. We
+    // might not have a provider config key at this point, so make sure to pass
+    // at least an empty array.
     $provider = new $provider_class((array)$item->config['provider']);
-    // Construct the processor object.
+    // Construct the processor object. We might not have a processor config key
+    // at this point, so make sure to pass at least an empty array.
     $processor = new $processor_class($provider, (array)$item->config['processor']);
 
     $form['config'] = array('#tree' => TRUE);
@@ -155,15 +169,14 @@ class deploy_ui_plan extends ctools_export_ui {
 
   function edit_form_processor_submit(&$form, &$form_state) {
     $item = $form_state['item'];
-    $item->config['processor'] = $form_state['values']['config']['processor'];
-  }
 
-  function edit_form_endpoint(&$form, &$form_state) {
-
-  }
-
-  function edit_form_endpoint_submit(&$form, &$form_state) {
-
+    if (!empty($form_state['values']['config']['processor'])) {
+      $item->config['processor'] = $form_state['values']['config']['processor'];
+    }
+    else {
+      // Ensure that we will always have a processor config key.
+      $item->config['processor'] = array();
+    }
   }
 
 }

@@ -19,7 +19,7 @@ function deploy_ui_menu() {
     'title' => 'Overview',
     'description' => 'Administrative overview over deployments',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
+    'weight' => -50,
   );
 
   return $items;
