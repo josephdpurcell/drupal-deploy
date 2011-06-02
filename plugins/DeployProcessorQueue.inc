@@ -2,9 +2,12 @@
 
 class DeployProcessorQueue implements DeployProcessor {
 
+  var $config = array();
+
   var $provider = NULL;
 
-  function __construct(DeployProvider $provider) {
+  function __construct(DeployProvider $provider, Array $config = array()) {
+    $this->config = $config;
     $this->provider = $provider;
   }
 
@@ -12,6 +15,11 @@ class DeployProcessorQueue implements DeployProcessor {
     foreach ($this->provider->getResources() as $resource) {
       // @todo Add resource and endpoint to queue.
     }
+  }
+
+  function configForm(&$form_state) {
+    // We have no settings for this processor.
+    return array();
   }
 
 }

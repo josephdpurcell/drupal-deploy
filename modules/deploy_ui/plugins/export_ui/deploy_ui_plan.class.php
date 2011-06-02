@@ -101,25 +101,61 @@ class deploy_ui_plan extends ctools_export_ui {
 
   function edit_form_provider(&$form, &$form_state) {
     $item = $form_state['item'];
-    $item->config = unserialize($item->config);
+    // There seems to be differences between update and save in the wizard.
+    if (!is_array($item->config)) {
+      $item->config = unserialize($item->config);
+    }
 
     $provider_class = $item->provider;
+
+    // Construct the provider object.
     $provider = new $provider_class((array)$item->config['provider']);
+
     $form['config'] = array('#tree' => TRUE);
     $form['config']['provider'] = $provider->configForm($form_state);
+
+    if (empty($form['config']['provider'])) {
+      $form['config']['provider'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>' . t('There are no settings for this provider plugin.') . '</p>'
+      );
+    }
   }
 
   function edit_form_provider_submit(&$form, &$form_state) {
     $item = $form_state['item'];
-    $item->config = $form_state['values']['config'];
+    $item->config['provider'] = $form_state['values']['config']['provider'];
   }
 
   function edit_form_processor(&$form, &$form_state) {
+    $item = $form_state['item'];
+    // There seems to be differences between update and save in the wizard.
+    if (!is_array($item->config)) {
+      $item->config = unserialize($item->config);
+    }
 
+    $provider_class = $item->provider;
+    $processor_class = $item->processor;
+
+    // Construct the provider object which is a dependency of the processor.
+    $provider = new $provider_class((array)$item->config['provider']);
+    // Construct the processor object.
+    $processor = new $processor_class($provider, (array)$item->config['processor']);
+
+    $form['config'] = array('#tree' => TRUE);
+    $form['config']['processor'] = $processor->configForm($form_state);
+
+    if (empty($form['config']['processor'])) {
+      $form['config']['processor'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>' . t('There are no settings for this processor plugin.') . '</p>'
+      );
+    }
   }
 
   function edit_form_processor_submit(&$form, &$form_state) {
-
+    $item = $form_state['item'];
+    $item->config['processor'] = $form_state['values']['config']['processor'];
   }
 
   function edit_form_endpoint(&$form, &$form_state) {
