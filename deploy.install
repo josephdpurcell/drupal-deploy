@@ -24,6 +24,7 @@ function deploy_schema() {
       'identifier' => 'plan',
       'object factory' => 'deploy_plan_create',
       'load callback' => 'deploy_plan_load',
+      'load all callback' => 'deploy_plan_load_all',
       'default hook' => 'deploy_plans_default',
     ),
     'fields' => array(
@@ -52,20 +53,34 @@ function deploy_schema() {
         'size' => 'medium',
         'not null' => TRUE,
       ),
-      'provider' => array(
+      'provider_plugin' => array(
         'description' => 'Provider used for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
-      'processor' => array(
+      'provider_config' => array(
+        'description' => "Serialized configuration data this plan's provider plugin.",
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+      'processor_plugin' => array(
         'description' => 'Processor used for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
-      'config' => array(
-        'description' => 'Serialized configuration data this plan.',
+      'processor_config' => array(
+        'description' => "Serialized configuration data this plan's processor plugin.",
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+      'endpoints' => array(
+        'description' => 'Serialized array of all endpoints for this plan.',
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,
@@ -90,6 +105,7 @@ function deploy_schema() {
       'identifier' => 'endpoint',
       'object factory' => 'deploy_endpoint_create',
       'load callback' => 'deploy_endpoint_load',
+      'load all callback' => 'deploy_endpoint_load_all',
       'default hook' => 'deploy_endpoints_default',
     ),
     'fields' => array(
@@ -118,8 +134,8 @@ function deploy_schema() {
         'size' => 'medium',
         'not null' => TRUE,
       ),
-      'endpoint' => array(
-        'description' => 'Endpoint class used for this endpoint instance.',
+      'plugin' => array(
+        'description' => 'Endpoint plugin used for this endpoint instance.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,

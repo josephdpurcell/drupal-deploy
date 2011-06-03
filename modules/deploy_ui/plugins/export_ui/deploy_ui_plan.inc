@@ -27,7 +27,6 @@ $plugin = array(
       'basic' => t('Basics'),
       'provider' => t('Provider'),
       'processor' => t('Processor'),
-      'endpoint' => t('Endpoints'),
     ),
   ),
 );

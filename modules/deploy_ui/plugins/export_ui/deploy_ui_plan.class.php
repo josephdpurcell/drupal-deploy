@@ -52,7 +52,7 @@ class deploy_ui_plan extends ctools_export_ui {
         'description' => $provider['description'],
       );
     }
-    $form['provider'] = array(
+    $form['provider_plugin'] = array(
       '#prefix' => '<label>' . t('Provider') . '</label>',
       '#type' => 'tableselect',
       '#required' => TRUE,
@@ -62,7 +62,7 @@ class deploy_ui_plan extends ctools_export_ui {
         'description' => t('Description'),
       ),
       '#options' => $options,
-      '#default_value' => $item->provider,
+      '#default_value' => $item->provider_plugin,
     );
 
     // Processors.
@@ -74,7 +74,7 @@ class deploy_ui_plan extends ctools_export_ui {
         'description' => $processor['description'],
       );
     }
-    $form['processor'] = array(
+    $form['processor_plugin'] = array(
       '#prefix' => '<label>' . t('Processor') . '</label>',
       '#type' => 'tableselect',
       '#required' => TRUE,
@@ -84,10 +84,33 @@ class deploy_ui_plan extends ctools_export_ui {
         'description' => t('Description'),
       ),
       '#options' => $options,
-      '#default_value' => $item->processor,
+      '#default_value' => $item->processor_plugin,
     );
 
-    // @todo: Add tableselect for endpoints.
+    // Endpoint types.
+    $endpoints = deploy_endpoint_load_all();
+    $options = array();
+    foreach ($endpoints as $endpoint) {
+      $options[$endpoint->name] = array(
+        'name' => check_plain($endpoint->title),
+        'description' => check_plain($endpoint->description),
+      );
+    }
+    if (!is_array($item->endpoints)) {
+      $item->endpoints = unserialize($item->endpoints);
+    }
+    $form['endpoints'] = array(
+      '#prefix' => '<label>' . t('Endpoints') . '</label>',
+      '#type' => 'tableselect',
+      '#required' => TRUE,
+      '#multiple' => TRUE,
+      '#header' => array(
+        'name' => t('Name'),
+        'description' => t('Description'),
+      ),
+      '#options' => $options,
+      '#default_value' => (array)$item->endpoints,
+    );
   }
 
   /**
@@ -99,27 +122,29 @@ class deploy_ui_plan extends ctools_export_ui {
     $item->name = $form_state['values']['name'];
     $item->title = $form_state['values']['title'];
     $item->description = $form_state['values']['description'];
-    $item->provider = $form_state['values']['provider'];
-    $item->processor = $form_state['values']['processor'];
+    $item->provider_plugin = $form_state['values']['provider_plugin'];
+    $item->processor_plugin = $form_state['values']['processor_plugin'];
+    if (!empty($form_state['values']['endpoints'])) {
+      $item->endpoints = $form_state['values']['endpoints'];
+    }
+    else {
+      $item->endpoints = array();
+    }
   }
 
   function edit_form_provider(&$form, &$form_state) {
     $item = $form_state['item'];
-    // There seems to be differences between update and save in the wizard.
-    if (!is_array($item->config)) {
-      $item->config = unserialize($item->config);
+    if (!is_array($item->provider_config)) {
+      $item->provider_config = unserialize($item->provider_config);
     }
 
-    $provider_class = $item->provider;
-
     // Construct the provider object.
-    $provider = new $provider_class((array)$item->config['provider']);
+    $provider = new $item->provider_plugin((array)$item->provider_config);
 
-    $form['config'] = array('#tree' => TRUE);
-    $form['config']['provider'] = $provider->configForm($form_state);
-
-    if (empty($form['config']['provider'])) {
-      $form['config']['provider'] = array(
+    $form['provider_config'] = $provider->configForm($form_state);
+    $form['provider_config']['#tree'] = TRUE;
+    if (empty($form['provider_config'])) {
+      $form['provider_config'] = array(
         '#type' => 'markup',
         '#markup' => '<p>' . t('There are no settings for this provider plugin.') . '</p>'
       );
@@ -128,39 +153,33 @@ class deploy_ui_plan extends ctools_export_ui {
 
   function edit_form_provider_submit(&$form, &$form_state) {
     $item = $form_state['item'];
-
-    if (!empty($form_state['values']['config']['provider'])) {
-      $item->config['provider'] = $form_state['values']['config']['provider'];
+    if (!empty($form_state['values']['provider_config'])) {
+      $item->provider_config = $form_state['values']['provider_config'];
     }
     else {
-      // Ensure that we will always have a provider config key.
-      $item->config['provider'] = array();
+      $item->provider_config = array();
     }
   }
 
   function edit_form_processor(&$form, &$form_state) {
     $item = $form_state['item'];
     // There seems to be differences between update and save in the wizard.
-    if (!is_array($item->config)) {
-      $item->config = unserialize($item->config);
+    if (!is_array($item->processor_config)) {
+      $item->processor_config = unserialize($item->processor_config);
     }
-
-    $provider_class = $item->provider;
-    $processor_class = $item->processor;
 
     // Construct the provider object which is a dependency of the processor. We
     // might not have a provider config key at this point, so make sure to pass
     // at least an empty array.
-    $provider = new $provider_class((array)$item->config['provider']);
+    $provider = new $item->provider_plugin((array)$item->provider_config);
     // Construct the processor object. We might not have a processor config key
     // at this point, so make sure to pass at least an empty array.
-    $processor = new $processor_class($provider, (array)$item->config['processor']);
+    $processor = new $item->processor_plugin($provider, (array)$item->processor_config);
 
-    $form['config'] = array('#tree' => TRUE);
-    $form['config']['processor'] = $processor->configForm($form_state);
-
-    if (empty($form['config']['processor'])) {
-      $form['config']['processor'] = array(
+    $form['processor_config'] = $processor->configForm($form_state);
+    $form['processor_config']['#tree'] = TRUE;
+    if (empty($form['config']['processor_config'])) {
+      $form['config']['processor_config'] = array(
         '#type' => 'markup',
         '#markup' => '<p>' . t('There are no settings for this processor plugin.') . '</p>'
       );
@@ -169,13 +188,11 @@ class deploy_ui_plan extends ctools_export_ui {
 
   function edit_form_processor_submit(&$form, &$form_state) {
     $item = $form_state['item'];
-
-    if (!empty($form_state['values']['config']['processor'])) {
-      $item->config['processor'] = $form_state['values']['config']['processor'];
+    if (!empty($form_state['values']['processor_config'])) {
+      $item->processor_config = $form_state['values']['processor_config'];
     }
     else {
-      // Ensure that we will always have a processor config key.
-      $item->config['processor'] = array();
+      $item->processor_config = array();
     }
   }
 

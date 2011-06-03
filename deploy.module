@@ -103,28 +103,22 @@ function deploy_get_endpoint_plugin($name) {
 }
 
 /**
- * Get endpoint plugin children.
- */
-function deploy_get_endpoint_children($plugin, $parent) {
-  dpm($plugin);
-  dpm($parent);
-}
-
-/**
  * Object factory for a deployment plan.
  */
-function deploy_plan_create($schema, $data) {
-  $provider_class = $data->provider;
-  $processor_class = $data->processor;
-
-  $provider = new $provider_class((array)$data->config['provider']);
-  $processor = new $processor_class($provider, (array)$data->config['processor']);
-
-  $plan = new DeployPlan($processor);
-  foreach ($data as $key => $value) {
-    $plan->{$key} = $value;
+function deploy_plan_create($schema, $item) {
+  foreach (array('provider_config', 'processor_config', 'endpoints') as $serialized_param) {
+    if (!is_array($item->{$serialized_param})) {
+      $item->{$serialized_param} = unserialize($item->{$serialized_param});
+    }
   }
 
+  $provider = new $item->provider_plugin((array)$item->provider_config);
+  $processor = new $item->processor_plugin($provider, (array)$item->processor_config);
+
+  $plan = new DeployPlan($processor);
+  foreach ($item as $key => $value) {
+    $plan->{$key} = $value;
+  }
   return $plan;
 }
 
@@ -132,24 +126,31 @@ function deploy_plan_create($schema, $data) {
  * Loader callback for a deployment plan.
  */
 function deploy_plan_load($name) {
-  ctools_include('export');
-  $result = ctools_export_load_object('deploy_plans', 'names', array($name));
+  $result = deploy_plan_load_all();
   if (isset($result[$name])) {
     return $result[$name];
   }
 }
 
 /**
+ * Loader callback for all deployment plans.
+ */
+function deploy_plan_load_all() {
+  ctools_include('export');
+  $result = ctools_export_load_object('deploy_plans', 'all');
+  if (isset($result)) {
+    return $result;
+  }
+}
+
+/**
  * Object factory for a deployment endpoint.
  */
-function deploy_endpoint_create($schema, $data) {
-  $endpoint_class = $data->endpoint;
-
-  $endpoint = new $endpoint_class((array)$data->config);
-  foreach ($data as $key => $value) {
+function deploy_endpoint_create($schema, $item) {
+  $endpoint = new $item->plugin((array)$item->config);
+  foreach ($item as $key => $value) {
     $endpoint->{$key} = $value;
   }
-
   return $endpoint;
 }
 
@@ -157,9 +158,19 @@ function deploy_endpoint_create($schema, $data) {
  * Loader callback for a deployment endpoint.
  */
 function deploy_endpoint_load($name) {
-  ctools_include('export');
-  $result = ctools_export_load_object('deploy_endpoints', 'names', array($name));
+  $result = deploy_endpoint_load_all();
   if (isset($result[$name])) {
     return $result[$name];
+  }
+}
+
+/**
+ * Loader callback for a deployment endpoint.
+ */
+function deploy_endpoint_load_all() {
+  ctools_include('export');
+  $result = ctools_export_load_object('deploy_endpoints', 'all');
+  if (isset($result)) {
+    return $result;
   }
 }

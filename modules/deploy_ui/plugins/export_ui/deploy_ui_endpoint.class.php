@@ -43,15 +43,15 @@ class deploy_ui_endpoint extends ctools_export_ui {
     );
 
     // Endpoint types.
-    $endpoints = deploy_get_endpoint_plugins();
+    $endpoint_plugins = deploy_get_endpoint_plugins();
     $options = array();
-    foreach ($endpoints as $key => $endpoint) {
+    foreach ($endpoint_plugins as $key => $endpoint_plugin) {
       $options[$key] = array(
-        'name' => $endpoint['name'],
-        'description' => $endpoint['description'],
+        'name' => $endpoint_plugin['name'],
+        'description' => $endpoint_plugin['description'],
       );
     }
-    $form['endpoint'] = array(
+    $form['plugin'] = array(
       '#prefix' => '<label>' . t('Endpoint') . '</label>',
       '#type' => 'tableselect',
       '#required' => TRUE,
@@ -61,7 +61,7 @@ class deploy_ui_endpoint extends ctools_export_ui {
         'description' => t('Description'),
       ),
       '#options' => $options,
-      '#default_value' => $item->endpoint,
+      '#default_value' => $item->plugin,
     );
   }
 
@@ -74,7 +74,7 @@ class deploy_ui_endpoint extends ctools_export_ui {
     $item->name = $form_state['values']['name'];
     $item->title = $form_state['values']['title'];
     $item->description = $form_state['values']['description'];
-    $item->endpoint = $form_state['values']['endpoint'];
+    $item->plugin = $form_state['values']['plugin'];
   }
 
   function edit_form_config(&$form, &$form_state) {
@@ -84,13 +84,11 @@ class deploy_ui_endpoint extends ctools_export_ui {
       $item->config = unserialize($item->config);
     }
 
-    $endpoint_class = $item->endpoint;
-
     // Construct the endpoint object.
-    $endpoint = new $endpoint_class((array)$item->config);
+    $endpoint = new $item->plugin((array)$item->config);
 
-    $form['config'] = array('#tree' => TRUE);
     $form['config'] = $endpoint->configForm($form_state);
+    $form['config']['#tree'] = TRUE;
 
     if (empty($form['config'])) {
       $form['config'] = array(
