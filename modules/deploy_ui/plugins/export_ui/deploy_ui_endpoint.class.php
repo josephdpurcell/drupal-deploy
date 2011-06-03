@@ -88,9 +88,10 @@ class deploy_ui_endpoint extends ctools_export_ui {
     $endpoint = new $item->plugin((array)$item->config);
 
     $form['config'] = $endpoint->configForm($form_state);
-    $form['config']['#tree'] = TRUE;
-
-    if (empty($form['config'])) {
+    if (!empty($form['config'])) {
+      $form['config']['#tree'] = TRUE;
+    }
+    else {
       $form['config'] = array(
         '#type' => 'markup',
         '#markup' => '<p>' . t('There are no settings for this endpoint plugin.') . '</p>',

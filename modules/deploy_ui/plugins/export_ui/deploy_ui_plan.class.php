@@ -143,7 +143,10 @@ class deploy_ui_plan extends ctools_export_ui {
 
     $form['provider_config'] = $provider->configForm($form_state);
     $form['provider_config']['#tree'] = TRUE;
-    if (empty($form['provider_config'])) {
+    if (!empty($form['provider_config'])) {
+      $form['provider_config']['#tree'] = TRUE;
+    }
+    else {
       $form['provider_config'] = array(
         '#type' => 'markup',
         '#markup' => '<p>' . t('There are no settings for this provider plugin.') . '</p>'
@@ -177,8 +180,10 @@ class deploy_ui_plan extends ctools_export_ui {
     $processor = new $item->processor_plugin($provider, (array)$item->processor_config);
 
     $form['processor_config'] = $processor->configForm($form_state);
-    $form['processor_config']['#tree'] = TRUE;
-    if (empty($form['config']['processor_config'])) {
+    if (!empty($form['config']['processor_config'])) {
+      $form['processor_config']['#tree'] = TRUE;
+    }
+    else {
       $form['config']['processor_config'] = array(
         '#type' => 'markup',
         '#markup' => '<p>' . t('There are no settings for this processor plugin.') . '</p>'
