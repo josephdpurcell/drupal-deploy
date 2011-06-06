@@ -138,11 +138,10 @@ class deploy_ui_plan extends ctools_export_ui {
       $item->provider_config = unserialize($item->provider_config);
     }
 
-    // Construct the provider object.
+    // Create the provider object.
     $provider = new $item->provider_plugin((array)$item->provider_config);
 
     $form['provider_config'] = $provider->configForm($form_state);
-    $form['provider_config']['#tree'] = TRUE;
     if (!empty($form['provider_config'])) {
       $form['provider_config']['#tree'] = TRUE;
     }
@@ -166,17 +165,13 @@ class deploy_ui_plan extends ctools_export_ui {
 
   function edit_form_processor(&$form, &$form_state) {
     $item = $form_state['item'];
-    // There seems to be differences between update and save in the wizard.
     if (!is_array($item->processor_config)) {
       $item->processor_config = unserialize($item->processor_config);
     }
 
-    // Construct the provider object which is a dependency of the processor. We
-    // might not have a provider config key at this point, so make sure to pass
-    // at least an empty array.
+    // Create the provider object which is a dependency of the processor object.
     $provider = new $item->provider_plugin((array)$item->provider_config);
-    // Construct the processor object. We might not have a processor config key
-    // at this point, so make sure to pass at least an empty array.
+    // Create the processor object.
     $processor = new $item->processor_plugin($provider, (array)$item->processor_config);
 
     $form['processor_config'] = $processor->configForm($form_state);

@@ -2,14 +2,16 @@
 
 /**
  * Implementation of hook_ctools_plugin_type().
+ *
+ * @todo
+ *   Find out if we really need 'use hooks'.
  */
 function deploy_ctools_plugin_type() {
   return array(
-    'endpoints' => array(
+    'services' => array(
       'cache' => TRUE,
       'use hooks' => TRUE,
       'classes' => array('handler'),
-      'get children' => 'deploy_get_endpoint_children',
     ),
     'providers' => array(
       'cache' => TRUE,
@@ -31,7 +33,7 @@ function deploy_deploy_processors() {
   $path = drupal_get_path('module', 'deploy') . '/plugins';
   return array(
     'DeployProcessorQueue' => array(
-      'name' => 'Queue API processor',
+      'name' => 'Queue API',
       'description' => 'Adds all resources for deployment to the Queue API. Works best with larger deployments where deployment speed is not critical.',
       'handler' => array(
         'class' => 'DeployProcessorQueue',
@@ -45,6 +47,60 @@ function deploy_deploy_processors() {
       'handler' => array(
         'class' => 'DeployProcessorMemory',
         'file' => 'DeployProcessorMemory.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_deploy_authentications().
+ */
+function deploy_deploy_authentications() {
+  $path = drupal_get_path('module', 'deploy') . '/plugins';
+  return array(
+    'DeployAuthenticationBasic' => array(
+      'name' => 'Basic HTTP',
+      'description' => 'Performs basic HTTP authentication on the endpoint.',
+      'handler' => array(
+        'class' => 'DeployAuthenticationBasic',
+        'file' => 'DeployAuthenticationBasic.inc',
+        'path' => $path,
+      ),
+    ),
+    'DeployAuthenticationOAuth' => array(
+      'name' => 'oAuth',
+      'description' => 'Uses the oAuth protocol to authenticate with the endpoint.',
+      'handler' => array(
+        'class' => 'DeployAuthenticationOAuth',
+        'file' => 'DeployAuthenticationOAuth.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_deploy_services().
+ */
+function deploy_deploy_services() {
+  $path = drupal_get_path('module', 'deploy') . '/plugins';
+  return array(
+    'DeployServiceRestJSON' => array(
+      'name' => 'REST JSON',
+      'description' => 'Defines a REST service that can receive JSON data.',
+      'handler' => array(
+        'class' => 'DeployServiceRestJSON',
+        'file' => 'DeployServiceRestJSON.inc',
+        'path' => $path,
+      ),
+    ),
+    'DeployServiceRestXML' => array(
+      'name' => 'REST XML',
+      'description' => 'Defines a REST service that can receive XML data.',
+      'handler' => array(
+        'class' => 'DeployServiceRestXML',
+        'file' => 'DeployServiceRestXML.inc',
         'path' => $path,
       ),
     ),
@@ -84,25 +140,42 @@ function deploy_get_processor_plugin($name) {
 }
 
 /**
- * Get all endpoint plugins.
+ * Get all authentication plugins.
  */
-function deploy_get_endpoint_plugins() {
+function deploy_get_authentication_plugins() {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'endpoints');
+  return ctools_get_plugins('deploy', 'authentications');
 }
 
 /**
- * Get one endpoint plugin.
+ * Get one authentication plugin.
  */
-function deploy_get_endpoint_plugin($name) {
+function deploy_get_authentication_plugin($name) {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'endpoints', $name);
+  return ctools_get_plugins('deploy', 'authentications', $name);
+}
+
+/**
+ * Get all service plugins.
+ */
+function deploy_get_service_plugins() {
+  ctools_include('plugins');
+  return ctools_get_plugins('deploy', 'services');
+}
+
+/**
+ * Get one service plugin.
+ */
+function deploy_get_service_plugin($name) {
+  ctools_include('plugins');
+  return ctools_get_plugins('deploy', 'services', $name);
 }
 
 /**
  * Object factory for a deployment plan.
  */
 function deploy_plan_create($schema, $item) {
+  // @todo Read $schema instead to find out what fields that are serialized.
   foreach (array('provider_config', 'processor_config', 'endpoints') as $serialized_param) {
     if (!is_array($item->{$serialized_param})) {
       $item->{$serialized_param} = unserialize($item->{$serialized_param});
@@ -117,7 +190,7 @@ function deploy_plan_create($schema, $item) {
     $plan->{$key} = $value;
   }
 
-  foreach ($plan->endpoints as $endpoint_name) {
+  foreach ($item['endpoints'] as $endpoint_name) {
     $endpoint = deploy_endpoint_load($endpoint_name);
     $plan->addEndpoint($endpoint);
   }

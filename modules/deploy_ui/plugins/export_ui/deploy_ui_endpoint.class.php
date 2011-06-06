@@ -42,17 +42,17 @@ class deploy_ui_endpoint extends ctools_export_ui {
       '#default_value' => $item->description,
     );
 
-    // Endpoint types.
-    $endpoint_plugins = deploy_get_endpoint_plugins();
+    // Authentications.
+    $services = deploy_get_authentication_plugins();
     $options = array();
-    foreach ($endpoint_plugins as $key => $endpoint_plugin) {
+    foreach ($authentications as $key => $authentication) {
       $options[$key] = array(
-        'name' => $endpoint_plugin['name'],
-        'description' => $endpoint_plugin['description'],
+        'name' => $authentication['name'],
+        'description' => $authentication['description'],
       );
     }
-    $form['plugin'] = array(
-      '#prefix' => '<label>' . t('Endpoint') . '</label>',
+    $form['authentication_plugin'] = array(
+      '#prefix' => '<label>' . t('Authentication') . '</label>',
       '#type' => 'tableselect',
       '#required' => TRUE,
       '#multiple' => FALSE,
@@ -61,7 +61,29 @@ class deploy_ui_endpoint extends ctools_export_ui {
         'description' => t('Description'),
       ),
       '#options' => $options,
-      '#default_value' => $item->plugin,
+      '#default_value' => $item->authentication_plugin,
+    );
+
+    // Services.
+    $services = deploy_get_service_plugins();
+    $options = array();
+    foreach ($services as $key => $service) {
+      $options[$key] = array(
+        'name' => $service['name'],
+        'description' => $service['description'],
+      );
+    }
+    $form['service_plugin'] = array(
+      '#prefix' => '<label>' . t('Service') . '</label>',
+      '#type' => 'tableselect',
+      '#required' => TRUE,
+      '#multiple' => FALSE,
+      '#header' => array(
+        'name' => t('Name'),
+        'description' => t('Description'),
+      ),
+      '#options' => $options,
+      '#default_value' => $item->service_plugin,
     );
   }
 
@@ -74,39 +96,69 @@ class deploy_ui_endpoint extends ctools_export_ui {
     $item->name = $form_state['values']['name'];
     $item->title = $form_state['values']['title'];
     $item->description = $form_state['values']['description'];
-    $item->plugin = $form_state['values']['plugin'];
+    $item->authentication_plugin = $form_state['values']['authentication_plugin'];
+    $item->service_plugin = $form_state['values']['service_plugin'];
   }
 
-  function edit_form_config(&$form, &$form_state) {
+  function edit_form_authentication(&$form, &$form_state) {
     $item = $form_state['item'];
-    // There seems to be differences between update and save in the wizard.
-    if (!is_array($item->config)) {
-      $item->config = unserialize($item->config);
+    if (!is_array($item->authentication_config)) {
+      $item->authentication_config = unserialize($item->authentication_config);
     }
 
-    // Construct the endpoint object.
-    $endpoint = new $item->plugin((array)$item->config);
+    // Create the authentication object.
+    $authentication = new $item->authentication_plugin((array)$item->authentication_config);
 
-    $form['config'] = $endpoint->configForm($form_state);
-    if (!empty($form['config'])) {
-      $form['config']['#tree'] = TRUE;
+    $form['authentication_config'] = $authentication->configForm($form_state);
+    if (!empty($form['authentication_config'])) {
+      $form['authentication_config']['#tree'] = TRUE;
     }
     else {
-      $form['config'] = array(
+      $form['authentication_config'] = array(
         '#type' => 'markup',
-        '#markup' => '<p>' . t('There are no settings for this endpoint plugin.') . '</p>',
+        '#markup' => '<p>' . t('There are no settings for this authentication plugin.') . '</p>',
       );
     }
   }
 
-  function edit_form_config_submit(&$form, &$form_state) {
+  function edit_form_authentication_submit(&$form, &$form_state) {
     $item = $form_state['item'];
-
-    if (!empty($form_state['values']['config'])) {
-      $item->config = $form_state['values']['config'];
+    if (!empty($form_state['values']['authentication_config'])) {
+      $item->authentication_config = $form_state['values']['authentication_config'];
     }
     else {
-      $item->config = array();
+      $item->authentication_config = array();
+    }
+  }
+
+  function edit_form_service(&$form, &$form_state) {
+    $item = $form_state['item'];
+    if (!is_array($item->service_config)) {
+      $item->service_config = unserialize($item->service_config);
+    }
+
+    // Create the service object.
+    $service = new $item->service_plugin((array)$item->service_config);
+
+    $form['service_config'] = $service->configForm($form_state);
+    if (!empty($form['service_config'])) {
+      $form['service_config']['#tree'] = TRUE;
+    }
+    else {
+      $form['service_config'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>' . t('There are no settings for this service plugin.') . '</p>',
+      );
+    }
+  }
+
+  function edit_form_service_submit(&$form, &$form_state) {
+    $item = $form_state['item'];
+    if (!empty($form_state['values']['service_config'])) {
+      $item->service_config = $form_state['values']['service_config'];
+    }
+    else {
+      $item->service_config = array();
     }
   }
 

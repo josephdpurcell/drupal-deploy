@@ -110,38 +110,51 @@ function deploy_schema() {
     ),
     'fields' => array(
       'eid' => array(
-        'description' => 'Serial id for this endpoint instance. Only used for internal lookups.',
+        'description' => 'Serial id for this endpoint. Only used for internal lookups.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
       ),
       'name' => array(
-        'description' => 'Machine-readable name for this endpoint instance.',
+        'description' => 'Machine-readable name for this endpoint.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
       'title' => array(
-        'description' => 'Administrative title for this endpoint instance.',
+        'description' => 'Administrative title for this endpoint.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
       'description' => array(
-        'description' => 'Administrative description for this endpoint instance.',
+        'description' => 'Administrative description for this endpoint.',
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
       ),
-      'plugin' => array(
-        'description' => 'Endpoint plugin used for this endpoint instance.',
+      'authentication_plugin' => array(
+        'description' => 'Authentication plugin used for this endpoint.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
-      'config' => array(
-        'description' => 'Serialized configuration data this endpoint instance.',
+      'authentication_config' => array(
+        'description' => "Serialized configuration data for this endpoint's authentication plugin.",
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+      'service_plugin' => array(
+        'description' => 'Service plugin used for this endpoint.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ),
+      'service_config' => array(
+        'description' => "Serialized configuration data this endpoint's service plugin.",
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,

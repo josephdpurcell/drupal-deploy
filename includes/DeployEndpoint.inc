@@ -1,11 +1,19 @@
 <?php
 
-interface DeployEndpoint {
+class DeployEndpoint {
 
-  function __construct(Array $config = array());
+  var $authentication = NULL;
 
-  function deploy(Array $entities);
+  var $service = NULL;
 
-  function configForm(&$form_state);
+  function __construct(DeployAuthentication $authentication, DeployService $service) {
+    $this->authentication = $authentication;
+    $this->service = $service;
+  }
+
+  function deploy(Array $entities) {
+    $this->authentication->authenticate();
+    $this->service->deploy($entities);
+  }
 
 }

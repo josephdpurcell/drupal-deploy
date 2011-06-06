@@ -1,18 +1,9 @@
 <?php
 
-class DeployProcessorQueue implements DeployProcessor {
-
-  var $config = array();
-
-  var $provider = NULL;
-
-  function __construct(DeployProvider $provider, Array $config = array()) {
-    $this->config = $config;
-    $this->provider = $provider;
-  }
+class DeployProcessorQueue extends DeployProcessorMemory {
 
   function process(DeployEndpoint $endpoint) {
-    foreach ($this->provider->getResources() as $resource) {
+    foreach ($this->provider->getEntities() as $entity) {
       // @todo Add resource and endpoint to queue.
     }
   }
