@@ -11,7 +11,7 @@ class DeployProviderViews implements DeployProvider {
     $this->config = array_merge($defaults, $config);
   }
 
-  function getEntities() {
+  function getEntityIds() {
     $view = views_get_view($this->config['view_name'], 'default');
     // @todo: Consider adding a config parameter for $entity_type, since that's
     // not always consistent with $view->base_table.
@@ -24,7 +24,7 @@ class DeployProviderViews implements DeployProvider {
       $entity_ids[] = $view_result->{$entity_id_field};
     }
 
-    return entity_load($entity_type, $entity_ids);
+    return array($entity_type => $entity_ids);
   }
 
   function configForm(&$form_state) {

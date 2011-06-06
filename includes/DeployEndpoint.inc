@@ -11,9 +11,10 @@ class DeployEndpoint {
     $this->service = $service;
   }
 
-  function deploy(Array $entities) {
+  function deploy(Array $entity_ids) {
     $this->authentication->authenticate();
-    $this->service->deploy($entities);
+    // @todo Create DeployEntityIterator.
+    $this->service->deploy($entity_ids);
   }
 
 }

@@ -3,7 +3,7 @@
 class DeployProcessorQueue extends DeployProcessorMemory {
 
   function process($endpoint_name) {
-    foreach ($this->provider->getEntities() as $entity) {
+    foreach ($this->provider->getEntityIds() as $entity) {
       // @todo Add resource id and endpoint name to queue.
     }
   }

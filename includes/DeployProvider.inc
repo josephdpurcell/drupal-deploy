@@ -4,7 +4,7 @@ interface DeployProvider {
 
   function __construct(Array $config = array());
 
-  function getEntities();
+  function getEntityIds();
 
   function configForm(&$form_state);
 

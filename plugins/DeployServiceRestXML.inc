@@ -2,7 +2,7 @@
 
 class DeployServiceRestXML extends DeployServiceRest {
 
-  function deploy(Array $entities) {
+  function deploy(Array $entity_types) {
 
   }
 
