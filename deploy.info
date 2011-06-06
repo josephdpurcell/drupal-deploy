@@ -3,9 +3,17 @@ description = Allows content to be deployed between servers. Either to be used a
 package = Deployment
 core = 7.x
 
+files[] = includes/DeployAuthentication.inc
 files[] = includes/DeployEndpoint.inc
 files[] = includes/DeployPlan.inc
 files[] = includes/DeployProcessor.inc
 files[] = includes/DeployProvider.inc
+files[] = includes/DeployService.inc
+files[] = includes/DeployServiceRest.inc
 
+files[] = plugins/DeployAuthenticationBasic.inc
+files[] = plugins/DeployAuthenticationOAuth.inc
 files[] = plugins/DeployProcessorMemory.inc
+files[] = plugins/DeployProcessorQueue.inc
+files[] = plugins/DeployServiceRestJSON.inc
+files[] = plugins/DeployServiceRestXML.inc

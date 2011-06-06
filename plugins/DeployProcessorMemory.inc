@@ -11,7 +11,8 @@ class DeployProcessorMemory implements DeployProcessor {
     $this->provider = $provider;
   }
 
-  function process(DeployEndpoint $endpoint) {
+  function process($endpoint_name) {
+    $endpoint = deploy_endpoint_load($endpoint_name);
     $endpoint->deploy($this->provider->getEntities());
   }
 

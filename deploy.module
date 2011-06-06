@@ -8,6 +8,11 @@
  */
 function deploy_ctools_plugin_type() {
   return array(
+    'authentications' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
     'services' => array(
       'cache' => TRUE,
       'use hooks' => TRUE,
@@ -190,11 +195,6 @@ function deploy_plan_create($schema, $item) {
     $plan->{$key} = $value;
   }
 
-  foreach ($item['endpoints'] as $endpoint_name) {
-    $endpoint = deploy_endpoint_load($endpoint_name);
-    $plan->addEndpoint($endpoint);
-  }
-
   return $plan;
 }
 
@@ -223,7 +223,17 @@ function deploy_plan_load_all() {
  * Object factory for a deployment endpoint.
  */
 function deploy_endpoint_create($schema, $item) {
-  $endpoint = new $item->plugin((array)$item->config);
+  // @todo Read $schema instead to find out what fields that are serialized.
+  foreach (array('authentication_config', 'service_config') as $serialized_param) {
+    if (!is_array($item->{$serialized_param})) {
+      $item->{$serialized_param} = unserialize($item->{$serialized_param});
+    }
+  }
+
+  $authentication = new $item->authentication_plugin((array)$item->authentication_config);
+  $service = new $item->service_plugin((array)$item->service_config);
+  $endpoint = new DeployEndpoint($authentication, $service);
+
   foreach ($item as $key => $value) {
     $endpoint->{$key} = $value;
   }

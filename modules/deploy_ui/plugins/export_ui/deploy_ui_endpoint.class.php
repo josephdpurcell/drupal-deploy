@@ -43,7 +43,7 @@ class deploy_ui_endpoint extends ctools_export_ui {
     );
 
     // Authentications.
-    $services = deploy_get_authentication_plugins();
+    $authentications = deploy_get_authentication_plugins();
     $options = array();
     foreach ($authentications as $key => $authentication) {
       $options[$key] = array(

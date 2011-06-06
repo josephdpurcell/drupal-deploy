@@ -1,6 +1,6 @@
 <?php
 
-class DeployEndpointAtom implements DeployEndpoint {
+class DeployServicePubSub implements DeployService {
 
   var $config = array();
 

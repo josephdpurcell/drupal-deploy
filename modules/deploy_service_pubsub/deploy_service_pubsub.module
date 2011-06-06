@@ -3,15 +3,15 @@
 /**
  * Implementation of hook_deploy_endpoints().
  */
-function deploy_endpoint_atom_deploy_endpoints() {
-  $path = drupal_get_path('module', 'deploy_endpoint_atom') . '/plugins';
+function deploy_service_pubsub_deploy_services() {
+  $path = drupal_get_path('module', 'deploy_service_pubsub') . '/plugins';
   return array(
-    'DeployEndpointAtom' => array(
-      'name' => 'Atom endpoint',
-      'description' => 'Adds an Atom endpoint for this deployment plan where clients or sub sites can fetch content from.',
+    'DeployServicePubSub' => array(
+      'name' => 'PubSubHubBub service',
+      'description' => 'Defines a PubSubHubBub service that clients or sub sites can fetch content from.',
       'handler' => array(
-        'class' => 'DeployEndpointAtom',
-        'file' => 'DeployEndpointAtom.inc',
+        'class' => 'DeployServicePubSub',
+        'file' => 'DeployServicePubSub.inc',
         'path' => $path,
       ),
     ),
@@ -21,16 +21,16 @@ function deploy_endpoint_atom_deploy_endpoints() {
 /**
  * Implementation of hook_menu().
  */
-function deploy_endpoint_atom_menu() {
+function deploy_service_pubsub_menu() {
   $items = array();
 
-  $items['deploy/endpoint/atom/%deploy_plan/%deploy_endpoint'] = array(
-    'title' => t('Atom deployment endpoint'),
-    'page callback' => 'deploy_endpoint_atom_page',
+  $items['deploy/pubsub/%deploy_plan'] = array(
+    'title' => t('PubSubHubBub service'),
+    'page callback' => 'deploy_service_pubsub_page',
     'page arguments' => array(3, 4),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
-    'file' => 'deploy_endpoint_atom.pages.inc',
+    'file' => 'deploy_service_pubsub.pages.inc',
   );
 
   return $items;

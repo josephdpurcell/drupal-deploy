@@ -1,6 +1,7 @@
-name = Atom deployment endpoint
-description = Provides an Atom endpoint for deployment plans that clients or sub sites can fetch content from.
+name = PubSubHubBub deployment service
+description = Defines a <a href="http://code.google.com/p/pubsubhubbub/">PubSubHubBub</a> service that clients or sub sites can fetch content from.
 package = Deployment
 core = 7.x
 dependencies[] = deploy
+dependencies[] = push_hub
 dependencies[] = entity_atom

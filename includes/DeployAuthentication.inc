@@ -6,4 +6,6 @@ interface DeployAuthentication {
 
   function authenticate();
 
+  function configForm(&$form_state);
+
 }

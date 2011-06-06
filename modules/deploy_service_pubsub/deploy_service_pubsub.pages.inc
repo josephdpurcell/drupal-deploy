@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Page callback for the atom feed.
+ * Page callback for the PubSubHubBub feed.
  */
-function deploy_endpoint_atom_page(DeployPlan $plan, DeployEndpoint $endpoint) {
-  $plan->deploy($endpoint->name);
+function deploy_service_pubsub_page(DeployPlan $plan) {
+  $plan->deploy();
   die();
 }

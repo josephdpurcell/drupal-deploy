@@ -10,18 +10,9 @@ class DeployPlan {
     $this->processor = $processor;
   }
 
-  function addEndpoint(DeployEndpoint $endpoint) {
-    $this->endpoints[] = $endpoint;
-  }
-
-  function deploy($endpoint_name = NULL) {
-    foreach ($this->endpoints as $endpoint) {
-      if (empty($endpoint_name)) {
-        $this->processor->process($endpoint);
-      }
-      elseif ($endpoint->name == $endpoint_name) {
-        $this->processor->process($endpoint);
-      }
+  function deploy() {
+    foreach ($this->endpoints as $endpoint_name) {
+      $this->processor->process($endpoint_name);
     }
   }
 
