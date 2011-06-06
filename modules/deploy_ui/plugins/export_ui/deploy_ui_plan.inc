@@ -8,6 +8,16 @@ $plugin = array(
     'menu prefix' => 'admin/structure/deploy',
     'menu item' => 'plans',
     'menu title' => 'Plans',
+    'items' => array(
+      'deploy' => array(
+        'path' => 'list/%ctools_export_ui/deploy',
+        'title' => 'Deploy',
+        'page callback' => 'ctools_export_ui_switcher_page',
+        'page arguments' => array('deploy_ui_plan', 'deploy', 5),
+        'access arguments' => array('administer deployments'),
+        'type' => MENU_LOCAL_TASK,
+      ),
+    ),
   ),
 
   'title singular' => t('plan'),
@@ -20,6 +30,10 @@ $plugin = array(
   'handler' => array(
     'class' => 'deploy_ui_plan',
     'parent' => 'ctools_export_ui',
+  ),
+
+  'allowed operations' => array(
+    'deploy' => array('title' => t('Deploy')),
   ),
 
   'form info' => array(
