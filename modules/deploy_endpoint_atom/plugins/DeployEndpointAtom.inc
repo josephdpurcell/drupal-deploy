@@ -8,8 +8,8 @@ class DeployEndpointAtom implements DeployEndpoint {
     $this->config = $config;
   }
 
-  function deploy(Array $resources) {
-
+  function deploy(Array $entities) {
+    print_r($entities);
   }
 
   function configForm(&$form_state) {

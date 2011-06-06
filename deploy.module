@@ -9,9 +9,6 @@ function deploy_ctools_plugin_type() {
       'cache' => TRUE,
       'use hooks' => TRUE,
       'classes' => array('handler'),
-      // Endpoints are one type of plugins, that end users can create multiple
-      // instances of, stored in the database.
-      'child plugins' => TRUE,
       'get children' => 'deploy_get_endpoint_children',
     ),
     'providers' => array(
@@ -119,6 +116,12 @@ function deploy_plan_create($schema, $item) {
   foreach ($item as $key => $value) {
     $plan->{$key} = $value;
   }
+
+  foreach ($plan->endpoints as $endpoint_name) {
+    $endpoint = deploy_endpoint_load($endpoint_name);
+    $plan->addEndpoint($endpoint);
+  }
+
   return $plan;
 }
 

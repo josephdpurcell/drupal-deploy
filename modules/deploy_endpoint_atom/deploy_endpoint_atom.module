@@ -17,3 +17,21 @@ function deploy_endpoint_atom_deploy_endpoints() {
     ),
   );
 }
+
+/**
+ * Implementation of hook_menu().
+ */
+function deploy_endpoint_atom_menu() {
+  $items = array();
+
+  $items['deploy/endpoint/atom/%deploy_plan/%deploy_endpoint'] = array(
+    'title' => t('Atom deployment endpoint'),
+    'page callback' => 'deploy_endpoint_atom_page',
+    'page arguments' => array(3, 4),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'deploy_endpoint_atom.pages.inc',
+  );
+
+  return $items;
+}

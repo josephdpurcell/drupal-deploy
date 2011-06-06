@@ -3,3 +3,4 @@ description = Provides an Atom endpoint for deployment plans that clients or sub
 package = Deployment
 core = 7.x
 dependencies[] = deploy
+dependencies[] = entity_atom
