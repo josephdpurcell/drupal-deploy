@@ -2,7 +2,11 @@
 
 class DeployServiceRestJSON extends DeployServiceRest {
 
+  /**
+   * @todo: DeployService::deploy() will take DeployEntityIterator as parameter.
+   */
   function deploy(Array $entity_ids) {
+    // @todo: Almost all of this logic will go into DeployEntityIterator.
     foreach ($entity_ids as $entity_type => $ids) {
       $entities = entity_load($entity_type, $ids);
       foreach ($entities as $id => $entity) {
