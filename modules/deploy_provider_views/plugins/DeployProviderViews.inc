@@ -11,7 +11,12 @@ class DeployProviderViews implements DeployProvider {
     $this->config = array_merge($defaults, $config);
   }
 
-  function getEntityIds() {
+  /**
+   * @see DeployProvider::getEntityCollection()
+   *
+   * @return DeployEntityIterator
+   */
+  function getEntityIterator() {
     $view = views_get_view($this->config['view_name'], 'default');
     // @todo: Consider adding a config parameter for $entity_type, since that's
     // not always consistent with $view->base_table.
@@ -21,10 +26,10 @@ class DeployProviderViews implements DeployProvider {
     $view_results = views_get_view_result($view->name, 'default');
     $entity_ids = array();
     foreach ($view_results as $view_result) {
-      $entity_ids[] = $view_result->{$entity_id_field};
+      $entity_ids[$view_result->{$entity_id_field}] = TRUE;
     }
 
-    return array($entity_type => $entity_ids);
+    return new DeployEntityIterator(array($entity_type => $entity_ids));
   }
 
   function configForm(&$form_state) {

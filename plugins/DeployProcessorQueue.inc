@@ -3,9 +3,8 @@
 class DeployProcessorQueue extends DeployProcessorMemory {
 
   function process($endpoint_name) {
-    foreach ($this->provider->getEntityIds() as $entity) {
-      // @todo Add resource id and endpoint name to queue.
-    }
+    $iterator = $this->provider->getEntityIterator();
+    // TODO: Figure out how split up and queue this.
   }
 
   function configForm(&$form_state) {
