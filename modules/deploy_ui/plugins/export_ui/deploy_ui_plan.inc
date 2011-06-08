@@ -39,7 +39,7 @@ $plugin = array(
   'form info' => array(
     'order' => array(
       'basic' => t('Basics'),
-      'provider' => t('Provider'),
+      'aggregator' => t('Aggregator'),
       'processor' => t('Processor'),
     ),
   ),

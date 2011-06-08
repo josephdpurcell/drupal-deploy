@@ -1,14 +1,17 @@
 <?php
 
 /**
- * This iterator class takes a structured array of entity ids and their entity
- * types, iterates over them, finds all their dependencies and returns full
- * entity objects in a deployable order.
+ * Just a wrapper for now.
+ */
+class DeployIteratorIterator extends RecursiveIteratorIterator {}
+
+/**
+ * Iterator which does the heavy lifting.
  *
  * @todo
  *   We need to throw an exception when we detect a circular dependency.
  */
-class DeployEntityIterator implements RecursiveIterator {
+class DeployIterator implements RecursiveIterator {
 
   var $collection = array();
 
@@ -123,8 +126,3 @@ class DeployEntityIterator implements RecursiveIterator {
   }
 
 }
-
-/**
- * Just a wrapper for now.
- */
-class DeployEntityIteratorIterator extends RecursiveIteratorIterator {}

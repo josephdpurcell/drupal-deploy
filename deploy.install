@@ -53,21 +53,21 @@ function deploy_schema() {
         'size' => 'medium',
         'not null' => TRUE,
       ),
-      'provider_plugin' => array(
-        'description' => 'Provider used for this plan.',
+      'aggregator_plugin' => array(
+        'description' => 'Aggregator plugin used for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
-      'provider_config' => array(
-        'description' => "Serialized configuration data this plan's provider plugin.",
+      'aggregator_config' => array(
+        'description' => "Serialized configuration data this plan's aggregator plugin.",
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,
         'serialize' => TRUE,
       ),
       'processor_plugin' => array(
-        'description' => 'Processor used for this plan.',
+        'description' => 'Processor plugin used for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,

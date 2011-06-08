@@ -2,7 +2,7 @@
 
 interface DeployProcessor {
 
-  function __construct(DeployProvider $provider, Array $config = array());
+  function __construct(DeployAggregator $aggregator, Array $config = array());
 
   function process($endpoint_name);
 

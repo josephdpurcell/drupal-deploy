@@ -3,8 +3,7 @@
 class DeployProcessorQueue extends DeployProcessorMemory {
 
   function process($endpoint_name) {
-    $iterator = $this->provider->getEntityIterator();
-    // TODO: Figure out how split up and queue this.
+    // TODO: Figure out how split up and queue the aggregator.
   }
 
   function configForm(&$form_state) {

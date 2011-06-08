@@ -1,6 +1,6 @@
 <?php
 
-class DeployProviderViews implements DeployProvider {
+class DeployAggregatorViews implements DeployAggregator {
 
   var $config = array();
 
@@ -12,13 +12,13 @@ class DeployProviderViews implements DeployProvider {
   }
 
   /**
-   * @see DeployProvider::getEntityCollection()
+   * @return DeployIteratorIterator
    *
-   * @return DeployEntityIterator
+   * @see DeployAggregator::getIterator()
    */
-  function getEntityIterator() {
+  function getIterator() {
     $view = views_get_view($this->config['view_name'], 'default');
-    // @todo: Consider adding a config parameter for $entity_type, since that's
+    // TODO: Consider adding a config parameter for $entity_type, since that's
     // not always consistent with $view->base_table.
     $entity_type = $view->base_table;
     $entity_id_field = $view->base_field;
@@ -29,7 +29,8 @@ class DeployProviderViews implements DeployProvider {
       $entity_ids[$view_result->{$entity_id_field}] = TRUE;
     }
 
-    return new DeployEntityIterator(array($entity_type => $entity_ids));
+    $iterator = DeployIterator(array($entity_type => $entity_ids));
+    return new DeployIteratorIterator($iterator);
   }
 
   function configForm(&$form_state) {

@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Implementation of hook_deploy_providers().
+ * Implementation of hook_deploy_aggregators().
  */
-function deploy_provider_views_deploy_providers() {
-  $path = drupal_get_path('module', 'deploy_provider_views') .'/plugins';
+function deploy_aggregator_views_deploy_aggregators() {
+  $path = drupal_get_path('module', 'deploy_aggregator_views') . '/plugins';
   return array(
-    'DeployProviderViews' => array(
-      'name' => 'Views provider',
-      'description' => 'Provides content to a deployment plan by executing a user defined view.',
+    'DeployAggregatorViews' => array(
+      'name' => 'Views aggregator',
+      'description' => 'Aggregates content to a deployment plan by executing a user defined view.',
       'handler' => array(
-        'class' => 'DeployProviderViews',
-        'file' => 'DeployProviderViews.inc',
+        'class' => 'DeployAggregatorViews',
+        'file' => 'DeployAggregatorViews.inc',
         'path' => $path,
       ),
     ),

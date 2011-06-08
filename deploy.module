@@ -18,7 +18,7 @@ function deploy_ctools_plugin_type() {
       'use hooks' => TRUE,
       'classes' => array('handler'),
     ),
-    'providers' => array(
+    'aggregators' => array(
       'cache' => TRUE,
       'use hooks' => TRUE,
       'classes' => array('handler'),
@@ -113,19 +113,19 @@ function deploy_deploy_services() {
 }
 
 /**
- * Get all provider plugins.
+ * Get all aggregator plugins.
  */
-function deploy_get_provider_plugins() {
+function deploy_get_aggregator_plugins() {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'providers');
+  return ctools_get_plugins('deploy', 'aggregators');
 }
 
 /**
- * Get one provider plugin.
+ * Get one aggregator plugin.
  */
-function deploy_get_provider_plugin($name) {
+function deploy_get_aggregator_plugin($name) {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'providers', $name);
+  return ctools_get_plugins('deploy', 'aggregators', $name);
 }
 
 /**
@@ -180,15 +180,15 @@ function deploy_get_service_plugin($name) {
  * Object factory for a deployment plan.
  */
 function deploy_plan_create($schema, $item) {
-  // @todo Read $schema instead to find out what fields that are serialized.
-  foreach (array('provider_config', 'processor_config', 'endpoints') as $serialized_param) {
+  // TODO: Read $schema instead to find out what fields that are serialized.
+  foreach (array('aggregator_config', 'processor_config', 'endpoints') as $serialized_param) {
     if (!is_array($item->{$serialized_param})) {
       $item->{$serialized_param} = unserialize($item->{$serialized_param});
     }
   }
 
-  $provider = new $item->provider_plugin((array)$item->provider_config);
-  $processor = new $item->processor_plugin($provider, (array)$item->processor_config);
+  $aggregator = new $item->aggregator_plugin((array)$item->aggregator_config);
+  $processor = new $item->processor_plugin($aggregator, (array)$item->processor_config);
 
   $plan = new DeployPlan($processor);
   foreach ($item as $key => $value) {
@@ -223,7 +223,7 @@ function deploy_plan_load_all() {
  * Object factory for a deployment endpoint.
  */
 function deploy_endpoint_create($schema, $item) {
-  // @todo Read $schema instead to find out what fields that are serialized.
+  // TODO: Read $schema instead to find out what fields that are serialized.
   foreach (array('authentication_config', 'service_config') as $serialized_param) {
     if (!is_array($item->{$serialized_param})) {
       $item->{$serialized_param} = unserialize($item->{$serialized_param});

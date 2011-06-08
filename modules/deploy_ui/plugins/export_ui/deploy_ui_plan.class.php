@@ -43,17 +43,17 @@ class deploy_ui_plan extends ctools_export_ui {
       '#default_value' => $item->description,
     );
 
-    // Providers.
-    $providers = deploy_get_provider_plugins();
+    // Aggregators.
+    $aggregators = deploy_get_aggregator_plugins();
     $options = array();
-    foreach ($providers as $key => $provider) {
+    foreach ($aggregators as $key => $aggregator) {
       $options[$key] = array(
-        'name' => $provider['name'],
-        'description' => $provider['description'],
+        'name' => $aggregator['name'],
+        'description' => $aggregator['description'],
       );
     }
-    $form['provider_plugin'] = array(
-      '#prefix' => '<label>' . t('Provider') . '</label>',
+    $form['aggregator_plugin'] = array(
+      '#prefix' => '<label>' . t('Aggregator') . '</label>',
       '#type' => 'tableselect',
       '#required' => TRUE,
       '#multiple' => FALSE,
@@ -62,7 +62,7 @@ class deploy_ui_plan extends ctools_export_ui {
         'description' => t('Description'),
       ),
       '#options' => $options,
-      '#default_value' => $item->provider_plugin,
+      '#default_value' => $item->aggregator_plugin,
     );
 
     // Processors.
@@ -87,7 +87,7 @@ class deploy_ui_plan extends ctools_export_ui {
       '#default_value' => $item->processor_plugin,
     );
 
-    // Endpoint types.
+    // Endpoints.
     $endpoints = deploy_endpoint_load_all();
     $options = array();
     foreach ($endpoints as $endpoint) {
@@ -122,7 +122,7 @@ class deploy_ui_plan extends ctools_export_ui {
     $item->name = $form_state['values']['name'];
     $item->title = $form_state['values']['title'];
     $item->description = $form_state['values']['description'];
-    $item->provider_plugin = $form_state['values']['provider_plugin'];
+    $item->aggregator_plugin = $form_state['values']['aggregator_plugin'];
     $item->processor_plugin = $form_state['values']['processor_plugin'];
     if (!empty($form_state['values']['endpoints'])) {
       $item->endpoints = $form_state['values']['endpoints'];
@@ -132,34 +132,34 @@ class deploy_ui_plan extends ctools_export_ui {
     }
   }
 
-  function edit_form_provider(&$form, &$form_state) {
+  function edit_form_aggregator(&$form, &$form_state) {
     $item = $form_state['item'];
-    if (!is_array($item->provider_config)) {
-      $item->provider_config = unserialize($item->provider_config);
+    if (!is_array($item->aggregator_config)) {
+      $item->aggregator_config = unserialize($item->aggregator_config);
     }
 
-    // Create the provider object.
-    $provider = new $item->provider_plugin((array)$item->provider_config);
+    // Create the aggregator object.
+    $aggregator = new $item->aggregator_plugin((array)$item->aggregator_config);
 
-    $form['provider_config'] = $provider->configForm($form_state);
-    if (!empty($form['provider_config'])) {
-      $form['provider_config']['#tree'] = TRUE;
+    $form['aggregator_config'] = $aggregator->configForm($form_state);
+    if (!empty($form['aggregator_config'])) {
+      $form['aggregator_config']['#tree'] = TRUE;
     }
     else {
-      $form['provider_config'] = array(
+      $form['empty'] = array(
         '#type' => 'markup',
-        '#markup' => '<p>' . t('There are no settings for this provider plugin.') . '</p>'
+        '#markup' => '<p>' . t('There are no settings for this aggregator plugin.') . '</p>'
       );
     }
   }
 
-  function edit_form_provider_submit(&$form, &$form_state) {
+  function edit_form_aggregator_submit(&$form, &$form_state) {
     $item = $form_state['item'];
-    if (!empty($form_state['values']['provider_config'])) {
-      $item->provider_config = $form_state['values']['provider_config'];
+    if (!empty($form_state['values']['aggregator_config'])) {
+      $item->aggregator_config = $form_state['values']['aggregator_config'];
     }
     else {
-      $item->provider_config = array();
+      $item->aggregator_config = array();
     }
   }
 
@@ -169,17 +169,17 @@ class deploy_ui_plan extends ctools_export_ui {
       $item->processor_config = unserialize($item->processor_config);
     }
 
-    // Create the provider object which is a dependency of the processor object.
-    $provider = new $item->provider_plugin((array)$item->provider_config);
+    // Create the aggregator object which is a dependency of the processor object.
+    $aggregator = new $item->aggregator_plugin((array)$item->aggregator_config);
     // Create the processor object.
-    $processor = new $item->processor_plugin($provider, (array)$item->processor_config);
+    $processor = new $item->processor_plugin($aggregator, (array)$item->processor_config);
 
     $form['processor_config'] = $processor->configForm($form_state);
     if (!empty($form['config']['processor_config'])) {
       $form['processor_config']['#tree'] = TRUE;
     }
     else {
-      $form['config']['processor_config'] = array(
+      $form['empty'] = array(
         '#type' => 'markup',
         '#markup' => '<p>' . t('There are no settings for this processor plugin.') . '</p>'
       );

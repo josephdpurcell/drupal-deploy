@@ -1,19 +1,21 @@
 <?php
 
-interface DeployProvider {
+interface DeployAggregator extends IteratorAggregate {
 
   function __construct(Array $config = array());
 
   /**
-   * Returns a collection (a structured array) of entities for deployment.
-   * Dependencies does not need to be taken into consideration here.
+   * Returns an iterator with entities for deployment.
    *
-   * The structure of the array that should be returned is documented in the
-   * DeployEntityIterator class.
+   * Since we are dealing with resursive iteration (entities with references),
+   * we need to run DeployIterator through DeployIteratorIterator and return the
+   * later one.
    *
-   * @see DeployEntityIterator::__construct()
+   * @return DeployIteratorIterator
+   *
+   * @see http://giorgiosironi.blogspot.com/2010/02/practical-php-patterns-iterator.html
    */
-  function getEntityIterator();
+  function getIterator();
 
   function configForm(&$form_state);
 

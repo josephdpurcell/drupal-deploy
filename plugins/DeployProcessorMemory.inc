@@ -4,18 +4,16 @@ class DeployProcessorMemory implements DeployProcessor {
 
   var $config = array();
 
-  var $provider = NULL;
+  var $aggregator = NULL;
 
-  function __construct(DeployProvider $provider, Array $config = array()) {
+  function __construct(DeployAggregator $aggregator, Array $config = array()) {
     $this->config = $config;
-    $this->provider = $provider;
+    $this->aggregator = $aggregator;
   }
 
   function process($endpoint_name) {
-    $entity_wrappers = array();
     $endpoint = deploy_endpoint_load($endpoint_name);
-    $iterator = new DeployEntityIteratorIterator($this->provider->getEntityIterator());
-    $endpoint->deploy($iterator);
+    $endpoint->deploy($this->aggregator);
   }
 
   function configForm(&$form_state) {
