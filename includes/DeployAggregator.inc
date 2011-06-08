@@ -15,7 +15,7 @@ interface DeployAggregator extends IteratorAggregate {
    *
    * @see http://giorgiosironi.blogspot.com/2010/02/practical-php-patterns-iterator.html
    */
-  function getIterator();
+  //function getIterator();
 
   function configForm(&$form_state);
 

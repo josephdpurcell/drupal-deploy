@@ -29,7 +29,7 @@ class DeployAggregatorViews implements DeployAggregator {
       $entity_ids[$view_result->{$entity_id_field}] = TRUE;
     }
 
-    $iterator = DeployIterator(array($entity_type => $entity_ids));
+    $iterator = new DeployIterator(array($entity_type => $entity_ids));
     return new DeployIteratorIterator($iterator);
   }
 

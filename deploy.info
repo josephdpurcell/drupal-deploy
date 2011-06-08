@@ -3,11 +3,12 @@ description = Allows content to be deployed between servers. Either to be used a
 package = Deployment
 core = 7.x
 
+files[] = includes/DeployAggregator.inc
 files[] = includes/DeployAuthentication.inc
 files[] = includes/DeployEndpoint.inc
+files[] = includes/DeployIterator.inc
 files[] = includes/DeployPlan.inc
 files[] = includes/DeployProcessor.inc
-files[] = includes/DeployProvider.inc
 files[] = includes/DeployService.inc
 files[] = includes/DeployServiceRest.inc
 

@@ -99,13 +99,18 @@ class DeployIterator implements RecursiveIterator {
       $collection[$key] = TRUE;
       $parent = $key;
     }
-    $iterator = new DeployEntityIterator($collection);
+    $iterator = new DeployIterator($collection);
     $iterator->parent = $key;
     return $iterator;
   }
 
   function current() {
-    return current($this->collection);
+    $current = current($this->collection);
+    if (is_array($current)) {
+      return $current;
+    }
+    // TODO: Figure out how we can make it return the entity type key.
+    return 'node';
   }
 
   function key() {

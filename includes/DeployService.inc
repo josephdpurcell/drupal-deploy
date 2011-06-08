@@ -4,7 +4,7 @@ interface DeployService {
 
   function __construct(Array $config = array());
 
-  function deploy(DeployEntityIteratorIterator $iterator);
+  function deploy(Array $entity_wrappers);
 
   function configForm(&$form_state);
 

@@ -18,12 +18,12 @@ class DeployServiceRest implements DeployService {
     $this->config = array_merge($defaults, $config);
   }
 
-  function deploy(Array $entities) {}
+  function deploy(Array $entity_wrappers) {}
 
   function httpPost($entity_type, $entity_id, $data, $format) {
     $url = $this->config['url'] . '/' . $entity_type . '/' . $entity_id . '.' . $format;
     $options = array(
-      'method' => 'PUT',
+      'method' => 'POST',
       'headers' => $this->headers,
       'data' => $data
     );
