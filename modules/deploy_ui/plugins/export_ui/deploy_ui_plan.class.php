@@ -209,7 +209,6 @@ class deploy_ui_plan extends ctools_export_ui {
     $output = drupal_build_form('deploy_ui_plan_confirm_form', $form_state);
 
     if (!empty($form_state['executed'])) {
-      // @todo: Deploy plan.
       $item->deploy();
       $export_key = $this->plugin['export']['key'];
       $message = str_replace('%title', check_plain($item->{$export_key}), '%title has been deployed');
