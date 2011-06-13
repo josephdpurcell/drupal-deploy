@@ -1,0 +1,14 @@
+
+GENERAL TODO'S
+--------------
+
+ * Rename the plugin type 'Authentication' to 'Authenticator' to stick with the
+   pattern.
+
+ * Oversee how the iterator works. Prefereably it should be able to return fully
+   wrapped entities. See DeployEndpoint::deploy().
+
+ * Oversee how default config keys should be set in plugin objects.
+
+ * See if we really need to define plugins through hooks. Is $plugin enough
+   maybe, like 'content_types' etc. are defined. Performance implications?
