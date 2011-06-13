@@ -1,0 +1,198 @@
+
+CONTENTS OF THIS FILE
+---------------------
+
+ * API outline
+ * Summary of the deployment cycle
+ * The plan object
+ * The endpoint object
+ * The aggregator plugin
+ * The processor plugin
+ * The authentication plugin
+ * The service plugin
+
+API OUTLINE
+-----------
+
+The Deploy module is used to deploy Drupal content to other Drupal sites or
+arbritary systems. The definition used here for "content" is Drupal entities.
+Thus, entities are the only Drupal object that can be deployed. Other objects
+(usually configuration objects), like Views and Panels are preferably deployed
+in code with the Features module and a version controll system.
+
+The Deploy module depends on the Entity API module, which gives us the
+advantage of wrapping more meta data around each entity and makes us able to
+handle all entities in one generic way.
+
+A deployment cycle is represented by six types of objects. The two main objects
+are:
+
+ * Plans
+ * Endpoints
+
+Those two objects are basically configuration and factory objects around the
+following plugins, which are all CTools plugins:
+
+ * Aggregators
+ * Processors
+ * Authenticators
+ * Services
+
+The API and the relation between all the objects is built around the dependency
+injection pattern as much as possible. Read more about that pattern here:
+http://en.wikipedia.org/wiki/Dependency_injection
+
+SUMMARY OF THE DEPLOYMENT CYCLE
+-------------------------------
+
+This section is intended to give a brief summary of how the deployment cycle
+works. For more in-depth information about each specific object type, please
+refer to the later topics in this document.
+
+ 1. Deployment of a plan is due. The plan is loaded with 'deploy_plan_load()',
+    either from the database or from the default hook.
+
+ 2. The plan object is factored through 'deploy_plan_create()' with data
+    provided by the source (database or default hook). The factory function
+    will fully configure and instansiate one aggregator plugin and one
+    processor plugin. The fully configured plan object is returned to the load
+    function which returns it back to the trigger.
+
+ 3. The trigger calls the 'deploy' method on the plan object which starts the
+    whole deployment cycle.
+
+ 4. The plan iterates over its endpoint references and hands them over to the
+    processor.
+
+ 5. The processor processes each endpoint by requesting all entities from the
+    aggregator (6) and hands them over to the endpoint when appropriate (7).
+    Between 6 and 7 the processor decides to either process all endpoints and
+    entities directly, batch them into smaller pieces or queue the process for
+    later.
+
+ 6. The aggregator gets called by the processor and goes aggregating all
+    entities for deployment. It passes all the entity types and entity ids into
+    the 'DeployIterator' that will find out all dependencies. Since
+    'DeployIterator' is recursive, the aggregator passes it into
+    'DeployIteratorIterator' which basically flattens it.
+
+ 7. The endpoint is loaded by the processor, with fully configured
+    authenticator and service plugins. It is also handed a batch of entities for
+    deployment. The endpoint is wrapping all entities with some additional meta
+    data, calls the authenticator and hands the batch of entities, now with
+    better meta data, to the service plugin.
+
+ 8. The service plugin is handed the batch of entities and deploys them over
+    its service.
+
+THE PLAN OBJECT
+---------------
+
+One plan consists of one aggregator plugin and one processor plugin and
+references to one or many endpoints. This gives us a good representation of
+what a plan actually is -- a workflow for aggregating and processing entities
+for deployment to one or many endpoints.
+
+When a deployment is triggered for a plan object, that object is responsible
+for iterating over its endpoints and process them with its processor. The
+plan's responsibility ends there.
+
+Plans are CTools exportable objects and are instances of the 'DeployPlan'
+class. 'DeployPlan' take one fully configured processor object upon
+construction. In its factory function 'deploy_plan_create()' the plan object
+will be populated with its endpoint references.
+
+Deployment of plans can be triggered in many different ways. Either manually by
+an end user, by a custom Rules event or through a Drush command. More ways of
+triggering deployment of a plan can be provided by contrib modules.
+
+THE ENDPOINT OBJECT
+-------------------
+
+One endpoint consists of one authenticator plugin and one service plugin. This
+gives us a good representation of what an endpoint actually is -- another site
+or system accessible through one specific type of service with one specific
+type of authentication method.
+
+An endpoint objects is handed an iterator of entities and is responsible for
+calling its authenticator and hand the entities over to its service. The
+endpoint's responsibility ends there.
+
+Endpoints are CTools exportable objects and are instances of the
+'DeployEndpoint' class. 'DeployEndpoint' takes one fully configured
+authenticator object and one fully configured service object upon construction.
+
+Depending on the processor used in the plan, the endpoint might be handed one
+or many entities to deploy.
+
+THE AGGREGATOR PLUGIN
+---------------------
+
+The aggregator plugin is responsible for aggregating entities that shall be
+deployed, for a processor to process. The method for how an aggregator
+aggregates its entities can widely vary between plugins. The one aggregator
+plugin that comes with the Deploy module is aggregating entities with a user
+defined view.
+
+Aggregator plugins needs to implement the 'DeployAggregator' interface. That
+interface extends the Standard PHP Library (SPL) inteface 'IteratorAggregate'
+which makes the object traversable. This brings us cleaner, more consistent and
+more readable code.
+
+One requirement to implement the 'IteratorAggregate' inteface is to define a
+'getIterator' method which must return an iterator. This is the method where
+the aggregator will aggregate all its entities and construct a 'DeployIterator'
+with its entity types and entity ids. The 'DeployIterator' will then iterate
+over all aggregated entities and find all their recursive dependencies. This
+makes the aggregator not needing to figure out dependencies.
+
+Since the nature of 'DeployIterator' is recursive with all dependencies, and we
+want processors to process all entities in a flat way, the 'getIterator' method
+needs to return an instance of 'DeployIteratorIterator', which basically will
+flatten the result.
+
+Aggregator plugins are defined by implementing 'hook_deploy_aggregators()'.
+See 'deploy_deploy_aggregators()' for more information on how the
+implementation should look like.
+
+THE PROCESSOR PLUGIN
+--------------------
+
+The processor plugin is responsible for processing all aggregated entities and
+hand them over to an endpoint for deployment. The reason why processors exists
+is because large plans might take a long time to walk through. Processors gives
+the possibility to queue or batch this operation into smaller pieces.
+
+Processor plugins needs to implement the 'DeployProcessor' interface and takes
+a fully configured aggregator object upon construction. When processing are due
+its handed an endpoint name, which its responsible to load and hand the
+traversable aggregator to, or pieces of it.
+
+Processor plugins are defined by implementing 'hook_deploy_processors()'. See
+'deploy_deploy_processors()' for more information on how the implementation
+should look like.
+
+THE AUTHENTICATOR PLUGIN
+------------------------
+
+It's not yet fully decided how authenticators should work yet.
+
+Authentication plugins are defined by implementing
+'hook_deploy_authenticators()'. See 'deploy_deploy_authenticators()' for more
+information on how the implementation should look like.
+
+THE SERVICE PLUGIN
+------------------
+
+The service plugin is responsible for doing the actual deployment of one or
+many entities to a remote site or arbritary system, through a specific type of
+service.
+
+When deployment is due, the service object is handed a traversable iterator of
+entities to deploy. Depending on the processor it might be one or many entities
+in that iterator.
+
+Service plugins are defined by implementing 'hook_deploy_services()'. See
+'deploy_deploy_services()' for more information on how the implementation
+should look like.
+
