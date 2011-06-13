@@ -106,8 +106,9 @@ class deploy_ui_endpoint extends ctools_export_ui {
       $item->authentication_config = unserialize($item->authentication_config);
     }
 
+    $service = new $item->service_plugin((array)$item->service_config);
     // Create the authentication object.
-    $authentication = new $item->authentication_plugin((array)$item->authentication_config);
+    $authentication = new $item->authentication_plugin($service, (array)$item->authentication_config);
 
     $form['authentication_config'] = $authentication->configForm($form_state);
     if (!empty($form['authentication_config'])) {

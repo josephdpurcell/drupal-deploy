@@ -13,6 +13,7 @@ files[] = includes/DeployService.inc
 files[] = includes/DeployServiceRest.inc
 
 files[] = plugins/DeployAuthenticationBasic.inc
+files[] = plugins/DeployAuthenticationNone.inc
 files[] = plugins/DeployAuthenticationOAuth.inc
 files[] = plugins/DeployProcessorMemory.inc
 files[] = plugins/DeployProcessorQueue.inc

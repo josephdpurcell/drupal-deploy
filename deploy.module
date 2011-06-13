@@ -64,6 +64,15 @@ function deploy_deploy_processors() {
 function deploy_deploy_authentications() {
   $path = drupal_get_path('module', 'deploy') . '/plugins';
   return array(
+    'DeployAuthenticationNone' => array(
+      'name' => 'No authentication',
+      'description' => "Doesn't perform any form of authentication at all.",
+      'handler' => array(
+        'class' => 'DeployAuthenticationNone',
+        'file' => 'DeployAuthenticationNone.inc',
+        'path' => $path,
+      ),
+    ),
     'DeployAuthenticationBasic' => array(
       'name' => 'Basic HTTP',
       'description' => 'Performs basic HTTP authentication on the endpoint.',
@@ -230,9 +239,9 @@ function deploy_endpoint_create($schema, $item) {
     }
   }
 
-  $authentication = new $item->authentication_plugin((array)$item->authentication_config);
   $service = new $item->service_plugin((array)$item->service_config);
-  $endpoint = new DeployEndpoint($authentication, $service);
+  $authentication = new $item->authentication_plugin($service, (array)$item->authentication_config);
+  $endpoint = new DeployEndpoint($authentication);
 
   foreach ($item as $key => $value) {
     $endpoint->{$key} = $value;

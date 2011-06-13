@@ -6,9 +6,8 @@ class DeployEndpoint {
 
   var $service = NULL;
 
-  function __construct(DeployAuthentication $authentication, DeployService $service) {
+  function __construct(DeployAuthentication $authentication) {
     $this->authentication = $authentication;
-    $this->service = $service;
   }
 
   function deploy(Traversable $iterator) {
@@ -27,7 +26,7 @@ class DeployEndpoint {
     }
 
     // This belongs here tough.
-    $this->service->deploy($entity_wrappers);
+    $this->authentication->deploy($entity_wrappers);
   }
 
 }

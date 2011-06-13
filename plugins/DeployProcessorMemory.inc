@@ -2,13 +2,13 @@
 
 class DeployProcessorMemory implements DeployProcessor {
 
-  var $config = array();
-
   var $aggregator = NULL;
 
+  var $config = array();
+
   function __construct(DeployAggregator $aggregator, Array $config = array()) {
-    $this->config = $config;
     $this->aggregator = $aggregator;
+    $this->config = $config;
   }
 
   function process($endpoint_name) {

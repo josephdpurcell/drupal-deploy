@@ -6,6 +6,8 @@ interface DeployService {
 
   function deploy(Array $entity_wrappers);
 
+  function setHeader($key, $value);
+
   function configForm(&$form_state);
 
 }

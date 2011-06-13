@@ -20,6 +20,10 @@ class DeployServiceRest implements DeployService {
 
   function deploy(Array $entity_wrappers) {}
 
+  function setHeader($key, $value) {
+    $this->headers[$key] = $value;
+  }
+
   function httpPost($entity_type, $entity_id, $data, $format) {
     $url = $this->config['url'] . '/' . $entity_type . '/' . $entity_id . '.' . $format;
     $options = array(

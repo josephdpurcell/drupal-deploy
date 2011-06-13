@@ -1,19 +1,36 @@
 <?php
 
-class DeployAuthenticationBasic implements DeployAuthentication {
+class DeployAuthenticationBasic extends DeployAuthenticationNone {
 
-  var $config = array();
-
-  function __construct(Array $config = array()) {
-    $this->config = $config;
+  function __construct(DeployService $service, Array $config = array()) {
+    $this->service = $service;
+    $defaults = array(
+      'username' => '',
+      'password' => '',
+    );
+    $this->config = array_merge($defaults, $config);
   }
 
-  function authenticate() {
-    return TRUE;
+  function deploy(Array $entity_wrappers) {
+    $this->service->setHeader('Authorization', 'Basic ' . base64_encode($this->config['username'] . ':' . $this->config['password']));
+    $this->service->deploy($entity_wrappers);
   }
 
   function configForm(&$form_state) {
-    return array();
+    return array(
+      'username' => array(
+        '#type' => 'textfield',
+        '#title' => t('Username'),
+        '#description' => t('Enter the username that you want to authenticate with on this endpoint.'),
+        '#default_value' => $this->config['username'],
+      ),
+      'password' => array(
+        '#type' => 'password',
+        '#title' => t('Password'),
+        '#description' => t('Enter the password that you want to authenticate with on this endpoint.'),
+        '#default_value' => $this->config['password'],
+      ),
+    );
   }
 
 }
