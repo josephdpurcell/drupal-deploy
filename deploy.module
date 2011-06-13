@@ -8,6 +8,7 @@
  */
 function deploy_ctools_plugin_type() {
   return array(
+    // TODO: Rename to authenticators/authenticator to stick with the pattern.
     'authentications' => array(
       'cache' => TRUE,
       'use hooks' => TRUE,
