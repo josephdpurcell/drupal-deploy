@@ -9,6 +9,8 @@ $plugin = array(
     'menu item' => 'plans',
     'menu title' => 'Plans',
     'items' => array(
+      // TODO: Is there a simpler way to do add this page callback natively as
+      // an allowed option in CTools? It's a nightmare to follow for developers.
       'deploy' => array(
         'path' => 'list/%ctools_export_ui/deploy',
         'title' => 'Deploy',
