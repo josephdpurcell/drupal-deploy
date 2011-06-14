@@ -11,8 +11,8 @@ class DeployAuthenticationNone implements DeployAuthentication {
     $this->config = $config;
   }
 
-  function deploy(Array $entity_wrappers) {
-    $this->service->deploy($entity_wrappers);
+  function deploy(Traversable $iterator) {
+    $this->service->deploy($iterator);
   }
 
   function configForm(&$form_state) {

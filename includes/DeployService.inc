@@ -4,7 +4,7 @@ interface DeployService {
 
   function __construct(Array $config = array());
 
-  function deploy(Array $entity_wrappers);
+  function deploy(Traversable $iterator);
 
   function setHeader($key, $value);
 

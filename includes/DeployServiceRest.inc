@@ -18,7 +18,7 @@ class DeployServiceRest implements DeployService {
     $this->config = array_merge($defaults, $config);
   }
 
-  function deploy(Array $entity_wrappers) {}
+  function deploy(Traversable $iterator) {}
 
   function setHeader($key, $value) {
     $this->headers[$key] = $value;

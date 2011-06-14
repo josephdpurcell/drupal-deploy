@@ -17,6 +17,8 @@ class DeployIterator implements RecursiveIterator {
 
   var $parent = NULL;
 
+  var $entityType = NULL;
+
   /**
    * Constructor.
    *
@@ -51,6 +53,7 @@ class DeployIterator implements RecursiveIterator {
     $key = $this->key();
     $current = $this->current();
     if (is_array($current)) {
+      $this->entityType = $key;
       return TRUE;
     }
     // TODO: Invoke hook that returns all references to this key.
@@ -101,6 +104,7 @@ class DeployIterator implements RecursiveIterator {
     }
     $iterator = new DeployIterator($collection);
     $iterator->parent = $key;
+    $iterator->entityType = $this->entityType;
     return $iterator;
   }
 
@@ -109,8 +113,10 @@ class DeployIterator implements RecursiveIterator {
     if (is_array($current)) {
       return $current;
     }
-    // TODO: Figure out how we can make it return the entity type key.
-    return 'node';
+    // TODO: Figure out how we can parse and make use of the entity type keys
+    // in $collection and not hard code to 'node'.
+    $entity = reset(entity_load($this->entityType, array($this->key())));
+    return entity_metadata_wrapper($this->entityType, $entity);
   }
 
   function key() {

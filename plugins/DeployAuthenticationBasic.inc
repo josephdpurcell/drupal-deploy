@@ -11,9 +11,9 @@ class DeployAuthenticationBasic extends DeployAuthenticationNone {
     $this->config = array_merge($defaults, $config);
   }
 
-  function deploy(Array $entity_wrappers) {
+  function deploy(Traversable $iterator) {
     $this->service->setHeader('Authorization', 'Basic ' . base64_encode($this->config['username'] . ':' . $this->config['password']));
-    $this->service->deploy($entity_wrappers);
+    $this->service->deploy($iterator);
   }
 
   function configForm(&$form_state) {
