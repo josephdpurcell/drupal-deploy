@@ -25,7 +25,7 @@ $plugin = array(
   'form info' => array(
     'order' => array(
       'basic' => t('Basics'),
-      'authentication' => t('Authentication'),
+      'authenticator' => t('Authenticator'),
       'service' => t('Service'),
     ),
   ),

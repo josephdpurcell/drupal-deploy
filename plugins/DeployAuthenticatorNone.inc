@@ -1,6 +1,6 @@
 <?php
 
-class DeployAuthenticationNone implements DeployAuthentication {
+class DeployAuthenticatorNone implements DeployAuthenticator {
 
   var $service = NULL;
 

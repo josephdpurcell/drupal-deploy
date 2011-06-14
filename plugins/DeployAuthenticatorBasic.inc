@@ -1,6 +1,6 @@
 <?php
 
-class DeployAuthenticationBasic extends DeployAuthenticationNone {
+class DeployAuthenticatorBasic extends DeployAuthenticatorNone {
 
   function __construct(DeployService $service, Array $config = array()) {
     $this->service = $service;

@@ -2,16 +2,16 @@
 
 class DeployEndpoint {
 
-  var $authentication = NULL;
+  var $authenticator = NULL;
 
   var $service = NULL;
 
-  function __construct(DeployAuthentication $authentication) {
-    $this->authentication = $authentication;
+  function __construct(DeployAuthenticator $authenticator) {
+    $this->authenticator = $authenticator;
   }
 
   function deploy(Traversable $iterator) {
-    $this->authentication->deploy($iterator);
+    $this->authenticator->deploy($iterator);
   }
 
 }

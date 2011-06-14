@@ -42,17 +42,17 @@ class deploy_ui_endpoint extends ctools_export_ui {
       '#default_value' => $item->description,
     );
 
-    // Authentications.
-    $authentications = deploy_get_authentication_plugins();
+    // Authenticators.
+    $authenticators = deploy_get_authenticator_plugins();
     $options = array();
-    foreach ($authentications as $key => $authentication) {
+    foreach ($authenticators as $key => $authenticator) {
       $options[$key] = array(
-        'name' => $authentication['name'],
-        'description' => $authentication['description'],
+        'name' => $authenticator['name'],
+        'description' => $authenticator['description'],
       );
     }
-    $form['authentication_plugin'] = array(
-      '#prefix' => '<label>' . t('Authentication') . '</label>',
+    $form['authenticator_plugin'] = array(
+      '#prefix' => '<label>' . t('Authenticator') . '</label>',
       '#type' => 'tableselect',
       '#required' => TRUE,
       '#multiple' => FALSE,
@@ -61,7 +61,7 @@ class deploy_ui_endpoint extends ctools_export_ui {
         'description' => t('Description'),
       ),
       '#options' => $options,
-      '#default_value' => $item->authentication_plugin,
+      '#default_value' => $item->authenticator_plugin,
     );
 
     // Services.
@@ -96,39 +96,39 @@ class deploy_ui_endpoint extends ctools_export_ui {
     $item->name = $form_state['values']['name'];
     $item->title = $form_state['values']['title'];
     $item->description = $form_state['values']['description'];
-    $item->authentication_plugin = $form_state['values']['authentication_plugin'];
+    $item->authenticator_plugin = $form_state['values']['authenticator_plugin'];
     $item->service_plugin = $form_state['values']['service_plugin'];
   }
 
-  function edit_form_authentication(&$form, &$form_state) {
+  function edit_form_authenticator(&$form, &$form_state) {
     $item = $form_state['item'];
-    if (!is_array($item->authentication_config)) {
-      $item->authentication_config = unserialize($item->authentication_config);
+    if (!is_array($item->authenticator_config)) {
+      $item->authenticator_config = unserialize($item->authenticator_config);
     }
 
     $service = new $item->service_plugin((array)$item->service_config);
-    // Create the authentication object.
-    $authentication = new $item->authentication_plugin($service, (array)$item->authentication_config);
+    // Create the authenticator object.
+    $authenticator = new $item->authenticator_plugin($service, (array)$item->authenticator_config);
 
-    $form['authentication_config'] = $authentication->configForm($form_state);
-    if (!empty($form['authentication_config'])) {
-      $form['authentication_config']['#tree'] = TRUE;
+    $form['authenticator_config'] = $authenticator->configForm($form_state);
+    if (!empty($form['authenticator_config'])) {
+      $form['authenticator_config']['#tree'] = TRUE;
     }
     else {
-      $form['authentication_config'] = array(
+      $form['authenticator_config'] = array(
         '#type' => 'markup',
-        '#markup' => '<p>' . t('There are no settings for this authentication plugin.') . '</p>',
+        '#markup' => '<p>' . t('There are no settings for this authenticator plugin.') . '</p>',
       );
     }
   }
 
-  function edit_form_authentication_submit(&$form, &$form_state) {
+  function edit_form_authenticator_submit(&$form, &$form_state) {
     $item = $form_state['item'];
-    if (!empty($form_state['values']['authentication_config'])) {
-      $item->authentication_config = $form_state['values']['authentication_config'];
+    if (!empty($form_state['values']['authenticator_config'])) {
+      $item->authenticator_config = $form_state['values']['authenticator_config'];
     }
     else {
-      $item->authentication_config = array();
+      $item->authenticator_config = array();
     }
   }
 

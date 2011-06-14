@@ -134,14 +134,14 @@ function deploy_schema() {
         'size' => 'medium',
         'not null' => TRUE,
       ),
-      'authentication_plugin' => array(
-        'description' => 'Authentication plugin used for this endpoint.',
+      'authenticator_plugin' => array(
+        'description' => 'Authenticator plugin used for this endpoint.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
       ),
-      'authentication_config' => array(
-        'description' => "Serialized configuration data for this endpoint's authentication plugin.",
+      'authenticator_config' => array(
+        'description' => "Serialized configuration data for this endpoint's authenticator plugin.",
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,

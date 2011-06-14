@@ -8,8 +8,7 @@
  */
 function deploy_ctools_plugin_type() {
   return array(
-    // TODO: Rename to authenticators/authenticator to stick with the pattern.
-    'authentications' => array(
+    'authenticators' => array(
       'cache' => TRUE,
       'use hooks' => TRUE,
       'classes' => array('handler'),
@@ -62,33 +61,33 @@ function deploy_deploy_processors() {
 /**
  * Implementation of hook_deploy_authentications().
  */
-function deploy_deploy_authentications() {
+function deploy_deploy_authenticators() {
   $path = drupal_get_path('module', 'deploy') . '/plugins';
   return array(
-    'DeployAuthenticationNone' => array(
+    'DeployAuthenticatorNone' => array(
       'name' => 'No authentication',
       'description' => "Doesn't perform any form of authentication at all.",
       'handler' => array(
-        'class' => 'DeployAuthenticationNone',
-        'file' => 'DeployAuthenticationNone.inc',
+        'class' => 'DeployAuthenticatorNone',
+        'file' => 'DeployAuthenticatorNone.inc',
         'path' => $path,
       ),
     ),
-    'DeployAuthenticationBasic' => array(
+    'DeployAuthenticatorBasic' => array(
       'name' => 'Basic HTTP',
       'description' => 'Performs basic HTTP authentication on the endpoint.',
       'handler' => array(
-        'class' => 'DeployAuthenticationBasic',
-        'file' => 'DeployAuthenticationBasic.inc',
+        'class' => 'DeployAuthenticatorBasic',
+        'file' => 'DeployAuthenticatorBasic.inc',
         'path' => $path,
       ),
     ),
-    'DeployAuthenticationOAuth' => array(
+    'DeployAuthenticatorOAuth' => array(
       'name' => 'oAuth',
       'description' => 'Uses the oAuth protocol to authenticate with the endpoint.',
       'handler' => array(
-        'class' => 'DeployAuthenticationOAuth',
-        'file' => 'DeployAuthenticationOAuth.inc',
+        'class' => 'DeployAuthenticatorOAuth',
+        'file' => 'DeployAuthenticatorOAuth.inc',
         'path' => $path,
       ),
     ),
@@ -155,19 +154,19 @@ function deploy_get_processor_plugin($name) {
 }
 
 /**
- * Get all authentication plugins.
+ * Get all authenticator plugins.
  */
-function deploy_get_authentication_plugins() {
+function deploy_get_authenticator_plugins() {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'authentications');
+  return ctools_get_plugins('deploy', 'authenticators');
 }
 
 /**
- * Get one authentication plugin.
+ * Get one authenticator plugin.
  */
-function deploy_get_authentication_plugin($name) {
+function deploy_get_authenticator_plugin($name) {
   ctools_include('plugins');
-  return ctools_get_plugins('deploy', 'authentications', $name);
+  return ctools_get_plugins('deploy', 'authenticators', $name);
 }
 
 /**
@@ -234,15 +233,15 @@ function deploy_plan_load_all() {
  */
 function deploy_endpoint_create($schema, $item) {
   // TODO: Read $schema instead to find out what fields that are serialized.
-  foreach (array('authentication_config', 'service_config') as $serialized_param) {
+  foreach (array('authenticator_config', 'service_config') as $serialized_param) {
     if (!is_array($item->{$serialized_param})) {
       $item->{$serialized_param} = unserialize($item->{$serialized_param});
     }
   }
 
   $service = new $item->service_plugin((array)$item->service_config);
-  $authentication = new $item->authentication_plugin($service, (array)$item->authentication_config);
-  $endpoint = new DeployEndpoint($authentication);
+  $authenticator = new $item->authenticator_plugin($service, (array)$item->authenticator_config);
+  $endpoint = new DeployEndpoint($authenticator);
 
   foreach ($item as $key => $value) {
     $endpoint->{$key} = $value;

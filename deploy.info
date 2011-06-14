@@ -4,7 +4,7 @@ package = Deployment
 core = 7.x
 
 files[] = includes/DeployAggregator.inc
-files[] = includes/DeployAuthentication.inc
+files[] = includes/DeployAuthenticator.inc
 files[] = includes/DeployEndpoint.inc
 files[] = includes/DeployIterator.inc
 files[] = includes/DeployPlan.inc
@@ -12,9 +12,9 @@ files[] = includes/DeployProcessor.inc
 files[] = includes/DeployService.inc
 files[] = includes/DeployServiceRest.inc
 
-files[] = plugins/DeployAuthenticationBasic.inc
-files[] = plugins/DeployAuthenticationNone.inc
-files[] = plugins/DeployAuthenticationOAuth.inc
+files[] = plugins/DeployAuthenticatorBasic.inc
+files[] = plugins/DeployAuthenticatorNone.inc
+files[] = plugins/DeployAuthenticatorOAuth.inc
 files[] = plugins/DeployProcessorMemory.inc
 files[] = plugins/DeployProcessorQueue.inc
 files[] = plugins/DeployServiceRestJSON.inc

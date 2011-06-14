@@ -1,5 +1,5 @@
 <?php
 
-class DeployAuthenticationOAuth extends DeployAuthenticationNone {
+class DeployAuthenticatorOAuth extends DeployAuthenticatorNone {
 
 }

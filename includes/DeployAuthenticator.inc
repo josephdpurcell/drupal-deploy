@@ -1,6 +1,6 @@
 <?php
 
-interface DeployAuthentication {
+interface DeployAuthenticator {
 
   function __construct(DeployService $service, Array $config = array());
 
