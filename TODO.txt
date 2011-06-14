@@ -2,9 +2,6 @@
 GENERAL TODO'S
 --------------
 
- * Rename the plugin type 'Authentication' to 'Authenticator' to stick with the
-   pattern.
-
  * Oversee how the iterator works. Prefereably it should be able to return fully
    wrapped entities. See DeployEndpoint::deploy().
 

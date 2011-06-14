@@ -9,7 +9,7 @@ CONTENTS OF THIS FILE
  * The aggregator plugin
  * The processor plugin
  * The service plugin
- * The authentication plugin
+ * The authenticator plugin
 
 API OUTLINE
 -----------
@@ -207,6 +207,6 @@ a fully configured service object upon construction. When deployment is due, the
 its magic. After it is successfully done, it needs to call 'deploy' on its
 service object.
 
-Authentication plugins are defined by implementing
+Authenticator plugins are defined by implementing
 'hook_deploy_authenticators()'. See 'deploy_deploy_authenticators()' for more
 information on how the implementation should look like.
