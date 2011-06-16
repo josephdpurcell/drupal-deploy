@@ -17,6 +17,8 @@ GENERAL TODO'S
 
      - Patch uuid.module to support saving entities based on UUID.
 
+ * We need to invoke the dependency hook in the iterator.
+
  * Oversee how the iterator works. We can probably optimize it and make it more
    "readable" and easy to follow.
 
