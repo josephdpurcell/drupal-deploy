@@ -13,7 +13,7 @@ GENERAL TODO'S
    abstracted to it's own module to depend on the Entity API module that
    provides the proper 'entity_save()'. So short conclusion:
 
-     - Create services_uuid_entity.module
+     - Create services_uuid_entity.module preferably as a separate project
 
      - Patch uuid.module to support saving entities based on UUID.
 
