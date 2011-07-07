@@ -12,8 +12,9 @@ class DeployProcessorMemory implements DeployProcessor {
   }
 
   function process($endpoint_name) {
-    $endpoint = deploy_endpoint_load($endpoint_name);
-    $endpoint->deploy($this->aggregator);
+    if ($endpoint = deploy_endpoint_load($endpoint_name)) {
+      $endpoint->deploy($this->aggregator);
+    }
   }
 
   function configForm(&$form_state) {

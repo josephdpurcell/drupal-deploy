@@ -5,8 +5,12 @@ class DeployServiceRestJSON extends DeployServiceRest {
   function deploy(Traversable $iterator) {
     foreach ($iterator as $entity_wrapper) {
       $entity = $entity_wrapper->value();
-      $entity_type = $entity_wrapper->type();
-      $entity_id = $entity_wrapper->getIdentifier();
+      // All IDs will later be stripped away. See below.
+      $uuid = $entity->uuid;
+      if (isset($entity->vuuid)) {
+        $vuuid = $entity->vuuid;
+      }
+
       // To follow REST principles strictly, we can only post properties that
       // are writable. So we need to go through all of them.
       foreach ($entity as $key => $value) {
@@ -21,8 +25,21 @@ class DeployServiceRestJSON extends DeployServiceRest {
           unset($entity->{$key});
         }
       }
-      $data = drupal_json_encode($entity);
-      $this->httpPost($entity_type, $entity_id, $data, 'json');
+      // We need to set the entity_type on the object we're sending, otherwise
+      // there's no way to tell on the other end what type of entity this is.
+      // TODO: Does this violate the above?
+      $entity->entity_type = $entity_wrapper->type();
+
+      // We need to add the version ID back, that was stripped away above. This
+      // is violating RESTful principles a little bit.
+      if (isset($vuuid)) {
+        $entity->vuuid = $vuuid;
+        $entity->revision = TRUE;
+      }
+
+      $data = drupal_json_encode(array('entity' => $entity));
+      $this->setHeader('Content-Type', 'application/json');
+      $this->httpPut('uuid_entity', $uuid, $data, 'json');
     }
   }
 

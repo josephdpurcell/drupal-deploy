@@ -24,10 +24,10 @@ class DeployServiceRest implements DeployService {
     $this->headers[$key] = $value;
   }
 
-  function httpPost($entity_type, $entity_id, $data, $format) {
+  function httpPut($entity_type, $entity_id, $data, $format) {
     $url = $this->config['url'] . '/' . $entity_type . '/' . $entity_id . '.' . $format;
     $options = array(
-      'method' => 'POST',
+      'method' => 'PUT',
       'headers' => $this->headers,
       'data' => $data
     );
