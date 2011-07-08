@@ -24,13 +24,18 @@ class DeployServiceRest implements DeployService {
     $this->headers[$key] = $value;
   }
 
-  function httpPut($entity_type, $entity_id, $data, $format) {
-    $url = $this->config['url'] . '/' . $entity_type . '/' . $entity_id . '.' . $format;
+  function httpPut($uuid, $data, $format) {
+    $url = $this->config['url'] . '/uuid_entity/' . $uuid . '.' . $format;
     $options = array(
       'method' => 'PUT',
       'headers' => $this->headers,
       'data' => $data
     );
+
+    watchdog('deploy', 'URL: ' . $url, array(), WATCHDOG_DEBUG);
+    watchdog('deploy', 'Headers: ' . print_r($this->headers, TRUE), array(), WATCHDOG_DEBUG);
+    watchdog('deploy', 'Payload: ' . $data, array(), WATCHDOG_DEBUG);
+
     drupal_http_request($url, $options);
   }
 
