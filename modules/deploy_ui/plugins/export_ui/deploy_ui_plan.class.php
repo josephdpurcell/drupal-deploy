@@ -42,6 +42,12 @@ class deploy_ui_plan extends ctools_export_ui {
       '#title' => t('Description'),
       '#default_value' => $item->description,
     );
+    $form['debug'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Debug mode'),
+      '#description' => t('Check this to enable debug mode with extended watchdog logging.'),
+      '#default_value' => $item->debug,
+    );
 
     // Aggregators.
     $aggregators = deploy_get_aggregator_plugins();
@@ -122,6 +128,7 @@ class deploy_ui_plan extends ctools_export_ui {
     $item->name = $form_state['values']['name'];
     $item->title = $form_state['values']['title'];
     $item->description = $form_state['values']['description'];
+    $item->debug = $form_state['values']['debug'];
     $item->aggregator_plugin = $form_state['values']['aggregator_plugin'];
     $item->processor_plugin = $form_state['values']['processor_plugin'];
     if (!empty($form_state['values']['endpoints'])) {

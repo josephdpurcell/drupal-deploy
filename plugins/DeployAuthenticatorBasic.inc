@@ -4,11 +4,12 @@ class DeployAuthenticatorBasic extends DeployAuthenticatorNone {
 
   function __construct(DeployService $service, Array $config = array()) {
     $this->service = $service;
-    $defaults = array(
+    $this->config += array(
+      'debug' => FALSE,
       'username' => '',
       'password' => '',
     );
-    $this->config = array_merge($defaults, $config);
+    $this->config = array_merge($this->config, $config);
   }
 
   function deploy(Traversable $iterator) {

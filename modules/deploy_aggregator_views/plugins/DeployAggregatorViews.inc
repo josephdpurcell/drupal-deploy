@@ -6,6 +6,7 @@ class DeployAggregatorViews implements DeployAggregator {
 
   function __construct(Array $config = array()) {
     $defaults = array(
+      'debug' => FALSE,
       'view_name' => '',
     );
     $this->config = array_merge($defaults, $config);

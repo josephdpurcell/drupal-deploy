@@ -195,11 +195,15 @@ function deploy_plan_create($schema, $item) {
       $item->{$serialized_param} = unserialize($item->{$serialized_param});
     }
   }
+  $aggregator_config = (array)$item->aggregator_config;
+  $aggregator_config['debug'] = $item->debug;
+  $processor_config = (array)$item->processor_config;
+  $processor_config['debug'] = $item->debug;
 
-  $aggregator = new $item->aggregator_plugin((array)$item->aggregator_config);
-  $processor = new $item->processor_plugin($aggregator, (array)$item->processor_config);
-
+  $aggregator = new $item->aggregator_plugin($aggregator_config);
+  $processor = new $item->processor_plugin($aggregator, $processor_config);
   $plan = new DeployPlan($processor);
+
   foreach ($item as $key => $value) {
     $plan->{$key} = $value;
   }
@@ -239,8 +243,13 @@ function deploy_endpoint_create($schema, $item) {
     }
   }
 
-  $service = new $item->service_plugin((array)$item->service_config);
-  $authenticator = new $item->authenticator_plugin($service, (array)$item->authenticator_config);
+  $service_config = (array)$item->service_config;
+  $service_config['debug'] = $item->debug;
+  $authenticator_config = (array)$item->authenticator_config;
+  $authenticator_config['debug'] = $item->debug;
+
+  $service = new $item->service_plugin($service_config);
+  $authenticator = new $item->authenticator_plugin($service, $authenticator_config);
   $endpoint = new DeployEndpoint($authenticator);
 
   foreach ($item as $key => $value) {

@@ -8,7 +8,10 @@ class DeployProcessorMemory implements DeployProcessor {
 
   function __construct(DeployAggregator $aggregator, Array $config = array()) {
     $this->aggregator = $aggregator;
-    $this->config = $config;
+    $this->config += array(
+      'debug' => FALSE,
+    );
+    $this->config = array_merge($this->config, $config);
   }
 
   function process($endpoint_name) {

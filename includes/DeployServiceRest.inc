@@ -12,10 +12,11 @@ class DeployServiceRest implements DeployService {
   var $headers = array();
 
   function __construct(Array $config = array()) {
-    $defaults = array(
+    $this->config += array(
+      'debug' => FALSE,
       'url' => '',
     );
-    $this->config = array_merge($defaults, $config);
+    $this->config = array_merge($this->config, $config);
   }
 
   function deploy(Traversable $iterator) {}
@@ -32,11 +33,20 @@ class DeployServiceRest implements DeployService {
       'data' => $data
     );
 
-    watchdog('deploy', 'URL: ' . $url, array(), WATCHDOG_DEBUG);
-    watchdog('deploy', 'Headers: ' . print_r($this->headers, TRUE), array(), WATCHDOG_DEBUG);
-    watchdog('deploy', 'Payload: ' . $data, array(), WATCHDOG_DEBUG);
+    if ($this->config['debug']) {
+      watchdog('deploy', 'Request URL: %url', array('%url' => $url), WATCHDOG_DEBUG);
+      watchdog('deploy', 'Request headers: <pre>@headers</pre>', array('@headers' => print_r($this->headers, TRUE)), WATCHDOG_DEBUG);
+      watchdog('deploy', 'Request data: <pre>@data</pre>', array('@data' => $data), WATCHDOG_DEBUG);
+    }
 
-    drupal_http_request($url, $options);
+    $response = drupal_http_request($url, $options);
+
+    if ($this->config['debug']) {
+      watchdog('deploy', 'Request response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
+    }
+    if (isset($response->error)) {
+      watchdog('deploy', 'Request response error: %code %error', array('%code' => $response->code, '%error' => $response->error), WATCHDOG_ERROR);
+    }
   }
 
   function configForm(&$form_state) {

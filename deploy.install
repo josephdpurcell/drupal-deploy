@@ -53,6 +53,12 @@ function deploy_schema() {
         'size' => 'medium',
         'not null' => TRUE,
       ),
+      'debug' => array(
+        'description' => 'Debug mode.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'aggregator_plugin' => array(
         'description' => 'Aggregator plugin used for this plan.',
         'type' => 'varchar',
@@ -133,6 +139,12 @@ function deploy_schema() {
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
+      ),
+      'debug' => array(
+        'description' => 'Debug mode.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
       ),
       'authenticator_plugin' => array(
         'description' => 'Authenticator plugin used for this endpoint.',
