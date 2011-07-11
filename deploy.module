@@ -224,9 +224,10 @@ function deploy_plan_load($name) {
 /**
  * Loader callback for all deployment plans.
  */
-function deploy_plan_load_all() {
+function deploy_plan_load_all($args = array()) {
+  $type = !empty($args) ? 'conditions' : 'all';
   ctools_include('export');
-  $result = ctools_export_load_object('deploy_plans', 'all');
+  $result = ctools_export_load_object('deploy_plans', $type, $args);
   if (isset($result)) {
     return $result;
   }

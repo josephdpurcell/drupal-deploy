@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * Implementation of hook_deploy_aggregators().
+ */
+function deploy_manager_deploy_aggregators() {
+  $path = drupal_get_path('module', 'deploy_manager') . '/plugins';
+  return array(
+    'DeployAggregatorManager' => array(
+      'name' => 'Managed plan aggregator',
+      'description' => 'Aggregates content to a deployment plan based on a plan id, as stored in the database.',
+      'handler' => array(
+        'class' => 'DeployAggregatorManager',
+        'file' => 'DeployAggregatorManager.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}
+
+
+/**
+ * Returns the items for a given plan.
+ */
+function deploy_manager_get_plan_items($plan_name) {
+  $collection = array();
+  $result = db_query("SELECT * FROM {deploy_plan_items} WHERE plan = :plan", array(':plan' => $plan_name));
+  foreach ($result as $record) {
+    $collection[$record->entity_type][] = $record->eid;
+  }
+  return $collection;
+}
+
+/**
+ * Checks if a managed plan with the given machine name exists.
+ */
+function deploy_managed_plan_exists($plan_name) {
+  $pid = db_query("SELECT pid FROM {deploy_plans} WHERE name = :name", array(':name' => $plan_name))->fetchField();
+  return $pid;
+}
+
+/**
+ * Returns a list of all managed plans, i.e. all plans that use the
+ * DeployAggregatorManager aggregator plugin.
+ */
+function deploy_manager_get_managed_plans() {
+  return deploy_plan_load_all(array('aggregator_plugin' => 'DeployAggregatorManager'));
+}
+
+/**
+ * Adds an entity to a managed deployment plan.
+ *
+ * @param $plan_name The machine name of the plan to add to.
+ *
+ * @param $wrapped_entity An EntityMetadataWrapper object wrapping the entity to
+ * be deployed.
+ */
+function deploy_manager_add_to_plan($plan_name, $wrapped_entity) {
+  global $user;
+  $type = $wrapped_entity->type();
+  $entity = $wrapped_entity->value();
+  db_insert('deploy_plan_items')
+    ->fields(array(
+      'plan' => $plan_name,
+      'entity_type' => $type,
+      'eid' => $wrapped_entity->getIdentifier(),
+      'description' => entity_label($type, $entity),
+      'uid' => $user->uid,
+      'ts' => time(),
+      'weight_group' => 0,
+    ))
+    ->execute();
+}

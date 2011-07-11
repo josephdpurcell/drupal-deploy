@@ -1,0 +1,7 @@
+name = Deployment Manager
+description = Provides an interface for managing deployment plans and an incremental deployment mechanism that automatically adds entities as they are created or updated.
+package = Deployment
+core = 7.x
+dependencies[] = deploy
+
+files[] = plugins/DeployAggregatorManager.inc
