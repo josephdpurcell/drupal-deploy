@@ -32,11 +32,14 @@ function deploy_manager_get_plan_items($plan_name) {
 }
 
 /**
- * Checks if a managed plan with the given machine name exists.
+ * Loads a managed plan with the given name, returns false if no such plan exists.
  */
-function deploy_managed_plan_exists($plan_name) {
-  $pid = db_query("SELECT pid FROM {deploy_plans} WHERE name = :name", array(':name' => $plan_name))->fetchField();
-  return $pid;
+function deploy_plan_load_managed($name) {
+  $result = deploy_plan_load_all(array('aggregator_plugin' => 'DeployAggregatorManager'));
+  if (isset($result[$name])) {
+    return $result[$name];
+  }
+  return FALSE;
 }
 
 /**

@@ -31,24 +31,11 @@ function deploy_manager_rules_action_info() {
  * Action callback for the "Add to deploy plan" action.
  */
 function deploy_manager_action_add_to_plan($plan_name, $wrapped_entity) {
-  if (!deploy_managed_plan_exists($plan_name)) {
-    watchdog('deploy manager', 'Cannot add to non-existent deploy plan @plan', array('@plan' => $plan_name));
+  if (!deploy_plan_load_managed($plan_name)) {
+    watchdog('deploy manager', 'Attempted to add to a non-existent deploy plan or one that cannot be arbitrarily added to: @plan', array('@plan' => $plan_name));
     return;
   }
   deploy_manager_add_to_plan($plan_name, $wrapped_entity);
-}
-
-/**
- * Implements hook_rules_data_info().
- */
-function deploy_manager_rules_data_info() {
-  return array(
-    'deploy_plan' => array(
-      'label' => t('deploy plan'),
-      'group' => t('Deploy'),
-      'ui class' => 'RulesDataUIText',
-    ),
-  );
 }
 
 /**
