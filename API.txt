@@ -52,10 +52,8 @@ refer to the later topics in this document.
  0. Deployment of a plan is due. The plan is loaded with 'deploy_plan_load()',
     (1) either from the database or from the default hook.
 
- 1. The plan object is factored through 'deploy_plan_create()' with data
-    provided by the source (database or default hook). The factory function
-    will fully configure and instansiate one aggregator plugin and one
-    processor plugin. The fully configured plan object is returned to the load
+ 1. The plan object is configured through 'deploy_plan_create()' or loaded from
+    a default hook. The fully configured plan object is returned to the load
     function which returns it back to the trigger.
 
  2. The trigger calls the 'deploy' method on the plan object which starts the
@@ -104,9 +102,8 @@ for iterating over its endpoints and process them with its processor. The
 plan's responsibility ends there.
 
 Plans are CTools exportable objects and are instances of the 'DeployPlan'
-class. 'DeployPlan' take one fully configured processor object upon
-construction. In its factory function 'deploy_plan_create()' the plan object
-will be populated with its endpoint references.
+class. 'DeployPlan' must be fully configured before calling 'deploy()' on it.
+See how that is done in its factory function 'deploy_plan_create()'.
 
 Deployment of plans can be triggered in many different ways. Either manually by
 an end user, by a custom Rules event or through a Drush command. More ways of
@@ -125,8 +122,9 @@ calling its authenticator and hand the entities over to its service. The
 endpoint's responsibility ends there.
 
 Endpoints are CTools exportable objects and are instances of the
-'DeployEndpoint' class. 'DeployEndpoint' takes one fully configured
-authenticator object and one fully configured service object upon construction.
+'DeployEndpoint' class. 'DeployEndpoint' must be fully configured before
+'deploy()' is called on it. See how that is done in its factory function
+'deploy_endpoint_create()'.
 
 Depending on the processor used in the plan, the endpoint might be handed one
 or many entities to deploy.
