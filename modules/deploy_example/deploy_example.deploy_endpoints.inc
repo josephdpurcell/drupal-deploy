@@ -21,7 +21,7 @@ function deploy_example_deploy_endpoints_default() {
   $endpoint->authenticator_config = array();
   $endpoint->service_plugin = 'DeployServiceRestJSON';
   $endpoint->service_config = array(
-    'url' => 'http://998.dev/api',
+    'url' => 'http://example.com/api',
   );
   $export['deploy_example_endpoint'] = $endpoint;
 
