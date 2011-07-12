@@ -3,6 +3,9 @@ description = Allows content to be deployed between servers. Either to be used a
 package = Deployment
 core = 7.x
 
+dependencies[] = ctools
+dependencies[] = uuid
+
 files[] = includes/DeployAggregator.inc
 files[] = includes/DeployAuthenticator.inc
 files[] = includes/DeployEndpoint.inc
