@@ -263,3 +263,20 @@ function deploy_endpoint_load_all() {
     return $result;
   }
 }
+
+/**
+ * Keeps a static var of the plan that's currently being deployed.
+ */
+function deploy_active($plan_name = NULL, $reset = FALSE) {
+  $active_plan = &drupal_static(__FUNCTION__, NULL);
+  if ($reset) {
+    $return = $active_plan;
+    $active_plan = NULL;
+    return $return;
+  }
+
+  if (isset($plan_name)) {
+    $active_plan = $plan_name;
+  }
+  return $active_plan;
+}

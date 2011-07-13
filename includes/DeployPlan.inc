@@ -17,8 +17,9 @@ class DeployPlan {
   var $endpoints = array();
 
   function deploy() {
-    // Since the CTools Export API is declarative by nature, we can't realy on
-    // contructor injection and deploy_plan_create() as the only factory.
+    deploy_active($this->name);
+    // Since the CTools Export API is declarative by nature, we can't rely on
+    // constructor injection and deploy_plan_create() as the only factory.
     $aggregator_config = $this->aggregator_config + array('debug' => $this->debug);
     $aggregator = new $this->aggregator_plugin($aggregator_config);
     $processor_config = $this->processor_config + array('debug' => $this->debug);
@@ -27,6 +28,7 @@ class DeployPlan {
     foreach ($this->endpoints as $endpoint_name) {
       $this->processor->process($endpoint_name);
     }
+    deploy_active(NULL, TRUE);
   }
 
 }

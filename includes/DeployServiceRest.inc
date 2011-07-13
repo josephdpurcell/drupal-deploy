@@ -5,11 +5,13 @@
  * This is not a full plugin, but an abstract class that plugins can extend.
  */
 
-class DeployServiceRest implements DeployService {
+class DeployServiceRest implements DeployService, EntityDeployer {
 
   var $config = array();
 
   var $headers = array();
+
+  var $observers = array();
 
   function __construct(Array $config = array()) {
     $this->config += array(
@@ -19,7 +21,13 @@ class DeployServiceRest implements DeployService {
     $this->config = array_merge($this->config, $config);
   }
 
+  function addObserver(DeployObserver $observer) {
+    $this->observers[] = $observer;
+  }
+
   function deploy(Traversable $iterator) {}
+
+  function deployEntity($entity_wrapper) {}
 
   function setHeader($key, $value) {
     $this->headers[$key] = $value;
@@ -47,6 +55,7 @@ class DeployServiceRest implements DeployService {
     if (isset($response->error)) {
       watchdog('deploy', 'Request response error: %code %error', array('%code' => $response->code, '%error' => $response->error), WATCHDOG_ERROR);
     }
+    return $response;
   }
 
   function configForm(&$form_state) {
