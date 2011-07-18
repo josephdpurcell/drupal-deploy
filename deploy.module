@@ -266,6 +266,12 @@ function deploy_endpoint_load_all() {
 
 /**
  * Keeps a static var of the plan that's currently being deployed.
+ *
+ * Note: this is a temporary solution to the problem of knowing which is the
+ * currently active plan. Obviously this won't work with batched or queued
+ * deployments. Either we'll have to use the D6 solution which was to set a
+ * variable or (ideally) have the architecture change so that the aggregator and
+ * the service object know about the plan object.
  */
 function deploy_active($plan_name = NULL, $reset = FALSE) {
   $active_plan = &drupal_static(__FUNCTION__, NULL);
