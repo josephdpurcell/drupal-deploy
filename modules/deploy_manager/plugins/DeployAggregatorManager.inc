@@ -5,9 +5,7 @@ class DeployAggregatorManager implements DeployAggregator {
   var $config = array();
 
   function __construct(Array $config = array()) {
-    $defaults = array(
-      'plan_name' => '',
-    );
+    $defaults = array('delete_on_deploy' => 0);
     $this->config = array_merge($defaults, $config);
   }
 
@@ -17,18 +15,19 @@ class DeployAggregatorManager implements DeployAggregator {
    * @see DeployAggregator::getIterator()
    */
   function getIterator() {
-    $items = deploy_manager_get_plan_items($this->config['plan_name']);
+    $plan = deploy_active();
+    $items = deploy_manager_get_plan_items($plan);
     $iterator = new DeployIterator($items);
     return new DeployIteratorIterator($iterator);
   }
 
   function configForm(&$form_state) {
-    // This is a hack for now - what's the best way to be able to access the
-    // plan name from the aggregator?
     $form = array();
-    $form['plan_name'] = array(
-      '#type' => 'value',
-      '#value' => $form_state['item']->name,
+    $form['delete_on_deploy'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Delete successfully deployed items'),
+      '#description' => t('If checked, each successfully deployed item will be automatically removed from the plan.'),
+      '#default_value' => $this->config['delete_on_deploy'],
     );
     return $form;
   }

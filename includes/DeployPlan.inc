@@ -17,6 +17,7 @@ class DeployPlan {
   var $endpoints = array();
 
   function deploy() {
+    // TODO: Remove this hack - deploy_active() is a temporary solution.
     deploy_active($this->name);
     // Since the CTools Export API is declarative by nature, we can't rely on
     // constructor injection and deploy_plan_create() as the only factory.

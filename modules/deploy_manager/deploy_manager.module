@@ -26,7 +26,7 @@ function deploy_manager_get_plan_items($plan_name) {
   $collection = array();
   $result = db_query("SELECT * FROM {deploy_plan_items} WHERE plan = :plan", array(':plan' => $plan_name));
   foreach ($result as $record) {
-    $collection[$record->entity_type][] = $record->eid;
+    $collection[$record->entity_type][$record->eid] = TRUE;
   }
   return $collection;
 }
@@ -59,6 +59,10 @@ function deploy_manager_get_managed_plans() {
  * be deployed.
  */
 function deploy_manager_add_to_plan($plan_name, $wrapped_entity) {
+  $eid = $wrapped_entity->getIdentifier();
+  if (!$eid || deploy_manager_entity_is_in_plan($plan_name, $eid)) {
+    return;
+  }
   global $user;
   $type = $wrapped_entity->type();
   $entity = $wrapped_entity->value();
@@ -66,11 +70,50 @@ function deploy_manager_add_to_plan($plan_name, $wrapped_entity) {
     ->fields(array(
       'plan' => $plan_name,
       'entity_type' => $type,
-      'eid' => $wrapped_entity->getIdentifier(),
+      'eid' => $eid,
       'description' => entity_label($type, $entity),
       'uid' => $user->uid,
       'ts' => time(),
       'weight_group' => 0,
     ))
     ->execute();
+}
+
+/**
+ * Checks whether an entity already exists in a particular plan.
+ */
+function deploy_manager_entity_is_in_plan($plan_name, $eid) {
+  $iid = db_query("SELECT iid FROM {deploy_plan_items} WHERE eid = :eid AND
+    plan = :plan", array(':eid' => $eid, ':plan' => $plan_name))->fetchField();
+  return $iid;
+}
+
+/**
+ * Removes an entity from a managed deployment plan.
+ *
+ * @param $plan_name The machine name of the plan to remove from.
+ *
+ * @param $eid The id of the entity to be removed from the plan.
+ */
+function deploy_manager_remove_from_plan($plan_name, $eid) {
+  db_delete('deploy_plan_items')
+    ->condition('eid', $eid)
+    ->execute();
+}
+
+/**
+ * Implements hook_deploy_item_deployed().
+ */
+function deploy_manager_deploy_item_deployed($sender, $args) {
+  $plan = deploy_plan_load_managed($args['plan']);
+  if ($plan) {
+    $config = $plan->aggregator_config;
+    $delete_on_deploy = $config['delete_on_deploy'];
+    if ($delete_on_deploy) {
+    $response = $args['response'];
+      if (!isset($response->error)) {
+        deploy_manager_remove_from_plan($plan->name, $args['eid']);
+      }
+    }
+  }
 }
