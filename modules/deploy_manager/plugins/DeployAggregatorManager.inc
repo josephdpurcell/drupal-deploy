@@ -4,9 +4,16 @@ class DeployAggregatorManager implements DeployAggregator {
 
   var $config = array();
 
-  function __construct(Array $config = array()) {
+  /**
+   * Holds a reference to the plan object that initiated it.
+   * @var DeployPlan
+   */
+  protected $plan;
+
+  function __construct(DeployPlan $plan, Array $config = array()) {
     $defaults = array('delete_on_deploy' => 0);
     $this->config = array_merge($defaults, $config);
+    $this->plan = $plan;
   }
 
   /**
@@ -15,8 +22,8 @@ class DeployAggregatorManager implements DeployAggregator {
    * @see DeployAggregator::getIterator()
    */
   function getIterator() {
-    $plan = deploy_active();
-    $items = deploy_manager_get_plan_items($plan);
+    $plan = $this->plan;
+    $items = deploy_manager_get_plan_items($plan->name);
     $iterator = new DeployIterator($items);
     return new DeployIteratorIterator($iterator);
   }

@@ -18,9 +18,8 @@ class DeployServiceRestJSON extends DeployServiceRest {
     );
     $this->setHeader('Content-Type', 'application/json');
     $response = $this->httpPut($entity->uuid, $data, 'json');
-    // TODO: need to get the plan name and pass it as part of the args...
-    $plan = deploy_active();
-    $args = array('eid' => $entity_wrapper->getIdentifier(), 'response' => $response, 'plan' => $plan);
+    $plan = $this->plan;
+    $args = array('eid' => $entity_wrapper->getIdentifier(), 'response' => $response, 'plan' => $plan->name);
     foreach ($this->observers as $observer) {
       $observer->onDeploy($this, $args);
     }

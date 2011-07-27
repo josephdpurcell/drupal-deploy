@@ -2,7 +2,7 @@
 
 interface DeployService {
 
-  function __construct(Array $config = array());
+  function __construct(DeployPlan $plan, Array $config = array());
 
   function deploy(Traversable $iterator);
 

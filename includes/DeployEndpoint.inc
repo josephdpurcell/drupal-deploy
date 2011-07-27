@@ -14,11 +14,11 @@ class DeployEndpoint {
 
   var $authenticator = NULL;
 
-  function deploy(Traversable $iterator) {
+  function deploy(DeployPlan $plan, Traversable $iterator) {
     // Since the CTools Export API is declarative by nature, we can't realy on
     // contructor injection and deploy_endpoint_create() as the only factory.
     $service_config = $this->service_config + array('debug' => $this->debug);
-    $service = new $this->service_plugin($service_config);
+    $service = new $this->service_plugin($plan, $service_config);
     $service->addObserver(new DeployObserver());
     $authenticator_config = $this->authenticator_config + array('debug' => $this->debug);
     $this->authenticator = new $this->authenticator_plugin($service, $authenticator_config);
