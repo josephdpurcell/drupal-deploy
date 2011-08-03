@@ -4,12 +4,19 @@ class DeployAggregatorViews implements DeployAggregator {
 
   var $config = array();
 
-  function __construct(Array $config = array()) {
+  /**
+   * Holds a reference to the plan object that initiated it.
+   * @var DeployPlan
+   */
+  protected $plan;
+
+  function __construct(DeployPlan $plan, Array $config = array()) {
     $defaults = array(
       'debug' => FALSE,
       'view_name' => '',
     );
     $this->config = array_merge($defaults, $config);
+    $this->plan = $plan;
   }
 
   /**

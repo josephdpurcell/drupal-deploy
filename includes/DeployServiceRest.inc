@@ -13,12 +13,15 @@ class DeployServiceRest implements DeployService, EntityDeployer {
 
   var $observers = array();
 
-  function __construct(Array $config = array()) {
+  protected $plan;
+
+  function __construct(DeployPlan $plan, Array $config = array()) {
     $this->config += array(
       'debug' => FALSE,
       'url' => '',
     );
     $this->config = array_merge($this->config, $config);
+    $this->plan = $plan;
   }
 
   function addObserver(DeployObserver $observer) {

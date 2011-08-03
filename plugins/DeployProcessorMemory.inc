@@ -14,9 +14,9 @@ class DeployProcessorMemory implements DeployProcessor {
     $this->config = array_merge($this->config, $config);
   }
 
-  function process($endpoint_name) {
+  function process(DeployPlan $plan, $endpoint_name) {
     if ($endpoint = deploy_endpoint_load($endpoint_name)) {
-      $endpoint->deploy($this->aggregator);
+      $endpoint->deploy($plan, $this->aggregator);
     }
   }
 
