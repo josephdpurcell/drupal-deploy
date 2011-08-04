@@ -2,8 +2,22 @@
 
 class DeployProcessorQueue extends DeployProcessorMemory {
 
-  function process($endpoint_name) {
-    // TODO: Figure out how split up and queue the aggregator.
+  function process(DeployPlan $plan, $endpoint_name) {
+    $iterator = $this->aggregator->getIterator();
+    $queue_name = 'deploy_queue';
+    $deploy_queue = DrupalQueue::get($queue_name);
+    foreach ($iterator as $entity_wrapper) {
+      // Create item
+      $item = array(
+        'plan' => 'plan_name',
+        'eid' => $entity_wrapper->getIdentifier(),
+        'type' => $entity_wrapper->type(),
+        'endpoint' => $endpoint_name,
+      );
+
+      // Add item to queue
+      $deploy_queue->createItem($item);
+    }
   }
 
   function configForm(&$form_state) {
