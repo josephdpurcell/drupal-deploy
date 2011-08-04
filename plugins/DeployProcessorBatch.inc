@@ -1,5 +1,7 @@
 <?php
 
+// TODO: move this out of here and rename it - it can be used by the Queue
+// processor as well.
 class DeployAggregateBatch implements IteratorAggregate {
   function __construct(DeployIterator $iterator) {
     $this->iterator = $iterator;
@@ -49,6 +51,8 @@ class DeployProcessorBatch extends DeployProcessorMemory {
     $context['message'] = t('Deploying item @item', array('@item' => $item['eid']));
   }
   
+  // TODO: move this to the parent class so that the Queue processor can use it
+  // too.
   static function process_item($item) {
     $endpoint = deploy_endpoint_load($item['endpoint']);
     $plan = deploy_plan_load($item['plan']);
