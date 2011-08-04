@@ -10,7 +10,7 @@ class DeployAggregatorViews implements DeployAggregator {
    */
   protected $plan;
 
-  function __construct(DeployPlan $plan, Array $config = array()) {
+  function __construct(DeployPlan $plan = NULL, Array $config = array()) {
     $defaults = array(
       'debug' => FALSE,
       'view_name' => '',

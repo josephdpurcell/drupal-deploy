@@ -2,7 +2,7 @@
 
 interface DeployAggregator extends IteratorAggregate {
 
-  function __construct(DeployPlan $plan, Array $config = array());
+  function __construct(DeployPlan $plan = NULL, Array $config = array());
 
   /**
    * Returns an iterator with entities for deployment.

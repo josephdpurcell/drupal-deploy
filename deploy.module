@@ -191,10 +191,10 @@ function deploy_get_service_plugin($name) {
 function deploy_plan_create($schema, $item) {
   $plan = new DeployPlan;
 
-  // TODO: Read $schema instead to find out what fields that are serialized.
-  foreach (array('aggregator_config', 'processor_config', 'endpoints') as $serialized_param) {
-    if (!is_array($item->{$serialized_param})) {
-      $plan->{$serialized_param} = (array)unserialize($item->{$serialized_param});
+  // Unserialize our serialized params.
+  foreach ($schema['fields'] as $field => $info) {
+    if (!empty($info['serialize']) && !is_array($plan->{$field})) {
+      $plan->{$field} = (array)unserialize($plan->{$field});
     }
   }
   foreach ($item as $key => $value) {

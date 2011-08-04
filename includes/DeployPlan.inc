@@ -19,6 +19,13 @@ class DeployPlan {
   function deploy() {
     // Since the CTools Export API is declarative by nature, we can't rely on
     // constructor injection and deploy_plan_create() as the only factory.
+    $schema = drupal_get_schema('deploy_plans');
+    // Unserialize our serialized params.
+    foreach ($schema['fields'] as $field => $info) {
+      if (!empty($info['serialize']) && !is_array($this->{$field})) {
+        $this->{$field} = (array)unserialize($this->{$field});
+      }
+    }
     $aggregator_config = $this->aggregator_config + array('debug' => $this->debug);
     $aggregator = new $this->aggregator_plugin($this, $aggregator_config);
     $processor_config = $this->processor_config + array('debug' => $this->debug);

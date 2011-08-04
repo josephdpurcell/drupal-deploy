@@ -146,7 +146,7 @@ class deploy_ui_plan extends ctools_export_ui {
     }
 
     // Create the aggregator object.
-    $aggregator = new $item->aggregator_plugin((array)$item->aggregator_config);
+    $aggregator = new $item->aggregator_plugin(NULL, (array)$item->aggregator_config);
 
     $form['aggregator_config'] = $aggregator->configForm($form_state);
     if (!empty($form['aggregator_config'])) {
@@ -177,7 +177,7 @@ class deploy_ui_plan extends ctools_export_ui {
     }
 
     // Create the aggregator object which is a dependency of the processor object.
-    $aggregator = new $item->aggregator_plugin((array)$item->aggregator_config);
+    $aggregator = new $item->aggregator_plugin(NULL, (array)$item->aggregator_config);
     // Create the processor object.
     $processor = new $item->processor_plugin($aggregator, (array)$item->processor_config);
 
@@ -240,7 +240,7 @@ function deploy_ui_plan_confirm_form($form, $form_state) {
   $form = confirm_form($form,
     t('Are you sure you want to deploy %title?', array('%title' => $item->{$export_key})),
     $path,
-    t("Deploying a plan will push it's content to all it's endpoints."),
+    t("Deploying a plan will push its content to all its endpoints."),
     t('Deploy'),
     t('Cancel')
   );

@@ -10,7 +10,7 @@ class DeployAggregatorManager implements DeployAggregator {
    */
   protected $plan;
 
-  function __construct(DeployPlan $plan, Array $config = array()) {
+  function __construct(DeployPlan $plan = NULL, Array $config = array()) {
     $defaults = array('delete_on_deploy' => 0);
     $this->config = array_merge($defaults, $config);
     $this->plan = $plan;
