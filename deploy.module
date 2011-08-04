@@ -55,6 +55,16 @@ function deploy_deploy_processors() {
         'path' => $path,
       ),
     ),
+    'DeployProcessorBatch' => array(
+      'name' => 'Batch API',
+      'description' => 'Adds all resources for deployment to the Batch API. Works best with larger deployments where deployment speed is not critical.',
+      'handler' => array(
+        'class' => 'DeployProcessorBatch',
+        'file' => 'DeployProcessorBatch.inc',
+        'path' => $path,
+      ),
+    ),
+
   );
 }
 

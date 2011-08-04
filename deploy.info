@@ -21,5 +21,6 @@ files[] = plugins/DeployAuthenticatorNone.inc
 files[] = plugins/DeployAuthenticatorOAuth.inc
 files[] = plugins/DeployProcessorMemory.inc
 files[] = plugins/DeployProcessorQueue.inc
+files[] = plugins/DeployProcessorBatch.inc
 files[] = plugins/DeployServiceRestJSON.inc
 files[] = plugins/DeployServiceRestXML.inc
