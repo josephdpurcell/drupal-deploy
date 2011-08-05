@@ -1,18 +1,5 @@
 <?php
 
-// TODO: move this out of here and rename it - it can be used by the Queue
-// processor as well.
-class DeployAggregateBatch implements IteratorAggregate {
-  function __construct(DeployIterator $iterator) {
-    $this->iterator = $iterator;
-  }
-  
-  function getIterator() {
-    return new DeployIteratorIterator($this->iterator);
-  }
-  
-}
-
 class DeployProcessorBatch extends DeployProcessorMemory {
 
   function process(DeployPlan $plan, $endpoint_name) {
@@ -50,20 +37,5 @@ class DeployProcessorBatch extends DeployProcessorMemory {
     $context['results'][] = 'Deployed item ' . $item['eid'];
     $context['message'] = t('Deploying item @item', array('@item' => $item['eid']));
   }
-  
-  // TODO: move this to the parent class so that the Queue processor can use it
-  // too.
-  static function process_item($item) {
-    $endpoint = deploy_endpoint_load($item['endpoint']);
-    $plan = deploy_plan_load($item['plan']);
-    if ($plan && $endpoint) {
-      $collection = array(
-        $item['type'] => array($item['eid'] => TRUE)
-      );
-      $iterator = new DeployIterator($collection);
-      $aggregator = new DeployAggregateBatch($iterator);
-      $endpoint->deploy($plan, $aggregator);
-    }
 
-  }
 }

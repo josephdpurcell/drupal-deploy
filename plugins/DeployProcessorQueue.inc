@@ -9,7 +9,7 @@ class DeployProcessorQueue extends DeployProcessorMemory {
     foreach ($iterator as $entity_wrapper) {
       // Create item
       $item = array(
-        'plan' => 'plan_name',
+        'plan' => $plan->name,
         'eid' => $entity_wrapper->getIdentifier(),
         'type' => $entity_wrapper->type(),
         'endpoint' => $endpoint_name,
@@ -24,5 +24,6 @@ class DeployProcessorQueue extends DeployProcessorMemory {
     // We have no settings for this processor.
     return array();
   }
+
 
 }

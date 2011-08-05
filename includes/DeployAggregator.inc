@@ -20,3 +20,16 @@ interface DeployAggregator extends IteratorAggregate {
   function configForm(&$form_state);
 
 }
+
+/**
+ * Class used by Batch and Queue processors.
+ */
+class DeployAggregateSingle implements IteratorAggregate {
+  function __construct(DeployIterator $iterator) {
+    $this->iterator = $iterator;
+  }
+
+  function getIterator() {
+    return new DeployIteratorIterator($this->iterator);
+  }
+}

@@ -273,3 +273,24 @@ function deploy_endpoint_load_all() {
     return $result;
   }
 }
+
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function deploy_cron_queue_info() {
+  $queues['deploy_queue'] = array(
+    'worker callback' => 'deploy_process_item_queue',
+    'time' => 60,
+  );
+  return $queues;
+}
+
+/**
+ * Processes a single queued item for deployemnt.
+ * Unfortunately the Queue API doesn't allow us to use a class::method as a
+ * callback function.
+ */
+function deploy_process_item_queue($item) {
+  DeployProcessorMemory::process_item($item);
+}
