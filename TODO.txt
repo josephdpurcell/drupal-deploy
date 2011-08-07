@@ -2,22 +2,11 @@
 GENERAL TODO'S
 --------------
 
- * I want to leave out the remote saving out of the Deploy module. We should
-   only care about the UUID and skip the whole cross communication to figure out
-   the remote IDs that happened in Deploy 6.x. So it's up to the remote to save
-   its entities based on the UUID. So we need to create a new module called
-   'services_uuid_entity'. That module will expose a REST service that saves
-   entities based on their UUID. The mapping is done locally on the site. And
-   for this to work the UUID module needs a function called 'uuid_entity_save()'
-   that can save entities based on their UUID. That function might need to be
-   abstracted to it's own module to depend on the Entity API module that
-   provides the proper 'entity_save()'. So short conclusion:
+ * Get dixon's UUID fork commited to the upstream UUID project.
+   http://drupal.org/node/1212954
 
-     - Create services_uuid_entity.module preferably as a separate project
-
-     - Patch uuid.module to support saving entities based on UUID.
-
- * We need to invoke the dependency hook in the iterator.
+ * See if we can add the observer pattern more natively in the API to detect
+   deployed items. Or is it enough with just a plain hook instead of the class?
 
  * Oversee how the iterator works. We can probably optimize it and make it more
    "readable" and easy to follow.
