@@ -10,12 +10,16 @@ class DeployIteratorIterator extends RecursiveIteratorIterator {}
  *
  * @todo
  *   We need to throw an exception when we detect a circular dependency.
+ *
+ * @todo
+ *   Look into Entity Property API to see if we can do anything cool/effective
+ *   with the chaining feature there.
  */
 class DeployIterator implements RecursiveIterator {
 
   var $collection = array();
 
-  var $parent = NULL;
+  var $denendencies = array();
 
   var $entityType = NULL;
 
@@ -50,35 +54,49 @@ class DeployIterator implements RecursiveIterator {
   }
 
   function hasChildren() {
+    static $cache = array();
+
     $key = $this->key();
     $current = $this->current();
     if (is_array($current)) {
       $this->entityType = $key;
       return TRUE;
     }
-    // TODO: Invoke hook that returns all references to this key.
-    $references = array();
-    // Probably an entity id key, and if it is the parent, it doesn't have any
-    // more children than those we are already parsing in this collection.
-    if (isset($references[$key]) && $key != $this->parent) {
-      return TRUE;
+
+    // Don't check for dependencies twice. They should already have been taken
+    // into account.
+    //
+    // TODO: Or have earlier dependencies really been taken into account? How
+    // are they positioned in this recursive mess?
+    if (!isset($cache[$this->entityType][$key])) {
+      // Just to be clear, at this point $current is a full entity wrapper, loaded
+      // through entity_load_by_uuid(). So all the properties are in UUID format.
+      $entity_wrapper = $current;
+      // But, to save all the implementers from having to reverse-lookup local
+      // IDs for simple dependency detection, we load the same entity again
+      // through entity_load() so we only have local IDs.
+      $entity = reset(entity_load($this->entityType, array($key), NULL, TRUE));
+      $this->dependencies[$key] = module_invoke_all('deploy_entity_dependencies', $entity, $this->entityType);
+      // Let other modules have their say.
+      drupal_alter('deploy_entity_dependencies', $this->dependencies[$key], $entity, $this->entityType);
+
+      // Now mark this as checked.
+      $cache[$this->entityType][$key] = TRUE;
+
+      if (!empty($this->dependencies[$key])) {
+        return TRUE;
+      }
     }
     return FALSE;
   }
 
   /**
    * Gets the children.
-   *
-   * In an iterator, having children means that the current key it self isn't a
-   * part of the collection. However, this isn't the case when doing
-   * deployments. So we add the parent as a part of the collection. And since
-   * children always should go first, we add the parent last.
    */
   function getChildren() {
     $key = $this->key();
     $current = $this->current();
 
-    $parent = NULL;
     $collection = array();
     // Check if we have dependencies directly in the tree in the form of a
     // nested array.
@@ -88,34 +106,41 @@ class DeployIterator implements RecursiveIterator {
       // be an entity id key and not an entity type key.
       if (is_numeric($key)) {
         $collection[$key] = TRUE;
-        $parent = $key;
       }
     }
-    // Check if other modules thinks that this one has some dependencies.
-    // TODO: Invoke hook that returns all references to this key.
-    $references = array();
-    if (isset($references[$key])) {
-      // We must merge recursive with what we might got above.
+
+    if (!empty($this->dependencies[$key])) {
       // TODO: We need to merge with $collection from above in some smart way.
-      $collection = $references[$key];
-      // Add the parent as a part of the collection.
-      $collection[$key] = TRUE;
-      $parent = $key;
+      $collection = $this->dependencies[$key];
+
+      // In an iterator, having children means that the current key it self isn't a
+      // part of the collection. However, this isn't the case when doing
+      // deployments. So we add the parent as a part of the collection. And since
+      // children always should go first, we add the parent last.
+      $collection[$this->entityType][$key] = TRUE;
+
+      // TODO: Invoke something like 'hook_deploy_entity_belongings()' that adds
+      // tight belongings (reverse dependencies), like comments for nodes, to
+      // the collection.
     }
+
     $iterator = new DeployIterator($collection);
-    $iterator->parent = $key;
     $iterator->entityType = $this->entityType;
     return $iterator;
   }
 
+  /**
+   * Get the current value (entity).
+   *
+   * @todo Implement static caching to avoid multiple entity loads.
+   */
   function current() {
     $current = current($this->collection);
     if (is_array($current)) {
       return $current;
     }
-    // TODO: Figure out how we can parse and make use of the entity type keys
-    // in $collection and not hard code to 'node'.
-    $entity = reset(entity_load($this->entityType, array($this->key())));
+    $uuids = entity_get_uuid_by_id($this->entityType, array($this->key()));
+    $entity = reset(entity_load_by_uuid($this->entityType, $uuids, NULL, TRUE));
     return entity_metadata_wrapper($this->entityType, $entity);
   }
 

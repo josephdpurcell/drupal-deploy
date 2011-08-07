@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * Include core implementations.
+ */
+module_load_include('inc', 'deploy', 'deploy.core');
+
+/**
  * Implementation of hook_ctools_plugin_type().
  *
  * @todo
