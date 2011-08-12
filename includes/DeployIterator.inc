@@ -140,7 +140,7 @@ class DeployIterator implements RecursiveIterator {
       return $current;
     }
     $uuids = entity_get_uuid_by_id($this->entityType, array($this->key()));
-    $entity = reset(entity_load_by_uuid($this->entityType, $uuids, NULL, TRUE));
+    $entity = reset(entity_uuid_load($this->entityType, $uuids, NULL, TRUE));
     return entity_metadata_wrapper($this->entityType, $entity);
   }
 

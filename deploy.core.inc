@@ -29,7 +29,7 @@ function user_deploy_entity_dependencies($entity, $entity_type) {
  * all field modules. This saves a lot of work for each field implementaor.
  */
 function field_deploy_entity_dependencies($entity, $entity_type) {
-  $entity_dependencies = array();
+  $dependencies = array();
 
   list(,, $bundle_name) = entity_extract_ids($entity_type, $entity);
   $instances = field_info_instances($entity_type, $bundle_name);
@@ -37,22 +37,25 @@ function field_deploy_entity_dependencies($entity, $entity_type) {
   foreach ($instances as $field_name => $instance) {
     $field = field_info_field($field_name);
     foreach ($entity->{$field_name} as $langcode => $items) {
-      $field_dependencies = module_invoke($field['module'], 'field_entity_dependencies', $entity_type, $entity, $field, $instance, $langcode, $items);
+      $field_dependencies = module_invoke($field['module'], 'deploy_field_dependencies', $entity_type, $entity, $field, $instance, $langcode, $items);
+      // Let other modules alter dependencies for this field.
+      drupal_alter('deploy_field_dependency', $field_dependencies, $entity_type, $entity, $field, $instance, $langcode, $items);
+
       if (!empty($field_dependencies)) {
-        // TODO: This is not enough. Thinking of how the dependency arrays should
-        // look like, two modules returning 'user' dependencies will overwrite
-        // each other.
-        $entity_dependencies = array_merge($entity_dependencies, $field_dependencies);
+        // TODO: This is not good enough. Thinking of how the dependency arrays
+        // should look like, two modules returning 'user' dependencies will
+        // overwrite each other.
+        $dependencies = array_merge($dependencies, $field_dependencies);
       }
     }
   }
-  return $entity_dependencies;
+  return $dependencies;
 }
 
 /**
- * Implements hook_field_entity_dependencies().
+ * Implements hook_deploy_field_dependencies().
  */
-function taxonomy_field_entity_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+function taxonomy_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
   $dependencies = array();
 
   foreach ($items as $item) {
