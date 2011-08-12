@@ -4,7 +4,6 @@ CONTENTS OF THIS FILE
 
  * API outline
  * Summary of the deployment cycle
- * Hooks
  * The plan object
  * The endpoint object
  * The aggregator plugin
@@ -89,15 +88,6 @@ refer to the later topics in this document.
 
  9. The service plugin is handed the batch of entities and deploys them over
     its service.
-
-HOOKS
------
-
-hook_deploy_entity_dependencies($entity, $entity_type)
-
-hook_deploy_entity_dependencies_alter(&$dependencies, $entity, $entity_type)
-
-hook_deploy_item_deployed($sender, $args)
 
 THE PLAN OBJECT
 ---------------

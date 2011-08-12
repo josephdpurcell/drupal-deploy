@@ -21,3 +21,42 @@ function user_deploy_entity_dependencies($entity, $entity_type) {
   }
   return $dependencies;
 }
+
+/**
+ * Implements hook_deploy_entity_dependencies().
+ *
+ * This hook will go through all fields for an entity and invoke a new hook for
+ * all field modules. This saves a lot of work for each field implementaor.
+ */
+function field_deploy_entity_dependencies($entity, $entity_type) {
+  $entity_dependencies = array();
+
+  list(,, $bundle_name) = entity_extract_ids($entity_type, $entity);
+  $instances = field_info_instances($entity_type, $bundle_name);
+
+  foreach ($instances as $field_name => $instance) {
+    $field = field_info_field($field_name);
+    foreach ($entity->{$field_name} as $langcode => $items) {
+      $field_dependencies = module_invoke($field['module'], 'field_entity_dependencies', $entity_type, $entity, $field, $instance, $langcode, $items);
+      if (!empty($field_dependencies)) {
+        // TODO: This is not enough. Thinking of how the dependency arrays should
+        // look like, two modules returning 'user' dependencies will overwrite
+        // each other.
+        $entity_dependencies = array_merge($entity_dependencies, $field_dependencies);
+      }
+    }
+  }
+  return $entity_dependencies;
+}
+
+/**
+ * Implements hook_field_entity_dependencies().
+ */
+function taxonomy_field_entity_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+
+  foreach ($items as $item) {
+    $dependencies['taxonomy_term'][$item['tid']] = TRUE;
+  }
+  return $dependencies;
+}
