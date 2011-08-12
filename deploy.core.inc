@@ -14,9 +14,7 @@ function user_deploy_entity_dependencies($entity, $entity_type) {
     case 'node':
     case 'comment':
     case 'file':
-      $dependencies['user'] = array(
-        $entity->uid => TRUE,
-      );
+      $dependencies['user'][$entity->uid] = TRUE;
       break;
   }
   return $dependencies;
