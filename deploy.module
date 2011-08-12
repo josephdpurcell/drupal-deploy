@@ -208,12 +208,12 @@ function deploy_plan_create($schema, $item) {
 
   // Unserialize our serialized params.
   foreach ($schema['fields'] as $field => $info) {
-    if (!empty($info['serialize']) && !is_array($plan->{$field})) {
-      $plan->{$field} = (array)unserialize($plan->{$field});
+    if (!empty($info['serialize'])) {
+      $plan->{$field} = unserialize($item->{$field});
     }
-  }
-  foreach ($item as $key => $value) {
-    $plan->{$key} = $value;
+    else {
+      $plan->{$field} = $item->{$field};
+    }
   }
   return $plan;
 }
