@@ -11,8 +11,6 @@ class DeployServiceRest implements DeployService, EntityDeployer {
 
   var $headers = array();
 
-  var $observers = array();
-
   protected $plan;
 
   function __construct(DeployPlan $plan, Array $config = array()) {
@@ -22,10 +20,6 @@ class DeployServiceRest implements DeployService, EntityDeployer {
     );
     $this->config = array_merge($this->config, $config);
     $this->plan = $plan;
-  }
-
-  function addObserver(DeployObserver $observer) {
-    $this->observers[] = $observer;
   }
 
   function deploy(Traversable $iterator) {}

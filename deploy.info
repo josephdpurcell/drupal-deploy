@@ -11,7 +11,6 @@ files[] = includes/DeployAuthenticator.inc
 files[] = includes/DeployEndpoint.inc
 files[] = includes/DeployIterator.inc
 files[] = includes/DeployPlan.inc
-files[] = includes/DeployObserver.inc
 files[] = includes/DeployProcessor.inc
 files[] = includes/DeployService.inc
 files[] = includes/DeployServiceRest.inc
