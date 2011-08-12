@@ -246,14 +246,14 @@ function deploy_plan_load_all($args = array()) {
 function deploy_endpoint_create($schema, $item) {
   $endpoint = new DeployEndpoint;
 
-  // TODO: Read $schema instead to find out what fields that are serialized.
-  foreach (array('authenticator_config', 'service_config') as $serialized_param) {
-    if (!is_array($item->{$serialized_param})) {
-      $item->{$serialized_param} = (array)unserialize($item->{$serialized_param});
+  // Unserialize our serialized params.
+  foreach ($schema['fields'] as $field => $info) {
+    if (!empty($info['serialize'])) {
+      $endpoint->{$field} = unserialize($item->{$field});
     }
-  }
-  foreach ($item as $key => $value) {
-    $endpoint->{$key} = $value;
+    else {
+      $endpoint->{$field} = $item->{$field};
+    }
   }
   return $endpoint;
 }
