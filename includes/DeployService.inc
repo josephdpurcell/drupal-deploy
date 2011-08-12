@@ -10,8 +10,6 @@ interface DeployService {
 
   function configForm(&$form_state);
 
-  function addObserver(DeployObserver $observer);
-
 }
 
 interface EntityDeployer {

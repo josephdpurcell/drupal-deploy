@@ -20,8 +20,6 @@ class DeployServiceRestJSON extends DeployServiceRest {
     $response = $this->httpPut($entity->uuid, $data, 'json');
     $plan = $this->plan;
     $args = array('eid' => $entity_wrapper->getIdentifier(), 'response' => $response, 'plan' => $plan->name);
-    foreach ($this->observers as $observer) {
-      $observer->onDeploy($this, $args);
-    }
+    module_invoke_all('deploy_item_deployed', $this, $args);
   }
 }
