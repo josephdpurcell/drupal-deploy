@@ -8,16 +8,24 @@
 /**
  * Implements hook_deploy_entity_dependenies().
  */
-function user_deploy_entity_dependencies($entity, $entity_type) {
-  $dependencies = array();
-  switch ($entity_type) {
-    case 'node':
-    case 'comment':
-    case 'file':
-      $dependencies['user'][$entity->uid] = TRUE;
-      break;
+function node_deploy_entity_dependencies($entity, $entity_type) {
+  if ($entity_type == 'node') {
+    return array(
+      'user' => array($entity->uid => TRUE),
+    );
   }
-  return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_entity_dependenies().
+ */
+function comment_deploy_entity_dependencies($entity, $entity_type) {
+  if ($entity_type == 'comment') {
+    return array(
+      'user' => array($entity->uid => TRUE),
+      'node' => array($entity->nid => TRUE),
+    );
+  }
 }
 
 /**
@@ -55,9 +63,30 @@ function field_deploy_entity_dependencies($entity, $entity_type) {
  */
 function taxonomy_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
   $dependencies = array();
-
   foreach ($items as $item) {
     $dependencies['taxonomy_term'][$item['tid']] = TRUE;
+  }
+  return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_field_dependencies().
+ */
+function node_reference_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+  foreach ($items as $item) {
+    $dependencies['node'][$item['nid']] = TRUE;
+  }
+  return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_field_dependencies().
+ */
+function user_reference_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+  foreach ($items as $item) {
+    $dependencies['user'][$item['uid']] = TRUE;
   }
   return $dependencies;
 }
