@@ -5,6 +5,7 @@ core = 7.x
 
 dependencies[] = ctools
 dependencies[] = uuid
+dependencies[] = entity
 
 files[] = includes/DeployAggregator.inc
 files[] = includes/DeployAuthenticator.inc
