@@ -5,11 +5,15 @@ GENERAL TODO'S
  * Get dixon's UUID fork commited to the upstream UUID project.
    http://drupal.org/node/1212954
 
- * See if we can add the observer pattern more natively in the API to detect
-   deployed items. Or is it enough with just a plain hook instead of the class?
+ * Simplify DeployIterator. Right now $collection can be recursive, but no
+   implementaor will ever use it. DeployIterator will still look for
+   dependencies recursively. So remove that feature.
 
- * Oversee how the iterator works. We can probably optimize it and make it more
-   "readable" and easy to follow.
+ * See if we can integrate with Entity API and hook_entity_property_info() in a
+   way. Would be nice if we just could mark properties and fields as holding
+   a dependency, eventually with a 'dependency callback' similar to the
+   'getter callback'. This would save a lot of dependency code and make
+   'hook_deploy_entity_dependency' redundant.
 
  * Oversee how default config keys should be set in plugin objects.
 
