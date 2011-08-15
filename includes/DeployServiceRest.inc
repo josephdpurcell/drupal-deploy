@@ -17,6 +17,7 @@ class DeployServiceRest implements DeployService, EntityDeployer {
     $this->config += array(
       'debug' => FALSE,
       'url' => '',
+      'headers' => array(),
     );
     $this->config = array_merge($this->config, $config);
     $this->plan = $plan;
@@ -26,15 +27,11 @@ class DeployServiceRest implements DeployService, EntityDeployer {
 
   function deployEntity($entity_wrapper) {}
 
-  function setHeader($key, $value) {
-    $this->headers[$key] = $value;
-  }
-
   function httpPut($uuid, $data, $format) {
     $url = $this->config['url'] . '/uuid_entity/' . $uuid . '.' . $format;
     $options = array(
       'method' => 'PUT',
-      'headers' => $this->headers,
+      'headers' => $this->config['headers'],
       'data' => $data
     );
 

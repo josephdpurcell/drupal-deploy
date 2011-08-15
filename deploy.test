@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ *
+ * Simple example test. We create a node on both servers and show
+ * that we can access them.
+ */
+
+class OneNodeDeployWebTestCase extends DeployWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Send one node.',
+      'description' => 'Create one node on first server and deploy it to second server.',
+      'group' => 'Deployment'
+    );
+  }
+
+  /**
+   * Test itself.
+   */
+  function testDeployNode() {
+    $title = $this->randomString();
+    $this->drupalCreateNode(array('title' => $title));
+
+    $this->deployPlan('deploy_example_plan');
+
+    // Switch to second server and load deployed node.
+    $this->switchSite('deploy_origin', 'deploy_endpoint');
+
+    $node = node_load(1);
+    $this->assertEqual($title, $node->title, t('Node has been deployed successfully.'), 'Deploy');
+  }
+}

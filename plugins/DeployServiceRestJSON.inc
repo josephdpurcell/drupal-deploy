@@ -16,7 +16,7 @@ class DeployServiceRestJSON extends DeployServiceRest {
         'data' => $entity,
       )
     );
-    $this->setHeader('Content-Type', 'application/json');
+    $this->config['headers']['Content-Type'] = 'application/json';
     $response = $this->httpPut($entity->uuid, $data, 'json');
     $plan = $this->plan;
     $args = array('eid' => $entity_wrapper->getIdentifier(), 'response' => $response, 'plan' => $plan->name);

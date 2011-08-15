@@ -6,8 +6,6 @@ interface DeployService {
 
   function deploy(Traversable $iterator);
 
-  function setHeader($key, $value);
-
   function configForm(&$form_state);
 
 }

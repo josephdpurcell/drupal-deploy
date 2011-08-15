@@ -13,7 +13,7 @@ class DeployAuthenticatorBasic extends DeployAuthenticatorNone {
   }
 
   function deploy(Traversable $iterator) {
-    $this->service->setHeader('Authorization', 'Basic ' . base64_encode($this->config['username'] . ':' . $this->config['password']));
+    $this->service->config['headers']['Authorization'] = 'Basic ' . base64_encode($this->config['username'] . ':' . $this->config['password']);
     $this->service->deploy($iterator);
   }
 

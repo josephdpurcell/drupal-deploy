@@ -24,3 +24,6 @@ files[] = plugins/DeployProcessorQueue.inc
 files[] = plugins/DeployProcessorBatch.inc
 files[] = plugins/DeployServiceRestJSON.inc
 files[] = plugins/DeployServiceRestXML.inc
+
+files[] = deploy.test
+files[] = deploy_test_case.php
