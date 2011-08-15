@@ -163,8 +163,8 @@ class DeployWebTestCase extends DrupalWebTestCase {
     $term->description = $this->randomName();
     // Use the first available text format.
     $term->format = db_query_range('SELECT format FROM {filter_format}', 0, 1)->fetchField();
-    // For our test cases it's enough to rely on the standard tags vocabulary.
-    $term->vocabulary_machine_name = 'tags';
+    // For our test cases it's enough to rely on the standard 'tags' vocabulary.
+    $term->vid = 1;
     taxonomy_term_save($term);
     return $term;
   }

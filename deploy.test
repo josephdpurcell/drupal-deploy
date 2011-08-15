@@ -27,16 +27,24 @@ class DeployDeploymentTestCase extends DeployWebTestCase {
    *
    * Both sites are "out of sync" content wise (as production/stage always are)
    * but deployments of new and updated content are still possible.
+   *
+   * @todo
+   *   Conditionally test references modules too, since they are very likely too
+   *   be used on most sites.
+   *
+   * @todo
+   *   Test with translations too.
    */
   function testDeployment() {
     // Switch to our production site.
     $this->switchSite('deploy_origin', 'deploy_endpoint');
 
-    // Intentionally make or sites "out of sync" by randomly creating some
-    // content that only exists in production.
+    // Intentionally force the sites out of sync by creating some content that
+    // only exists in production.
     $user = $this->drupalCreateUser();
     $term = $this->createTerm();
     $this->drupalCreateNode(array(
+      'type' => 'article',
       'uid' => $user->uid,
       'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term->tid))),
     ));
@@ -44,20 +52,46 @@ class DeployDeploymentTestCase extends DeployWebTestCase {
     // Switch to our staging site and push some new content.
     $this->switchSite('deploy_endpoint', 'deploy_origin');
 
-    $title = $this->randomString();
+    $user_stage = $this->drupalCreateUser();
+    $term_stage = $this->createTerm();
     $node_stage = $this->drupalCreateNode(array(
-      'title' => $title
+      'type' => 'article',
+      'uid' => $user_stage->uid,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term_stage->tid))),
     ));
 
+    // This will deploy the node only. But with dependencies (like the author
+    // and the term).
     $this->deployPlan('deploy_example_plan');
 
     // Switch to our production site and make sure the content was pushed.
     $this->switchSite('deploy_origin', 'deploy_endpoint');
 
-    $node_prod = $this->drupalGetNodeByTitle($title);
-    // Test to see if they are locally different, but universally the same.
-    // They should be.
+    // Load the deployed entities to test. Since we don't know their primary IDs
+    // here on the production site we look them up using their UUIDs.
+    $user_prod = reset(entity_uuid_load('user', array($user_stage->uuid)));
+    $term_prod = reset(entity_uuid_load('taxonomy_term', array($term_stage->uuid)));
+    $node_prod = reset(entity_uuid_load('node', array($node_stage->uuid)));
+
+    // Test to see if all entities are locally different, but universally the
+    // same. They should be, since we forced the sites out of sync earlier.
+    //
+    // Test the node author.
+    $test = (($user_stage->uuid == $user_prod->uuid) && ($user_stage->uid != $user_prod->uid));
+    $this->assertTrue($test, 'New node author was deployed successfully.');
+    // Test the term.
+    $test = (($term_stage->uuid == $term_prod->uuid) && ($term_stage->tid != $term_prod->tid));
+    $this->assertTrue($test, 'New term was deployed successfully.');
+    // Test the node itself.
     $test = (($node_stage->uuid == $node_prod->uuid) && ($node_stage->nid != $node_prod->nid));
-    $this->assertTrue($test, 'Node was deployed successfully.');
+    $this->assertTrue($test, 'New node was deployed successfully.');
+    // Test if the dependencies got attached to the node.
+    $this->assertEqual($node_prod->uid, $user_stage->uuid, 'Node author was successfully attached to node.');
+    $this->assertEqual($node_prod->field_tags[LANGUAGE_NONE][0]['tid'], $term_stage->uuid, 'Term was successfully attached to node.');
+
+    // Now switch back to staging site and make updates to all entities to see
+    // if they propogates through, when a new deployment is done.
+    $this->switchSite('deploy_endpoint', 'deploy_origin');
+    // TODO.
   }
 }
