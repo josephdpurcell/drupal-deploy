@@ -5,6 +5,11 @@ GENERAL TODO'S
  * Get dixon's UUID fork commited to the upstream UUID project.
    http://drupal.org/node/1212954
 
+ * Find a solution to the problem where deployments can't be done with UID 1.
+   The reason is because UID 1 don't have the same UUID on the endpoint, since
+   that user is always created during installation. A possible solution could be
+   to provide a UI where manual update of UID 1 UUID is possible.
+
  * Simplify DeployIterator. Right now $collection can be recursive, but no
    implementaor will ever use it. DeployIterator will still look for
    dependencies recursively. So remove that feature.
