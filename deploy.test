@@ -2,33 +2,62 @@
 
 /**
  * @file
- *
- * Simple example test. We create a node on both servers and show
- * that we can access them.
+ * Deployment tests.
  */
 
-class OneNodeDeployWebTestCase extends DeployWebTestCase {
+/**
+ * Test a simulated deployment scenario between two site installations.
+ *
+ * This test tests as few components are possible that still assembles a full
+ * deployment scenario. Other components such as Deploy Manager are covered by
+ * other unit tests.
+ */
+class DeployDeploymentTestCase extends DeployWebTestCase {
   public static function getInfo() {
     return array(
-      'name' => 'Send one node.',
-      'description' => 'Create one node on first server and deploy it to second server.',
+      'name' => 'Full deployment',
+      'description' => 'Test a simulated deployment scenario between two site installations.',
       'group' => 'Deployment'
     );
   }
 
   /**
-   * Test itself.
+   * This test sets up a scenario where we have one production site (the
+   * endpoint) and a staging site (the origin).
+   *
+   * Both sites are "out of sync" content wise (as production/stage always are)
+   * but deployments of new and updated content are still possible.
    */
-  function testDeployNode() {
+  function testDeployment() {
+    // Switch to our production site.
+    $this->switchSite('deploy_origin', 'deploy_endpoint');
+
+    // Intentionally make or sites "out of sync" by randomly creating some
+    // content that only exists in production.
+    $user = $this->drupalCreateUser();
+    $term = $this->createTerm();
+    $this->drupalCreateNode(array(
+      'uid' => $user->uid,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term->tid))),
+    ));
+
+    // Switch to our staging site and push some new content.
+    $this->switchSite('deploy_endpoint', 'deploy_origin');
+
     $title = $this->randomString();
-    $this->drupalCreateNode(array('title' => $title));
+    $node_stage = $this->drupalCreateNode(array(
+      'title' => $title
+    ));
 
     $this->deployPlan('deploy_example_plan');
 
-    // Switch to second server and load deployed node.
+    // Switch to our production site and make sure the content was pushed.
     $this->switchSite('deploy_origin', 'deploy_endpoint');
 
-    $node = node_load(1);
-    $this->assertEqual($title, $node->title, t('Node has been deployed successfully.'), 'Deploy');
+    $node_prod = $this->drupalGetNodeByTitle($title);
+    // Test to see if they are locally different, but universally the same.
+    // They should be.
+    $test = (($node_stage->uuid == $node_prod->uuid) && ($node_stage->nid != $node_prod->nid));
+    $this->assertTrue($test, 'Node was deployed successfully.');
   }
 }
