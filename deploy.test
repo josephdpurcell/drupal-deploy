@@ -181,7 +181,7 @@ class DeployDependencyTestCase extends DeployWebTestCase {
           break;
       }
       $placeholders = array('%type' => $type, '%id' => $id);
-      $this->assertTrue($test, t('%type %id was deployed in correct order.', $placeholders));
+      $this->assertTrue($test, t('%type %id was iterated over, in correct order.', $placeholders));
       $this->assertTrue(uuid_is_valid($entity->uuid), t('%type %id was loaded with UUID.', $placeholders));
       $i++;
     }
