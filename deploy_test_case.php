@@ -7,8 +7,17 @@ class DeployWebTestCase extends DrupalWebTestCase {
 
   /**
    * Set up all sites.
+   *
+   * For some tests we don't need the multisite environment, but still want
+   * to use common methods in this test case.
    */
-  function setUp() {
+  function setUp($simple = FALSE) {
+    $this->profile = 'standard';
+    if ($simple) {
+      parent::setUp('entity', 'deploy');
+      return;
+    }
+
     // Set up our origin site.
     $this->setUpSite('deploy_origin', array('entity', 'ctools', 'features', 'views', 'views_ui', 'uuid', 'deploy', 'deploy_ui', 'deploy_aggregator_views', 'deploy_example'));
 
@@ -154,6 +163,10 @@ class DeployWebTestCase extends DrupalWebTestCase {
   /**
    * Code taken from TaxonomyWebTestCase::createTerm() since we can't extend
    * that test case. Some simplifications are made though.
+   *
+   * @todo
+   *   This will probably not work when the Testing profile is used. Then we
+   *   need to create the vocabulary manually.
    *
    * @see TaxonomyWebTestCase::createTerm()
    */

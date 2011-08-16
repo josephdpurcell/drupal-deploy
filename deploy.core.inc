@@ -10,9 +10,13 @@
  */
 function node_deploy_entity_dependencies($entity, $entity_type) {
   if ($entity_type == 'node') {
-    return array(
+    $dependencies = array(
       'user' => array($entity->uid => TRUE),
     );
+    if (!empty($entity->tnid) && $entity->tnid != $entity->nid) {
+      $dependencies['node'] = array($entity->tnid => TRUE);
+    }
+    return $dependencies;
   }
 }
 
@@ -36,7 +40,6 @@ function comment_deploy_entity_dependencies($entity, $entity_type) {
  */
 function field_deploy_entity_dependencies($entity, $entity_type) {
   $dependencies = array();
-
   list(,, $bundle_name) = entity_extract_ids($entity_type, $entity);
   $instances = field_info_instances($entity_type, $bundle_name);
 

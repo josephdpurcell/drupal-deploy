@@ -13,6 +13,7 @@
  * other unit tests.
  */
 class DeployDeploymentTestCase extends DeployWebTestCase {
+
   public static function getInfo() {
     return array(
       'name' => 'Full deployment',
@@ -54,8 +55,10 @@ class DeployDeploymentTestCase extends DeployWebTestCase {
 
     $user_stage = $this->drupalCreateUser();
     $term_stage = $this->createTerm();
+    $node_title_orig = $this->randomString();
     $node_stage = $this->drupalCreateNode(array(
       'type' => 'article',
+      'title' => $node_title_orig,
       'uid' => $user_stage->uid,
       'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term_stage->tid))),
     ));
@@ -69,9 +72,9 @@ class DeployDeploymentTestCase extends DeployWebTestCase {
 
     // Load the deployed entities to test. Since we don't know their primary IDs
     // here on the production site we look them up using their UUIDs.
-    $user_prod = reset(entity_uuid_load('user', array($user_stage->uuid)));
-    $term_prod = reset(entity_uuid_load('taxonomy_term', array($term_stage->uuid)));
-    $node_prod = reset(entity_uuid_load('node', array($node_stage->uuid)));
+    $user_prod = reset(entity_uuid_load('user', array($user_stage->uuid), array(), TRUE));
+    $term_prod = reset(entity_uuid_load('taxonomy_term', array($term_stage->uuid), array(), TRUE));
+    $node_prod = reset(entity_uuid_load('node', array($node_stage->uuid), array(), TRUE));
 
     // Test to see if all entities are locally different, but universally the
     // same. They should be, since we forced the sites out of sync earlier.
@@ -90,8 +93,98 @@ class DeployDeploymentTestCase extends DeployWebTestCase {
     $this->assertEqual($node_prod->field_tags[LANGUAGE_NONE][0]['tid'], $term_stage->uuid, 'Term was successfully attached to node.');
 
     // Now switch back to staging site and make updates to all entities to see
-    // if they propogates through, when a new deployment is done.
+    // if updates is comming through, when a new deployment is done.
     $this->switchSite('deploy_endpoint', 'deploy_origin');
-    // TODO.
+    // Update the node.
+    $node_stage->title = $this->randomString();
+    node_save($node_stage);
+
+    // TODO: Update more entities in the dependency chain of the node.
+
+    // Now deploy the node again.
+    $this->deployPlan('deploy_example_plan');
+
+    // Switch back to production to assert the changes.
+    $this->switchSite('deploy_origin', 'deploy_endpoint');
+
+    $node_prod = reset(entity_uuid_load('node', array($node_stage->uuid), array(), TRUE));
+    $test = (($node_prod->title == $node_stage->title) && ($node_prod->title != $node_title_orig));
+    $this->assertTrue($test, 'Node was successfully updated after new deployment.');
+  }
+}
+
+/**
+ * Tests the dependency framework in Deploy.
+ */
+class DeployDependencyTestCase extends DeployWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Dependency framework',
+      'description' => 'Test the dependency framework in Deploy.',
+      'group' => 'Deployment'
+    );
+  }
+
+  function setUp() {
+    parent::setUp(TRUE);
+  }
+
+  function testDependencies() {
+    // Add the 'field_tags' field
+    $user = $this->drupalCreateUser();
+    $term1 = $this->createTerm();
+    $node1 = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'uid' => $user->uid,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term1->tid))),
+    ));
+    $term2 = $this->createTerm();
+    $node2 = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'uid' => $user->uid,
+      'tnid' => $node1->nid,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term2->tid))),
+    ));
+
+    // Add only the last node to the collection. What should come out of the
+    // iterator should be all it's dependencies, and last the node it self.
+    $collection = array(
+      'node' => array($node2->nid => TRUE),
+    );
+
+    $iterator = deploy_iterator($collection);
+    $i = 0;
+    foreach ($iterator as $entity_wrapper) {
+      $test = FALSE;
+      $entity = $entity_wrapper->value();
+      $type = $entity_wrapper->type();
+      $id = $entity_wrapper->getIdentifier();
+      switch ($i) {
+        case 0:
+          $test = ($type == 'taxonomy_term' && $id == $term2->tid);
+          break;
+        case 1:
+          $test = ($type == 'user' && $id == $user->uid);
+          break;
+        case 2:
+          $test = ($type == 'taxonomy_term' && $id == $term1->tid);
+          break;
+        case 3:
+          $test = ($type == 'user' && $id == $user->uid);
+          break;
+        case 4:
+          $test = ($type == 'node' && $id == $node1->nid);
+          break;
+        case 5:
+          $test = ($type == 'node' && $id == $node2->nid);
+          break;
+      }
+      $placeholders = array('%type' => $type, '%id' => $id);
+      $this->assertTrue($test, t('%type %id was deployed in correct order.', $placeholders));
+      $this->assertTrue(uuid_is_valid($entity->uuid), t('%type %id was loaded with UUID.', $placeholders));
+      $i++;
+    }
+    $this->assertEqual($i, 6, 'Correct number of entities was iterated over.');
   }
 }

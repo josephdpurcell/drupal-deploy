@@ -37,8 +37,7 @@ class DeployAggregatorViews implements DeployAggregator {
       $entity_ids[$view_result->{$entity_id_field}] = TRUE;
     }
 
-    $iterator = new DeployIterator(array($entity_type => $entity_ids));
-    return new DeployIteratorIterator($iterator);
+    return deploy_iterator(array($entity_type => $entity_ids));
   }
 
   function configForm(&$form_state) {

@@ -76,9 +76,11 @@ class DeployIterator implements RecursiveIterator {
       // IDs for simple dependency detection, we load the same entity again
       // through entity_load() so we only have local IDs.
       $entity = reset(entity_load($this->entityType, array($key), NULL, TRUE));
-      $this->dependencies[$key] = module_invoke_all('deploy_entity_dependencies', $entity, $this->entityType);
-      // Let other modules have their say.
-      drupal_alter('deploy_entity_dependencies', $this->dependencies[$key], $entity, $this->entityType);
+      if (!empty($entity)) {
+        $this->dependencies[$key] = module_invoke_all('deploy_entity_dependencies', $entity, $this->entityType);
+        // Let other modules have their say.
+        drupal_alter('deploy_entity_dependencies', $this->dependencies[$key], $entity, $this->entityType);
+      }
 
       // Now mark this as checked.
       $cache[$this->entityType][$key] = TRUE;

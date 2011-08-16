@@ -279,7 +279,6 @@ function deploy_endpoint_load_all() {
   }
 }
 
-
 /**
  * Implements hook_cron_queue_info().
  */
@@ -292,7 +291,16 @@ function deploy_cron_queue_info() {
 }
 
 /**
- * Processes a single queued item for deployemnt.
+ * Constructs a deployment iterator, which is the core of the dependency
+ * framework.
+ */
+function deploy_iterator($collection) {
+  $iterator = new DeployIterator($collection);
+  return new DeployIteratorIterator($iterator);
+}
+
+/**
+ * Processes a single queued item for deployment.
  * Unfortunately the Queue API doesn't allow us to use a class::method as a
  * callback function.
  */
