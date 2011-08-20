@@ -21,15 +21,16 @@ interface DeployAggregator extends IteratorAggregate {
 
 }
 
-/**
- * Class used by Batch and Queue processors.
- */
-class DeployAggregateSingle implements IteratorAggregate {
-  function __construct(DeployIterator $iterator) {
-    $this->iterator = $iterator;
-  }
+class DeployAggregatorBase implements DeployAggregator {
+
+  function __construct(DeployPlan $plan = NULL, Array $config = array()) {}
+
+  function configForm(&$form_state) {}
+
+  function getEntities() {}
 
   function getIterator() {
-    return new DeployIteratorIterator($this->iterator);
+    $entities = $this->getEntities();
+    return deploy_iterator($entities);
   }
 }

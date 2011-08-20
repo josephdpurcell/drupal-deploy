@@ -24,20 +24,4 @@ class DeployProcessorMemory implements DeployProcessor {
     // We have no settings for this processor.
     return array();
   }
-
-  /**
-   * Called during either batch or queue processing of plan items.
-   */
-  static function process_item($item) {
-    $endpoint = deploy_endpoint_load($item['endpoint']);
-    $plan = deploy_plan_load($item['plan']);
-    if ($plan && $endpoint) {
-      $collection = array(
-        $item['type'] => array($item['eid'] => TRUE)
-      );
-      $iterator = new DeployIterator($collection);
-      $aggregator = new DeployAggregateSingle($iterator);
-      $endpoint->deploy($plan, $aggregator);
-    }
-  }
 }

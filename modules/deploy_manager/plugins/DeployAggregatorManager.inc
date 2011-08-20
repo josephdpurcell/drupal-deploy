@@ -1,31 +1,30 @@
 <?php
 
-class DeployAggregatorManager implements DeployAggregator {
+class DeployAggregatorManager extends DeployAggregatorBase {
 
   var $config = array();
 
   /**
    * Holds a reference to the plan object that initiated it.
+   *
    * @var DeployPlan
    */
   protected $plan;
 
   function __construct(DeployPlan $plan = NULL, Array $config = array()) {
-    $defaults = array('delete_on_deploy' => 0);
+    $defaults = array(
+      'debug' => FALSE,
+      'delete_on_deploy' => FALSE,
+    );
     $this->config = array_merge($defaults, $config);
     $this->plan = $plan;
   }
 
   /**
-   * @return DeployIteratorIterator
-   *
-   * @see DeployAggregator::getIterator()
+   * Get aggregated entities.
    */
-  function getIterator() {
-    $plan = $this->plan;
-    $items = deploy_manager_get_plan_items($plan->name);
-    $iterator = new DeployIterator($items);
-    return new DeployIteratorIterator($iterator);
+  function getEntities() {
+    return deploy_manager_get_plan_items($this->plan->name);
   }
 
   function configForm(&$form_state) {

@@ -10,6 +10,17 @@ GENERAL TODO'S
    that user is always created during installation. A possible solution could be
    to provide a UI where manual update of UID 1 UUID is possible.
 
+ * All processors should set a message about the deployment.
+
+ * Implement hook_help() where needed.
+
+ * Make all plugins more private and isolate necessary methods and parameters.
+
+ * Change the 'eid' key to 'entity_id' to be consistent with core.
+
+ * Change 'items' and 'collection' to 'entities', since that is what we really
+   are dealing with.
+
  * See if we can integrate with Entity API and hook_entity_property_info() in a
    way. Would be nice if we just could mark properties and fields as holding
    a dependency, eventually with a 'dependency callback' similar to the

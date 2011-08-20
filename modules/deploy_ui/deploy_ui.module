@@ -38,6 +38,22 @@ function deploy_ui_permission() {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function deploy_ui_theme() {
+  return array(
+    'deploy_ui_overview' => array(
+      'variables' => array('blocks' => array()),
+      'file' => 'deploy_ui.pages.inc',
+    ),
+    'deploy_ui_overview_plan_content' => array(
+      'variables' => array('plan' => NULL),
+      'file' => 'deploy_ui.pages.inc',
+    ),
+  );
+}
+
+/**
  * Implementation of hook_ctools_plugin_directory().
  */
 function deploy_ui_ctools_plugin_directory($module, $plugin) {

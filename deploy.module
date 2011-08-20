@@ -215,6 +215,7 @@ function deploy_plan_create($schema, $item) {
       $plan->{$field} = $item->{$field};
     }
   }
+  $plan->init();
   return $plan;
 }
 
@@ -280,17 +281,6 @@ function deploy_endpoint_load_all() {
 }
 
 /**
- * Implements hook_cron_queue_info().
- */
-function deploy_cron_queue_info() {
-  $queues['deploy_queue'] = array(
-    'worker callback' => 'deploy_process_item_queue',
-    'time' => 60,
-  );
-  return $queues;
-}
-
-/**
  * Constructs a deployment iterator, which is the core of the dependency
  * framework.
  */
@@ -300,10 +290,28 @@ function deploy_iterator($collection) {
 }
 
 /**
- * Processes a single queued item for deployment.
- * Unfortunately the Queue API doesn't allow us to use a class::method as a
- * callback function.
+ * Implements hook_cron_queue_info().
  */
-function deploy_process_item_queue($item) {
-  DeployProcessorMemory::process_item($item);
+function deploy_cron_queue_info() {
+  $queues['deploy_queue'] = array(
+    'worker callback' => 'deploy_queue_process_item',
+    'time' => 60,
+  );
+  return $queues;
+}
+
+/**
+ * Processes a single queued item for deployment.
+ */
+function deploy_queue_process_item($item) {
+  $endpoint = deploy_endpoint_load($item['endpoint']);
+  $plan = deploy_plan_load($item['plan']);
+
+  if ($plan && $endpoint) {
+    $collection = array(
+      $item['type'] => array($item['eid'] => TRUE)
+    );
+    $iterator = deploy_iterator($collection);
+    $endpoint->deploy($plan, $iterator);
+  }
 }

@@ -8,9 +8,9 @@ class DeployIteratorIterator extends RecursiveIteratorIterator {}
 /**
  * Iterator which does the heavy lifting for detecting dependencies.
  *
- * This iterator is reponsible for taking in a collection of entities, figure
- * out all their dependencies and return an iterable object of all of them,
- * in a deployable order, dependencies first that is. And since dependencies
+ * This iterator is reponsible for taking in an array of entity types and ids,
+ * figure out all their dependencies and return an iterable object of all of
+ * them, in a deployable order (dependencies first). And since dependencies
  * in theory are nested and recursive, we are using a recursive iterator here.
  *
  * @todo
@@ -22,7 +22,7 @@ class DeployIteratorIterator extends RecursiveIteratorIterator {}
  */
 class DeployIterator implements RecursiveIterator {
 
-  var $collection = array();
+  var $entities = array();
 
   var $denendencies = array();
 
@@ -33,12 +33,12 @@ class DeployIterator implements RecursiveIterator {
   /**
    * Constructor.
    *
-   * The $collection array should be structured as below, where 'foo', 'bar' and
+   * The $entities array should be structured as below, where 'foo', 'bar' and
    * 'baz' are entity types and the numeric keys are entity ids. Although it's
    * not required, the value of each key can be a similar structured array of
    * dependencies that will be parsed recursively.
    * @code
-   *   $collection = array(
+   *   $entities = array(
    *     'node' => array(
    *       10 => TRUE,
    *       12 => array(
@@ -56,11 +56,11 @@ class DeployIterator implements RecursiveIterator {
    *   );
    * @endcode
    *
-   * @param $collection
+   * @param $entities
    *   A structured array of entity ids and their entity types.
    */
-  function __construct($collection) {
-    $this->collection = $collection;
+  function __construct($entities) {
+    $this->entities = $entities;
   }
 
   function hasChildren() {
@@ -106,30 +106,30 @@ class DeployIterator implements RecursiveIterator {
     $key = $this->key();
     $current = $this->current();
 
-    $collection = array();
+    $entities = array();
     // Check if we have dependencies directly in the tree in the form of a
     // nested array.
     if (is_array($current)) {
-      $collection = $current;
-      // Now add the parent as a part of the collection, but only if it seems to
-      // be an entity id key and not an entity type key.
+      $entities = $current;
+      // Now add the parent to the entities, but only if it seems to be an
+      // entity id key and not an entity type key.
       if (uuid_is_valid($key)) {
-        $collection[$key] = TRUE;
+        $entities[$key] = TRUE;
       }
     }
 
     if (!empty($this->dependencies[$key]) || !empty($this->belongings[$key])) {
-      // TODO: We need to merge with $collection from above in some smart way.
-      $collection = $this->dependencies[$key];
+      // TODO: We need to merge with $entities from above in some smart way.
+      $entities = $this->dependencies[$key];
       // In an iterator, having children means that the current key it self
-      // isn't a part of the collection. However, this isn't the case when doing
-      // deployments. So we add the parent as a part of the collection.
+      // isn't a part of the entities. However, this isn't the case when doing
+      // deployments. So we add the parent as a part of the entities.
       // And since children always should go first, we add the parent last.
-      $collection[$this->entityType][$key] = TRUE;
-      // TODO: Merge in $this->belongings[$key] to collection.
+      $entities[$this->entityType][$key] = TRUE;
+      // TODO: Merge in $this->belongings[$key] to entities.
     }
 
-    $iterator = new DeployIterator($collection);
+    $iterator = new DeployIterator($entities);
     $iterator->entityType = $this->entityType;
     return $iterator;
   }
@@ -140,7 +140,7 @@ class DeployIterator implements RecursiveIterator {
    * @todo Implement static caching to avoid multiple entity loads.
    */
   function current() {
-    $current = current($this->collection);
+    $current = current($this->entities);
     if (is_array($current)) {
       return $current;
     }
@@ -153,19 +153,19 @@ class DeployIterator implements RecursiveIterator {
   }
 
   function key() {
-    return key($this->collection);
+    return key($this->entities);
   }
 
   function next() {
-    return next($this->collection);
+    return next($this->entities);
   }
 
   function rewind() {
-    reset($this->collection);
+    reset($this->entities);
   }
 
   function valid() {
-    $key = key($this->collection);
+    $key = key($this->entities);
     return ($key !== NULL && $key !== FALSE);
   }
 

@@ -1,11 +1,12 @@
 <?php
 
-class DeployAggregatorViews implements DeployAggregator {
+class DeployAggregatorViews extends DeployAggregatorBase {
 
   var $config = array();
 
   /**
    * Holds a reference to the plan object that initiated it.
+   *
    * @var DeployPlan
    */
   protected $plan;
@@ -20,11 +21,9 @@ class DeployAggregatorViews implements DeployAggregator {
   }
 
   /**
-   * @return DeployIteratorIterator
-   *
-   * @see DeployAggregator::getIterator()
+   * Get aggregated entities.
    */
-  function getIterator() {
+  function getEntities() {
     $view = views_get_view($this->config['view_name'], 'default');
     // TODO: Consider adding a config parameter for $entity_type, since that's
     // not always consistent with $view->base_table.
@@ -32,12 +31,11 @@ class DeployAggregatorViews implements DeployAggregator {
     $entity_id_field = $view->base_field;
 
     $view_results = views_get_view_result($view->name, 'default');
-    $entity_ids = array();
+    $entities = array();
     foreach ($view_results as $view_result) {
-      $entity_ids[$view_result->{$entity_id_field}] = TRUE;
+      $entities[$entity_type][$view_result->{$entity_id_field}] = TRUE;
     }
-
-    return deploy_iterator(array($entity_type => $entity_ids));
+    return $entities;
   }
 
   function configForm(&$form_state) {

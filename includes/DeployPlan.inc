@@ -10,13 +10,13 @@ class DeployPlan {
 
   var $processor_plugin = NULL;
 
-  var $processor_config = NULL;
+  var $processor_config = array();
 
   var $processor = NULL;
 
   var $endpoints = array();
 
-  function deploy() {
+  function init() {
     // Since the CTools Export API is declarative by nature, we can't rely on
     // constructor injection and deploy_plan_create() as the only factory.
     $schema = drupal_get_schema('deploy_plans');
@@ -26,14 +26,22 @@ class DeployPlan {
         $this->{$field} = (array)unserialize($this->{$field});
       }
     }
-    $aggregator_config = $this->aggregator_config + array('debug' => $this->debug);
-    $aggregator = new $this->aggregator_plugin($this, $aggregator_config);
-    $processor_config = $this->processor_config + array('debug' => $this->debug);
-    $this->processor = new $this->processor_plugin($aggregator, $processor_config);
+    if (!empty($this->aggregator_plugin)) {
+      $aggregator_config = $this->aggregator_config + array('debug' => $this->debug);
+      $aggregator = new $this->aggregator_plugin($this, $aggregator_config);
+    }
+    if (!empty($this->processor_plugin)) {
+      $processor_config = $this->processor_config + array('debug' => $this->debug);
+      $this->processor = new $this->processor_plugin($aggregator, $processor_config);
+    }
+  }
 
+  function deploy() {
+    if (empty($this->processor)) {
+      $this->init();
+    }
     foreach ($this->endpoints as $endpoint_name) {
       $this->processor->process($this, $endpoint_name);
     }
   }
-
 }

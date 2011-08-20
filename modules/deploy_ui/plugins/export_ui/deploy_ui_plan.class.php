@@ -203,12 +203,12 @@ class deploy_ui_plan extends ctools_export_ui {
     }
   }
 
-  function deploy_page($js, $input, $item) {
+  function deploy_page($js, $input, $plan) {
     $form_state = array(
       'plugin' => $this->plugin,
       'object' => &$this,
       'ajax' => $js,
-      'item' => $item,
+      'plan' => $plan,
       'rerender' => TRUE,
       'no_redirect' => TRUE,
     );
@@ -216,11 +216,8 @@ class deploy_ui_plan extends ctools_export_ui {
     $output = drupal_build_form('deploy_ui_plan_confirm_form', $form_state);
 
     if (!empty($form_state['executed'])) {
-      $item->deploy();
-      $export_key = $this->plugin['export']['key'];
-      $message = str_replace('%title', check_plain($item->{$export_key}), '%title has been deployed');
-      drupal_set_message($message);
-      drupal_goto(ctools_export_ui_plugin_base_path($this->plugin));
+      $plan->deploy();
+      drupal_goto('admin/structure/deploy');
     }
 
     return $output;
@@ -229,16 +226,11 @@ class deploy_ui_plan extends ctools_export_ui {
 }
 
 function deploy_ui_plan_confirm_form($form, $form_state) {
-  $plugin = $form_state['plugin'];
-  $item = $form_state['item'];
-
+  $plan = $form_state['plan'];
   $form = array();
-
-  $export_key = $plugin['export']['key'];
-  $path = empty($_REQUEST['cancel_path']) ? ctools_export_ui_plugin_base_path($plugin) : $_REQUEST['cancel_path'];
-
+  $path = empty($_REQUEST['cancel_path']) ? 'admin/structure/deploy' : $_REQUEST['cancel_path'];
   $form = confirm_form($form,
-    t('Are you sure you want to deploy %title?', array('%title' => $item->{$export_key})),
+    t('Are you sure you want to deploy %title?', array('%title' => $plan->name)),
     $path,
     t("Deploying a plan will push its content to all its endpoints."),
     t('Deploy'),

@@ -5,7 +5,7 @@
  * This is not a full plugin, but an abstract class that plugins can extend.
  */
 
-class DeployServiceRest implements DeployService, EntityDeployer {
+class DeployServiceRest implements DeployService {
 
   var $config = array();
 
@@ -24,8 +24,6 @@ class DeployServiceRest implements DeployService, EntityDeployer {
   }
 
   function deploy(Traversable $iterator) {}
-
-  function deployEntity($entity_wrapper) {}
 
   function httpPut($uuid, $data, $format) {
     $url = $this->config['url'] . '/uuid_entity/' . $uuid . '.' . $format;

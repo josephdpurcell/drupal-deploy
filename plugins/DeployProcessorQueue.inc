@@ -4,8 +4,7 @@ class DeployProcessorQueue extends DeployProcessorMemory {
 
   function process(DeployPlan $plan, $endpoint_name) {
     $iterator = $this->aggregator->getIterator();
-    $queue_name = 'deploy_queue';
-    $deploy_queue = DrupalQueue::get($queue_name);
+    $deploy_queue = DrupalQueue::get('deploy_queue');
     foreach ($iterator as $entity_wrapper) {
       // Create item
       $item = array(
@@ -14,7 +13,6 @@ class DeployProcessorQueue extends DeployProcessorMemory {
         'type' => $entity_wrapper->type(),
         'endpoint' => $endpoint_name,
       );
-
       // Add item to queue
       $deploy_queue->createItem($item);
     }
@@ -24,6 +22,4 @@ class DeployProcessorQueue extends DeployProcessorMemory {
     // We have no settings for this processor.
     return array();
   }
-
-
 }
