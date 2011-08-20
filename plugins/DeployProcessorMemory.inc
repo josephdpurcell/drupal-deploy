@@ -14,11 +14,14 @@ class DeployProcessorMemory implements DeployProcessor {
     $this->config = array_merge($this->config, $config);
   }
 
-  function process(DeployPlan $plan, $endpoint_name) {
+  function process($endpoint_name) {
     if ($endpoint = deploy_endpoint_load($endpoint_name)) {
-      $endpoint->deploy($plan, $this->aggregator);
+      $endpoint->deploy($this->aggregator->plan, $this->aggregator);
+      drupal_set_message(t('Plan %plan has been deployed to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
     }
   }
+
+  function cleanup() {}
 
   function configForm(&$form_state) {
     // We have no settings for this processor.

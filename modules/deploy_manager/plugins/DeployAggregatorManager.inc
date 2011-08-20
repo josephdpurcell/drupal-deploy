@@ -9,7 +9,7 @@ class DeployAggregatorManager extends DeployAggregatorBase {
    *
    * @var DeployPlan
    */
-  protected $plan;
+  var $plan;
 
   function __construct(DeployPlan $plan = NULL, Array $config = array()) {
     $defaults = array(

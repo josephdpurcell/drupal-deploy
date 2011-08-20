@@ -2,19 +2,21 @@
 
 class DeployProcessorQueue extends DeployProcessorMemory {
 
-  function process(DeployPlan $plan, $endpoint_name) {
-    $iterator = $this->aggregator->getIterator();
-    $deploy_queue = DrupalQueue::get('deploy_queue');
-    foreach ($iterator as $entity_wrapper) {
-      // Create item
-      $item = array(
-        'plan' => $plan->name,
-        'eid' => $entity_wrapper->getIdentifier(),
-        'type' => $entity_wrapper->type(),
-        'endpoint' => $endpoint_name,
-      );
-      // Add item to queue
-      $deploy_queue->createItem($item);
+  function process($endpoint_name) {
+    if ($endpoint = deploy_endpoint_load($endpoint_name)) {
+      $iterator = $this->aggregator->getIterator();
+      $queue = DrupalQueue::get('deploy_queue');
+
+      foreach ($iterator as $entity_wrapper) {
+        $item = array(
+          'plan' => $this->aggregator->plan->name,
+          'eid' => $entity_wrapper->getIdentifier(),
+          'type' => $entity_wrapper->type(),
+          'endpoint' => $endpoint_name,
+        );
+        $queue->createItem($item);
+      }
+      drupal_set_message(t('Plan %plan has been queued for deployment to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
     }
   }
 

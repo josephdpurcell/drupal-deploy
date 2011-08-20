@@ -8,6 +8,8 @@ class DeployPlan {
 
   var $aggregator_config = array();
 
+  var $aggregator = NULL;
+
   var $processor_plugin = NULL;
 
   var $processor_config = array();
@@ -28,11 +30,11 @@ class DeployPlan {
     }
     if (!empty($this->aggregator_plugin)) {
       $aggregator_config = $this->aggregator_config + array('debug' => $this->debug);
-      $aggregator = new $this->aggregator_plugin($this, $aggregator_config);
+      $this->aggregator = new $this->aggregator_plugin($this, $aggregator_config);
     }
     if (!empty($this->processor_plugin)) {
       $processor_config = $this->processor_config + array('debug' => $this->debug);
-      $this->processor = new $this->processor_plugin($aggregator, $processor_config);
+      $this->processor = new $this->processor_plugin($this->aggregator, $processor_config);
     }
   }
 
@@ -41,7 +43,8 @@ class DeployPlan {
       $this->init();
     }
     foreach ($this->endpoints as $endpoint_name) {
-      $this->processor->process($this, $endpoint_name);
+      $this->processor->process($endpoint_name);
     }
+    $this->processor->cleanup();
   }
 }
