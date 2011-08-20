@@ -28,7 +28,7 @@ function deploy_action_deploy_plan($name) {
     $plan->deploy();
     return;
   }
-  watchdog('deploy', 'Cannot deploy non-existent deploy plan @plan', array('@plan' => $name));
+  watchdog('deploy', 'Cannot deploy non-existent plan @name', array('@name' => $name), WATCHDOG_ERROR);
   return;
 }
 
