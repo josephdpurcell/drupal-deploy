@@ -47,7 +47,7 @@ function deploy_ui_theme() {
       'file' => 'deploy_ui.pages.inc',
     ),
     'deploy_ui_overview_plan_content' => array(
-      'variables' => array('plan' => NULL),
+      'variables' => array('info' => array()),
       'file' => 'deploy_ui.pages.inc',
     ),
   );

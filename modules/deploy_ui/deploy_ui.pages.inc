@@ -4,14 +4,40 @@
  * Page callback for the overview page.
  */
 function deploy_ui_overview_page() {
-  $blocks = array();
   $plans = deploy_plan_load_all();
+  $blocks = array();
+
+  // Iterate over all plans.
   foreach ($plans as $plan) {
+    $info = array();
+
+    // Get the entity keys from the aggregator.
+    $entity_keys = $plan->processor->aggregator->getEntities();
+    foreach ($entity_keys as $entity_type => $entity_ids) {
+      // Get the entity info and all entities of this type.
+      $entity_info = entity_get_info($entity_type);
+      $entities = entity_load($entity_type, array_keys($entity_ids));
+
+      // Construct a usable array for the theme function.
+      foreach ($entities as $entity) {
+        $title = check_plain($entity->{$entity_info['entity keys']['label']});
+        if (isset($entity_info['uri callback'])) {
+          $uri = $entity_info['uri callback']($entity);
+          $title = l($title, $uri['path']);
+        }
+        $info[] = array(
+          'title' => $title,
+          'type' => $entity_info['label'],
+        );
+      }
+    }
+
+    // Construct a usable array for the theme function.
     $blocks[] = array(
-      'name' => $plan->name,
+      'name' => check_plain($plan->name),
       'title' => check_plain($plan->title),
       'description' => check_plain($plan->description),
-      'content' => theme('deploy_ui_overview_plan_content', array('plan' => $plan)),
+      'content' => theme('deploy_ui_overview_plan_content', array('info' => $info)),
     );
   }
   return theme('deploy_ui_overview', array('blocks' => $blocks));
@@ -21,22 +47,12 @@ function deploy_ui_overview_page() {
  * Theme callback for a plan's content.
  */
 function theme_deploy_ui_overview_plan_content($variables) {
-  $plan = $variables['plan'];
+  $info = $variables['info'];
+  $header = array(t('Title'), t('Type'));
   $rows = array();
-  $header = array(
-    t('Title'),
-    t('Type'),
-  );
-  $entities = $plan->processor->aggregator->getEntities();
-  foreach ($entities as $entity_type => $entity_ids) {
-    $entities = entity_load($entity_type, array_keys($entity_ids));
-    foreach ($entities as $entity) {
-      $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
-      $rows[] = array(
-        $entity_wrapper->label(),
-        $entity_wrapper->type(),
-      );
-    }
+
+  foreach ($info as $values) {
+    $rows[] = array($values['title'], $values['type']);
   }
   if (empty($rows)) {
     $rows = array(array(array(
@@ -51,10 +67,10 @@ function theme_deploy_ui_overview_plan_content($variables) {
  * Theme callback for the overview page.
  */
 function theme_deploy_ui_overview($variables) {
-  $container = array();
   $blocks = $variables['blocks'];
-  $i = 0;
+  $container = array();
 
+  $i = 0;
   foreach ($blocks as $block) {
     $position = ++$i % 2 ? 'left' : 'right';
     $container[$position][] = $block;
@@ -63,22 +79,22 @@ function theme_deploy_ui_overview($variables) {
   $output = '<div class="admin clearfix">';
   foreach ($container as $position => $blocks) {
     foreach ($blocks as $block) {
-    $actions = array(array(
-      'title' => t('Deploy'),
-      'href' => 'admin/structure/deploy/plans/list/' . $block['name'] . '/deploy',
-    ));
-    $output .= '<div class="' . $position . ' clearfix">';
-    $output .= '<div class="admin-panel">';
-    $output .= '<h3>' . $block['title'] . '</h3>';
-    $output .= '<div class="description">';
-    $output .= $block['description'];
-    $output .= '</div>';
-    $output .= theme('links', array('links' => $actions, 'attributes' => array('class' => 'action-links')));
-    $output .= '<div class="body">';
-    $output .= $block['content'];
-    $output .= '</div>';
-    $output .= '</div>';
-    $output .= '</div>';
+      $actions = array(array(
+        'title' => t('Deploy'),
+        'href' => 'admin/structure/deploy/plans/list/' . $block['name'] . '/deploy',
+      ));
+      $output .= '<div class="' . $position . ' clearfix">';
+      $output .= '<div class="admin-panel">';
+      $output .= '<h3>' . $block['title'] . '</h3>';
+      $output .= '<div class="description">';
+      $output .= $block['description'];
+      $output .= '</div>';
+      $output .= theme('links', array('links' => $actions, 'attributes' => array('class' => 'action-links')));
+      $output .= '<div class="body">';
+      $output .= $block['content'];
+      $output .= '</div>';
+      $output .= '</div>';
+      $output .= '</div>';
     }
   }
   $output .= '</div>';

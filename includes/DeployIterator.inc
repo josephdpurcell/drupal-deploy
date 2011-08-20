@@ -144,11 +144,12 @@ class DeployIterator implements RecursiveIterator {
     if (is_array($current)) {
       return $current;
     }
-
+    // Sort out some keys.
     $key = $this->key();
     $uuids = uuid_is_valid($key) ? array($key) : entity_get_uuid_by_id($this->entityType, array($key));
-
+    // Load the current entity with UUID.
     $entity = reset(entity_uuid_load($this->entityType, $uuids, array(), TRUE));
+    // Wrap it, so it's easier to work with.
     return entity_metadata_wrapper($this->entityType, $entity);
   }
 
@@ -168,5 +169,4 @@ class DeployIterator implements RecursiveIterator {
     $key = key($this->entities);
     return ($key !== NULL && $key !== FALSE);
   }
-
 }
