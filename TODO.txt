@@ -10,10 +10,6 @@ GENERAL TODO'S
    that user is always created during installation. A possible solution could be
    to provide a UI where manual update of UID 1 UUID is possible.
 
- * Simplify DeployIterator. Right now $collection can be recursive, but no
-   implementaor will ever use it. DeployIterator will still look for
-   dependencies recursively. So remove that feature.
-
  * See if we can integrate with Entity API and hook_entity_property_info() in a
    way. Would be nice if we just could mark properties and fields as holding
    a dependency, eventually with a 'dependency callback' similar to the

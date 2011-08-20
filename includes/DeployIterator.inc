@@ -6,7 +6,12 @@
 class DeployIteratorIterator extends RecursiveIteratorIterator {}
 
 /**
- * Iterator which does the heavy lifting.
+ * Iterator which does the heavy lifting for detecting dependencies.
+ *
+ * This iterator is reponsible for taking in a collection of entities, figure
+ * out all their dependencies and return an iterable object of all of them,
+ * in a deployable order, dependencies first that is. And since dependencies
+ * in theory are nested and recursive, we are using a recursive iterator here.
  *
  * @todo
  *   We need to throw an exception when we detect a circular dependency.
@@ -32,16 +37,19 @@ class DeployIterator implements RecursiveIterator {
    * dependencies that will be parsed recursively.
    * @code
    *   $collection = array(
-   *     'foo' => array(
+   *     'node' => array(
    *       10 => TRUE,
    *       12 => array(
-   *         'baz' => array(
+   *         'taxonomy_term' => array(
    *           14 => TRUE,
+   *         ),
+   *         'user' => array(
+   *           8 => TRUE,
    *         ),
    *       ),
    *     ),
-   *     'bar' => array(
-   *       14 => TRUE,
+   *     'taxonomy_term' => array(
+   *       16 => TRUE,
    *     ),
    *   );
    * @endcode
@@ -54,7 +62,7 @@ class DeployIterator implements RecursiveIterator {
   }
 
   function hasChildren() {
-    static $cache = array();
+    $cache = drupal_static(__CLASS__);
 
     $key = $this->key();
     $current = $this->current();
@@ -65,9 +73,6 @@ class DeployIterator implements RecursiveIterator {
 
     // Don't check for dependencies twice. They should already have been taken
     // into account.
-    //
-    // TODO: Or have earlier dependencies really been taken into account? How
-    // are they positioned in this recursive mess?
     if (!isset($cache[$this->entityType][$key])) {
       // Just to be clear, at this point $current is a full entity wrapper, loaded
       // through entity_load_by_uuid(). So all the properties are in UUID format.
@@ -80,6 +85,9 @@ class DeployIterator implements RecursiveIterator {
         $this->dependencies[$key] = module_invoke_all('deploy_entity_dependencies', $entity, $this->entityType);
         // Let other modules have their say.
         drupal_alter('deploy_entity_dependencies', $this->dependencies[$key], $entity, $this->entityType);
+        // TODO: Invoke something like 'hook_deploy_entity_belongings()' that adds
+        // tight belongings (reverse dependencies), like comments for nodes, to
+        // the collection.
       }
 
       // Now mark this as checked.
@@ -114,16 +122,11 @@ class DeployIterator implements RecursiveIterator {
     if (!empty($this->dependencies[$key])) {
       // TODO: We need to merge with $collection from above in some smart way.
       $collection = $this->dependencies[$key];
-
       // In an iterator, having children means that the current key it self isn't a
       // part of the collection. However, this isn't the case when doing
       // deployments. So we add the parent as a part of the collection. And since
       // children always should go first, we add the parent last.
       $collection[$this->entityType][$key] = TRUE;
-
-      // TODO: Invoke something like 'hook_deploy_entity_belongings()' that adds
-      // tight belongings (reverse dependencies), like comments for nodes, to
-      // the collection.
     }
 
     $iterator = new DeployIterator($collection);
