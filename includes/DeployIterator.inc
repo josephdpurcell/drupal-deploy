@@ -26,6 +26,8 @@ class DeployIterator implements RecursiveIterator {
 
   var $denendencies = array();
 
+  var $belongings = array();
+
   var $entityType = NULL;
 
   /**
@@ -74,20 +76,17 @@ class DeployIterator implements RecursiveIterator {
     // Don't check for dependencies twice. They should already have been taken
     // into account.
     if (!isset($cache[$this->entityType][$key])) {
-      // Just to be clear, at this point $current is a full entity wrapper, loaded
-      // through entity_load_by_uuid(). So all the properties are in UUID format.
-      $entity_wrapper = $current;
-      // But, to save all the implementers from having to reverse-lookup local
-      // IDs for simple dependency detection, we load the same entity again
-      // through entity_load() so we only have local IDs.
-      $entity = reset(entity_load($this->entityType, array($key), NULL, TRUE));
+      $entity = $current->value();
+
       if (!empty($entity)) {
+        // Fetch all dependencies.
         $this->dependencies[$key] = module_invoke_all('deploy_entity_dependencies', $entity, $this->entityType);
         // Let other modules have their say.
         drupal_alter('deploy_entity_dependencies', $this->dependencies[$key], $entity, $this->entityType);
-        // TODO: Invoke something like 'hook_deploy_entity_belongings()' that adds
-        // tight belongings (reverse dependencies), like comments for nodes, to
-        // the collection.
+        // Fetch all belongings.
+        $this->belongings[$key] = module_invoke_all('deploy_entity_belongings', $entity, $this->entityType);
+        // Let other modules have their say.
+        drupal_alter('deploy_entity_belongings', $this->belongings[$key], $entity, $this->entityType);
       }
 
       // Now mark this as checked.
@@ -114,19 +113,20 @@ class DeployIterator implements RecursiveIterator {
       $collection = $current;
       // Now add the parent as a part of the collection, but only if it seems to
       // be an entity id key and not an entity type key.
-      if (is_numeric($key)) {
+      if (uuid_is_valid($key)) {
         $collection[$key] = TRUE;
       }
     }
 
-    if (!empty($this->dependencies[$key])) {
+    if (!empty($this->dependencies[$key]) || !empty($this->belongings[$key])) {
       // TODO: We need to merge with $collection from above in some smart way.
       $collection = $this->dependencies[$key];
-      // In an iterator, having children means that the current key it self isn't a
-      // part of the collection. However, this isn't the case when doing
-      // deployments. So we add the parent as a part of the collection. And since
-      // children always should go first, we add the parent last.
+      // In an iterator, having children means that the current key it self
+      // isn't a part of the collection. However, this isn't the case when doing
+      // deployments. So we add the parent as a part of the collection.
+      // And since children always should go first, we add the parent last.
       $collection[$this->entityType][$key] = TRUE;
+      // TODO: Merge in $this->belongings[$key] to collection.
     }
 
     $iterator = new DeployIterator($collection);
@@ -144,8 +144,11 @@ class DeployIterator implements RecursiveIterator {
     if (is_array($current)) {
       return $current;
     }
-    $uuids = entity_get_uuid_by_id($this->entityType, array($this->key()));
-    $entity = reset(entity_uuid_load($this->entityType, $uuids, NULL, TRUE));
+
+    $key = $this->key();
+    $uuids = uuid_is_valid($key) ? array($key) : entity_get_uuid_by_id($this->entityType, array($key));
+
+    $entity = reset(entity_uuid_load($this->entityType, $uuids, array(), TRUE));
     return entity_metadata_wrapper($this->entityType, $entity);
   }
 
