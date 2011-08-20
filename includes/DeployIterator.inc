@@ -62,7 +62,7 @@ class DeployIterator implements RecursiveIterator {
   }
 
   function hasChildren() {
-    $cache = drupal_static(__CLASS__);
+    static $cache = array();
 
     $key = $this->key();
     $current = $this->current();
