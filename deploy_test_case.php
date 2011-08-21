@@ -11,7 +11,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
    * For some tests we don't need the multisite environment, but still want
    * to use common methods in this test case.
    */
-  function setUp($simple = FALSE) {
+  protected function setUp($simple = FALSE) {
     $this->profile = 'standard';
     if ($simple) {
       parent::setUp('entity', 'deploy');
@@ -39,7 +39,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
    *
    * @todo Make this transparent of how many sites we've set up.
    */
-  function tearDown() {
+  protected function tearDown() {
     // Tear down current site.
     parent::tearDown();
     // We are making it easy for us (but a bit hacky) by using this method to
@@ -53,7 +53,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
   /**
    * Set up a new site.
    */
-  function setUpSite($key, $modules) {
+  protected function setUpSite($key, $modules) {
     static $original = array();
 
     call_user_func_array(array($this, 'parent::setUp'), $modules);
@@ -85,7 +85,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
   /**
    * Switch to a specific site.
    */
-  function switchSite($from, $to) {
+  protected function switchSite($from, $to) {
     // This is used to test the switch.
     $old_site_hash = variable_get('deploy_site_hash', '');
 
@@ -113,7 +113,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
   /**
    * Save state.
    */
-  function saveState($key) {
+  protected function saveState($key) {
     $this->sites[$key]->cookieFile = $this->cookieFile;
     $this->sites[$key]->databasePrefix = $this->databasePrefix;
     $this->sites[$key]->curlHandle = $this->curlHandle;
@@ -123,11 +123,38 @@ class DeployWebTestCase extends DrupalWebTestCase {
   /**
    * Restore state.
    */
-  function restoreState($key) {
+  protected function restoreState($key) {
     $this->cookieFile = $this->sites[$key]->cookieFile;
     $this->databasePrefix = $this->sites[$key]->databasePrefix;
     $this->curlHandle = $this->sites[$key]->curlHandle;
     $this->cookieFile = $this->sites[$key]->cookieFile;
+  }
+
+  /**
+   * Overridden method adjusted to work with this testing framework.
+   *
+   * @todo
+   *   This method is broken, and therefore also breaks tests implementing it.
+   */
+  protected function cronRun() {
+    $user_agent = drupal_generate_test_ua($this->sites[$site_key]->databasePrefix);
+    $headers = array('User-Agent' => $user_agent);
+    $options = array(
+      'external' => TRUE,
+      'query' => array('cron_key' => variable_get('cron_key', 'drupal')),
+    );
+    $this->drupalGet($GLOBALS['base_url'] . '/cron.php', $options, $headers);
+  }
+
+  /**
+   * Edit a plan.
+   */
+  protected function editPlan($plan_name, $params = array()) {
+    $plan = deploy_plan_load($plan_name);
+    foreach ($params as $key => $value) {
+      $plan->{$key} = $value;
+    }
+    ctools_export_crud_save('deploy_plans', $plan);
   }
 
   /**
@@ -137,7 +164,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
    * This is needed in order for deployments to be able to reach sites in this
    * test environment.
    */
-  function editEndpoint($endpoint_name, $site_key) {
+  protected function editEndpoint($endpoint_name, $site_key) {
     $endpoint = deploy_endpoint_load($endpoint_name);
     $endpoint->service_config['url'] = url('api', array('absolute' => TRUE));
     $user_agent = drupal_generate_test_ua($this->sites[$site_key]->databasePrefix);
@@ -152,12 +179,14 @@ class DeployWebTestCase extends DrupalWebTestCase {
    *   Name of the deployment plan.
    * @return type
    */
-  function deployPlan($name) {
+  protected function deployPlan($name) {
     if (empty($name)) {
       return;
     }
     $deployment_plan = deploy_plan_load($name);
     $deployment_plan->deploy();
+    // Some processors depends on cron.
+    //$this->cronRun();
   }
 
   /**
@@ -170,7 +199,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
    *
    * @see TaxonomyWebTestCase::createTerm()
    */
-  function createTerm() {
+  protected function createTerm() {
     $term = new stdClass();
     $term->name = $this->randomName();
     $term->description = $this->randomName();
@@ -180,5 +209,95 @@ class DeployWebTestCase extends DrupalWebTestCase {
     $term->vid = 1;
     taxonomy_term_save($term);
     return $term;
+  }
+
+  /**
+   * This method sets up and asserts a deployment scenario where we have one
+   * production site (the endpoint) and a staging site (the origin).
+   *
+   * Both sites are "out of sync" content wise (as production/stage always are)
+   * but deployments of new and updated content are still possible.
+   *
+   * @todo
+   *   Conditionally test references modules too, since they are very likely too
+   *   be used on most sites.
+   *
+   * @todo
+   *   Test with translations too.
+   */
+  protected function assertDeployment($plan_name) {
+    // Switch to our production site.
+    $this->switchSite('deploy_origin', 'deploy_endpoint');
+
+    // Intentionally force the sites out of sync by creating some content that
+    // only exists in production.
+    $user = $this->drupalCreateUser();
+    $term = $this->createTerm();
+    $this->drupalCreateNode(array(
+      'type' => 'article',
+      'uid' => $user->uid,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term->tid))),
+    ));
+
+    // Switch to our staging site and push some new content.
+    $this->switchSite('deploy_endpoint', 'deploy_origin');
+
+    $user_stage = $this->drupalCreateUser();
+    $term_stage = $this->createTerm();
+    $node_title_orig = $this->randomString();
+    $node_stage = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'title' => $node_title_orig,
+      'uid' => $user_stage->uid,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term_stage->tid))),
+    ));
+
+    // This will deploy the node only. But with dependencies (like the author
+    // and the term).
+    $this->deployPlan($plan_name);
+
+    // Switch to our production site and make sure the content was pushed.
+    $this->switchSite('deploy_origin', 'deploy_endpoint');
+
+    // Load the deployed entities to test. Since we don't know their primary IDs
+    // here on the production site we look them up using their UUIDs.
+    $user_prod = reset(entity_uuid_load('user', array($user_stage->uuid), array(), TRUE));
+    $term_prod = reset(entity_uuid_load('taxonomy_term', array($term_stage->uuid), array(), TRUE));
+    $node_prod = reset(entity_uuid_load('node', array($node_stage->uuid), array(), TRUE));
+
+    // Test to see if all entities are locally different, but universally the
+    // same. They should be, since we forced the sites out of sync earlier.
+    //
+    // Test the node author.
+    $test = (($user_stage->uuid == $user_prod->uuid) && ($user_stage->uid != $user_prod->uid));
+    $this->assertTrue($test, 'New node author was deployed successfully.');
+    // Test the term.
+    $test = (($term_stage->uuid == $term_prod->uuid) && ($term_stage->tid != $term_prod->tid));
+    $this->assertTrue($test, 'New term was deployed successfully.');
+    // Test the node itself.
+    $test = (($node_stage->uuid == $node_prod->uuid) && ($node_stage->nid != $node_prod->nid));
+    $this->assertTrue($test, 'New node was deployed successfully.');
+    // Test if the dependencies got attached to the node.
+    $this->assertEqual($node_prod->uid, $user_stage->uuid, 'Node author was successfully attached to node.');
+    $this->assertEqual($node_prod->field_tags[LANGUAGE_NONE][0]['tid'], $term_stage->uuid, 'Term was successfully attached to node.');
+
+    // Now switch back to staging site and make updates to all entities to see
+    // if updates is comming through, when a new deployment is done.
+    $this->switchSite('deploy_endpoint', 'deploy_origin');
+    // Update the node.
+    $node_stage->title = $this->randomString();
+    node_save($node_stage);
+
+    // TODO: Update more entities in the dependency chain of the node.
+
+    // Now deploy the node again.
+    $this->deployPlan($plan_name);
+
+    // Switch back to production to assert the changes.
+    $this->switchSite('deploy_origin', 'deploy_endpoint');
+
+    $node_prod = reset(entity_uuid_load('node', array($node_stage->uuid), array(), TRUE));
+    $test = (($node_prod->title == $node_stage->title) && ($node_prod->title != $node_title_orig));
+    $this->assertTrue($test, 'Node was successfully updated after new deployment.');
   }
 }
