@@ -18,7 +18,7 @@ class DeployPlan {
 
   var $endpoints = array();
 
-  function init() {
+  function load() {
     // Since the CTools Export API is declarative by nature, we can't rely on
     // constructor injection and deploy_plan_create() as the only factory.
     $schema = drupal_get_schema('deploy_plans');
@@ -39,9 +39,6 @@ class DeployPlan {
   }
 
   function deploy() {
-    if (empty($this->processor)) {
-      $this->init();
-    }
     foreach ($this->endpoints as $endpoint_name) {
       $this->processor->process($endpoint_name);
     }

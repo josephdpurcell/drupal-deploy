@@ -202,6 +202,8 @@ function deploy_get_service_plugin($name) {
 
 /**
  * Object factory for a deployment plan.
+ *
+ * This is only used when the object is loaded from the database.
  */
 function deploy_plan_create($schema, $item) {
   $plan = new DeployPlan;
@@ -215,7 +217,6 @@ function deploy_plan_create($schema, $item) {
       $plan->{$field} = $item->{$field};
     }
   }
-  $plan->init();
   return $plan;
 }
 
@@ -223,9 +224,9 @@ function deploy_plan_create($schema, $item) {
  * Loader callback for a deployment plan.
  */
 function deploy_plan_load($name) {
-  $result = deploy_plan_load_all();
-  if (isset($result[$name])) {
-    return $result[$name];
+  $plans = deploy_plan_load_all();
+  if (isset($plans[$name])) {
+    return $plans[$name];
   }
 }
 
@@ -235,9 +236,13 @@ function deploy_plan_load($name) {
 function deploy_plan_load_all($args = array()) {
   $type = !empty($args) ? 'conditions' : 'all';
   ctools_include('export');
-  $result = ctools_export_load_object('deploy_plans', $type, $args);
-  if (isset($result)) {
-    return $result;
+  $plans = ctools_export_load_object('deploy_plans', $type, $args);
+  if (isset($plans)) {
+    // Load each plan's configuration into itself.
+    foreach ($plans as &$plan) {
+      $plan->load();
+    }
+    return $plans;
   }
 }
 
@@ -263,9 +268,9 @@ function deploy_endpoint_create($schema, $item) {
  * Loader callback for a deployment endpoint.
  */
 function deploy_endpoint_load($name) {
-  $result = deploy_endpoint_load_all();
-  if (isset($result[$name])) {
-    return $result[$name];
+  $endpoints = deploy_endpoint_load_all();
+  if (isset($endpoints[$name])) {
+    return $endpoints[$name];
   }
 }
 
@@ -274,9 +279,9 @@ function deploy_endpoint_load($name) {
  */
 function deploy_endpoint_load_all() {
   ctools_include('export');
-  $result = ctools_export_load_object('deploy_endpoints', 'all');
-  if (isset($result)) {
-    return $result;
+  $endpoints = ctools_export_load_object('deploy_endpoints', 'all');
+  if (isset($endpoints)) {
+    return $endpoints;
   }
 }
 

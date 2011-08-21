@@ -14,8 +14,8 @@ function deploy_manager_example_deploy_endpoints_default() {
   $endpoint->disabled = FALSE; /* Edit this to true to make a default endpoint disabled initially */
   $endpoint->api_version = 1;
   $endpoint->name = 'deploy_manager_example_endpoint';
-  $endpoint->title = 'Deploy Manager Example Endpoint';
-  $endpoint->description = 'Example remote site not using any authentication.';
+  $endpoint->title = 'Deploy Manager example endpoint';
+  $endpoint->description = 'Example remote endpoint not using any authentication.';
   $endpoint->debug = 0;
   $endpoint->authenticator_plugin = 'DeployAuthenticatorNone';
   $endpoint->authenticator_config = array();
