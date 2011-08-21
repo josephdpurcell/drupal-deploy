@@ -10,8 +10,6 @@ GENERAL TODO'S
    that user is always created during installation. A possible solution could be
    to provide a UI where manual update of UID 1 UUID is possible.
 
- * All processors should set a message about the deployment.
-
  * Implement hook_help() where needed.
 
  * Make all plugins more private and isolate necessary methods and parameters.
