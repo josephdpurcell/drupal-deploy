@@ -12,6 +12,12 @@ GENERAL TODO'S
 
  * Implement hook_help() where needed.
 
+ * Implement granular permissions, including:
+     - administer deployment plans
+     - administer deployment endpoints
+     - access deployment overview
+     - make deployments
+
  * Make all plugins more private and isolate necessary methods and parameters.
 
  * Change the 'eid' key to 'entity_id' to be consistent with core.
