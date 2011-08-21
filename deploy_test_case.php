@@ -212,8 +212,8 @@ class DeployWebTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * This method sets up and asserts a deployment scenario where we have one
-   * production site (the endpoint) and a staging site (the origin).
+   * This method runs a deployment scenario where we have one production site
+   * (the endpoint) and a staging site (the origin).
    *
    * Both sites are "out of sync" content wise (as production/stage always are)
    * but deployments of new and updated content are still possible.
@@ -225,7 +225,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
    * @todo
    *   Test with translations too.
    */
-  protected function assertDeployment($plan_name) {
+  protected function deployRun($plan_name) {
     // Switch to our production site.
     $this->switchSite('deploy_origin', 'deploy_endpoint');
 

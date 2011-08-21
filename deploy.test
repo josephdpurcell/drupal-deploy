@@ -98,7 +98,7 @@ class DeployViewsMemoryTestCase extends DeployWebTestCase {
   function testDeployment() {
     // Views aggregator and Memory processor is the default for this plan.
     // No need to change.
-    $this->assertDeployment('deploy_example_plan');
+    $this->deployRun('deploy_example_plan');
   }
 }
 
@@ -122,7 +122,7 @@ class DeployViewsQueueTestCase extends DeployWebTestCase {
 
   function testDeployment() {
     $this->editPlan('deploy_example_plan', array('processor_plugin' => 'DeployProcessorQueue'));
-    $this->assertDeployment('deploy_example_plan');
+    $this->deployRun('deploy_example_plan');
   }
 }
 //*/
@@ -147,7 +147,7 @@ class DeployViewsBatchTestCase extends DeployWebTestCase {
 
   function testDeployment() {
     $this->editPlan('deploy_example_plan', array('processor_plugin' => 'DeployProcessorBatch'));
-    $this->assertDeployment('deploy_example_plan');
+    $this->deployRun('deploy_example_plan');
   }
 }
 //*/
