@@ -71,6 +71,25 @@ class deploy_ui_plan extends ctools_export_ui {
       '#default_value' => $item->aggregator_plugin,
     );
 
+    // Fetch options.
+    $form['fetch_only'] = array(
+      '#title' => t('Fetch only'),
+      '#description' => t("Select this if the content of this plan is intended to be <em>fetch-only</em> by any type of event or endpoint. This means that the plan wont have a processor or defined endpoint."),
+      '#type' => 'checkbox',
+      '#default_value' => $item->fetch_only,
+    );
+
+    $form['fieldset'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Deployment process'),
+      '#description' => t('Configure how the deployment process should behave.'),
+      '#states' => array(
+        'invisible' => array(
+          ':input[name="fetch_only"]' => array('checked' => TRUE),
+        )
+      ),
+    );
+
     // Processors.
     $processors = deploy_get_processor_plugins();
     $options = array();
@@ -80,10 +99,11 @@ class deploy_ui_plan extends ctools_export_ui {
         'description' => $processor['description'],
       );
     }
-    $form['processor_plugin'] = array(
+
+    $form['fieldset']['processor_plugin'] = array(
       '#prefix' => '<label>' . t('Processor') . '</label>',
       '#type' => 'tableselect',
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#multiple' => FALSE,
       '#header' => array(
         'name' => t('Name'),
@@ -105,10 +125,11 @@ class deploy_ui_plan extends ctools_export_ui {
     if (!is_array($item->endpoints)) {
       $item->endpoints = unserialize($item->endpoints);
     }
-    $form['endpoints'] = array(
+    $form['fieldset']['endpoints'] = array(
       '#prefix' => '<label>' . t('Endpoints') . '</label>',
       '#type' => 'tableselect',
-      '#required' => TRUE,
+      '#required' => FALSE,
+      '#empty' => t('No endpoints exists at the moment. <a href="!url">Go and create one</a>.', array('!url' => url('admin/structure/deploy/endpoints'))),
       '#multiple' => TRUE,
       '#header' => array(
         'name' => t('Name'),
@@ -130,7 +151,17 @@ class deploy_ui_plan extends ctools_export_ui {
     $item->description = $form_state['values']['description'];
     $item->debug = $form_state['values']['debug'];
     $item->aggregator_plugin = $form_state['values']['aggregator_plugin'];
-    $item->processor_plugin = $form_state['values']['processor_plugin'];
+    $item->fetch_only = $form_state['values']['fetch_only'];
+
+    // Processor plugin.
+    if (!empty($form_state['values']['processor_plugin']) && !$form_state['values']['fetch_only']) {
+      $item->processor_plugin = $form_state['values']['processor_plugin'];
+    }
+    else {
+      $item->processor_plugin = '';
+    }
+
+    // Endpoint.
     if (!empty($form_state['values']['endpoints'])) {
       $item->endpoints = $form_state['values']['endpoints'];
     }
@@ -172,23 +203,25 @@ class deploy_ui_plan extends ctools_export_ui {
 
   function edit_form_processor(&$form, &$form_state) {
     $item = $form_state['item'];
-    if (!is_array($item->processor_config)) {
-      $item->processor_config = unserialize($item->processor_config);
-    }
+    if (!empty($item->process_plugin)) {
+      if (!is_array($item->processor_config)) {
+        $item->processor_config = unserialize($item->processor_config);
+      }
 
-    // Create the aggregator object which is a dependency of the processor object.
-    $aggregator = new $item->aggregator_plugin(NULL, (array)$item->aggregator_config);
-    // Create the processor object.
-    $processor = new $item->processor_plugin($aggregator, (array)$item->processor_config);
+      // Create the aggregator object which is a dependency of the processor object.
+      $aggregator = new $item->aggregator_plugin(NULL, (array)$item->aggregator_config);
+      // Create the processor object.
+      $processor = new $item->processor_plugin($aggregator, (array)$item->processor_config);
 
-    $form['processor_config'] = $processor->configForm($form_state);
-    if (!empty($form['config']['processor_config'])) {
-      $form['processor_config']['#tree'] = TRUE;
+      $form['processor_config'] = $processor->configForm($form_state);
+      if (!empty($form['config']['processor_config'])) {
+        $form['processor_config']['#tree'] = TRUE;
+      }
     }
-    else {
+    if (empty($item->process_plugin) || empty($form['config']['processor_config'])) {
       $form['empty'] = array(
         '#type' => 'markup',
-        '#markup' => '<p>' . t('There are no settings for this processor plugin.') . '</p>'
+        '#markup' => '<p>' . t("No processor plugin is selected, or the selected processor plugin doesn't have any settings.") . '</p>'
       );
     }
   }
@@ -227,8 +260,13 @@ class deploy_ui_plan extends ctools_export_ui {
 
 function deploy_ui_plan_confirm_form($form, $form_state) {
   $plan = $form_state['plan'];
+  $path = empty($_REQUEST['cancel_path']) ? 'admin/structure/deploy/plans' : $_REQUEST['cancel_path'];
+
+  if (empty($plan->processor) || $plan->fetch_only) {
+    drupal_set_message(t("The plan @name can't be deployed in push fashion because it missing a processor plugin or is configured <em>fetch-only</em>.", array('@name' => $plan->name)), 'error');
+    drupal_goto($path);
+  }
   $form = array();
-  $path = empty($_REQUEST['cancel_path']) ? 'admin/structure/deploy' : $_REQUEST['cancel_path'];
   $form = confirm_form($form,
     t('Are you sure you want to deploy %title?', array('%title' => $plan->name)),
     $path,

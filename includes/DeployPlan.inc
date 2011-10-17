@@ -1,5 +1,7 @@
 <?php
 
+class DeployPlanException extends Exception {}
+
 class DeployPlan {
 
   var $debug = FALSE;
@@ -42,9 +44,28 @@ class DeployPlan {
     if (empty($this->processor)) {
       $this->init();
     }
+    if (empty($this->processor) || $this->fetch_only) {
+      $exception = new DeployPlanException(t("The plan @name can't be deployed in push fashion because it missing a processor plugin or is configured <em>fetch-only</em>.", array('@name' => $plan->name)));
+      watchdog_exception('error', $exception);
+      return FALSE;
+    }
     foreach ($this->endpoints as $endpoint_name) {
       $this->processor->process($endpoint_name);
     }
     $this->processor->cleanup();
+  }
+
+  function getEntities() {
+    if (empty($this->aggregator)) {
+      $this->init();
+    }
+    return $this->aggregator->getEntities();
+  }
+
+  function getIterator() {
+    if (empty($this->aggregator)) {
+      $this->init();
+    }
+    return $this->aggregator;
   }
 }

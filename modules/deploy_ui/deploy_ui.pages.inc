@@ -12,7 +12,7 @@ function deploy_ui_overview_page() {
     $info = array();
 
     // Get the entity keys from the aggregator.
-    $entity_keys = $plan->processor->aggregator->getEntities();
+    $entity_keys = $plan->getEntities();
     foreach ($entity_keys as $entity_type => $entity_ids) {
       // Get the entity info and all entities of this type.
       $entity_info = entity_get_info($entity_type);
@@ -23,7 +23,7 @@ function deploy_ui_overview_page() {
         $title = check_plain($entity->{$entity_info['entity keys']['label']});
         if (isset($entity_info['uri callback'])) {
           $uri = $entity_info['uri callback']($entity);
-          $title = l($title, $uri['path']);
+          $title = l($title, $uri['path'], array('html' => TRUE));
         }
         $info[] = array(
           'title' => $title,
@@ -38,6 +38,7 @@ function deploy_ui_overview_page() {
       'title' => check_plain($plan->title),
       'description' => check_plain($plan->description),
       'content' => theme('deploy_ui_overview_plan_content', array('info' => $info)),
+      'fetch_only' => $plan->fetch_only,
     );
   }
   return theme('deploy_ui_overview', array('blocks' => $blocks));
@@ -79,17 +80,25 @@ function theme_deploy_ui_overview($variables) {
   $output = '<div class="admin clearfix">';
   foreach ($container as $position => $blocks) {
     foreach ($blocks as $block) {
-      $actions = array(array(
-        'title' => t('Deploy'),
-        'href' => 'admin/structure/deploy/plans/list/' . $block['name'] . '/deploy',
-      ));
       $output .= '<div class="' . $position . ' clearfix">';
       $output .= '<div class="admin-panel">';
       $output .= '<h3>' . $block['title'] . '</h3>';
       $output .= '<div class="description">';
       $output .= $block['description'];
       $output .= '</div>';
-      $output .= theme('links', array('links' => $actions, 'attributes' => array('class' => 'action-links')));
+      if (!$block['fetch_only']) {
+        $actions = array(array(
+          'title' => t('Deploy'),
+          'href' => 'admin/structure/deploy/plans/list/' . $block['name'] . '/deploy',
+          'query' => array(
+            'cancel_path' => $_GET['q'],
+          )
+        ));
+        $output .= theme('links', array('links' => $actions, 'attributes' => array('class' => 'action-links')));
+      }
+      else {
+        $output .= '<div class="description">' . t('This plan is <em>fetch-only</em>, and can therefore not be deployed in push fashion.') . '</div>';
+      }
       $output .= '<div class="body">';
       $output .= $block['content'];
       $output .= '</div>';

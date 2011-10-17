@@ -149,6 +149,9 @@ class DeployIterator implements RecursiveIterator {
     $uuids = uuid_is_valid($key) ? array($key) : entity_get_uuid_by_id($this->entityType, array($key));
     // Load the current entity with UUID.
     $entity = reset(entity_uuid_load($this->entityType, $uuids, array(), TRUE));
+
+    // TODO: We probably need to revert the UUID for user UID 1 here.
+
     // Wrap it, so it's easier to work with.
     return entity_metadata_wrapper($this->entityType, $entity);
   }
