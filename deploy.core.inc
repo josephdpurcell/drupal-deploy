@@ -152,3 +152,14 @@ function user_reference_deploy_field_dependencies($entity_type, $entity, $field,
   }
   return $dependencies;
 }
+
+/**
+ * Implements hook_deploy_field_dependency().
+ */
+function file_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+  foreach ($items as $item) {
+    $dependencies['file'][$item['fid']] = TRUE;
+  }
+  return $dependencies;
+}
