@@ -24,11 +24,13 @@ class DeployIterator implements RecursiveIterator {
 
   var $entities = array();
 
-  var $denendencies = array();
+  var $dependencies = array();
 
   var $belongings = array();
 
   var $entityType = NULL;
+
+  var $traversed = array();
 
   /**
    * Constructor.
@@ -59,38 +61,54 @@ class DeployIterator implements RecursiveIterator {
    * @param $entities
    *   A structured array of entity ids and their entity types.
    */
-  function __construct($entities) {
+  function __construct($entities, $traversed = array(), $parent = NULL) {
     $this->entities = $entities;
+    $this->traversed = $traversed;
+    $this->parent = $parent;
   }
 
   function hasChildren() {
-    static $cache = array();
-
     $key = $this->key();
     $current = $this->current();
-    if (is_array($current)) {
+    if (is_array($current) && !isset($current['entity'])) {
       $this->entityType = $key;
       return TRUE;
     }
 
     // Don't check for dependencies twice. They should already have been taken
-    // into account.
-    if (!isset($cache[$this->entityType][$key])) {
-      $entity = $current->value();
+    // into account for it it was traversed before.
+    if (!isset($this->traversed[$this->entityType][$key])) {
+      if (!empty($current['entity'])) {
+        // Since the current entity is a UUID entity (with all properties and
+        // field references as UUIDs) we need to re-load it as a standard entity
+        // to make life easier for implementators of the following hooks. This
+        // should have minor performance implications since the entity should
+        // be cached at this point.
+        $entity = reset(entity_load($this->entityType, array($current['entity_id'])));
 
-      if (!empty($entity)) {
-        // Fetch all dependencies.
+        // Fetch dependencies and belongings.
         $this->dependencies[$key] = module_invoke_all('deploy_entity_dependencies', $entity, $this->entityType);
+        $this->belongings[$key] = module_invoke_all('deploy_entity_belongings', $entity, $this->entityType);
+
+        // Don't add dependencies that was already traversed.
+        foreach ($this->dependencies[$key] as $entity_type => $dependencies) {
+          foreach ($dependencies as $entity_id => $something) {
+            if (isset($this->traversed[$entity_type][$entity_id])) {
+              unset($this->dependencies[$key][$entity_type][$entity_id]);
+            }
+          }
+        }
+
         // Let other modules have their say.
         drupal_alter('deploy_entity_dependencies', $this->dependencies[$key], $entity, $this->entityType);
-        // Fetch all belongings.
-        $this->belongings[$key] = module_invoke_all('deploy_entity_belongings', $entity, $this->entityType);
-        // Let other modules have their say.
         drupal_alter('deploy_entity_belongings', $this->belongings[$key], $entity, $this->entityType);
       }
 
-      // Now mark this as checked.
-      $cache[$this->entityType][$key] = TRUE;
+      // Now mark this current entity as traversed.
+      $this->traversed[$this->entityType][$key] = TRUE;
+      if (!empty($this->parent)) {
+        $this->parent->traversed[$this->entityType][$key] = TRUE;
+      }
 
       if (!empty($this->dependencies[$key])) {
         return TRUE;
@@ -109,13 +127,8 @@ class DeployIterator implements RecursiveIterator {
     $entities = array();
     // Check if we have dependencies directly in the tree in the form of a
     // nested array.
-    if (is_array($current)) {
+    if (is_array($current) && !isset($current['entity'])) {
       $entities = $current;
-      // Now add the parent to the entities, but only if it seems to be an
-      // entity id key and not an entity type key.
-      if (uuid_is_valid($key)) {
-        $entities[$key] = TRUE;
-      }
     }
 
     if (!empty($this->dependencies[$key]) || !empty($this->belongings[$key])) {
@@ -126,10 +139,12 @@ class DeployIterator implements RecursiveIterator {
       // deployments. So we add the parent as a part of the entities.
       // And since children always should go first, we add the parent last.
       $entities[$this->entityType][$key] = TRUE;
+
       // TODO: Merge in $this->belongings[$key] to entities.
+
     }
 
-    $iterator = new DeployIterator($entities);
+    $iterator = new DeployIterator($entities, $this->traversed, $this);
     $iterator->entityType = $this->entityType;
     return $iterator;
   }
@@ -146,14 +161,18 @@ class DeployIterator implements RecursiveIterator {
     }
     // Sort out some keys.
     $key = $this->key();
-    $uuids = uuid_is_valid($key) ? array($key) : entity_get_uuid_by_id($this->entityType, array($key));
+    $uuid = reset(entity_get_uuid_by_id($this->entityType, array($key)));
     // Load the current entity with UUID.
-    $entity = reset(entity_uuid_load($this->entityType, $uuids, array(), TRUE));
+    $entity = reset(entity_uuid_load($this->entityType, array($uuid)));
 
-    // TODO: We probably need to revert the UUID for user UID 1 here.
+    // Let other modules have their say.
+    drupal_alter('deploy_entity', $entity, $this->entityType);
 
-    // Wrap it, so it's easier to work with.
-    return entity_metadata_wrapper($this->entityType, $entity);
+    return array(
+      'entity_type' => $this->entityType,
+      'entity_id' => $key,
+      'entity' => $entity,
+    );
   }
 
   function key() {
