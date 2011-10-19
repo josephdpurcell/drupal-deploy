@@ -29,6 +29,32 @@ function node_deploy_entity_dependencies($entity, $entity_type) {
 }
 
 /**
+ * Implements hook_deploy_entity_alter().
+ *
+ * Since we aren't treating user UID 1 as a dependency we must alter that UUID
+ * back to UID 1 before deploying an entity.
+ */
+function node_deploy_entity_alter(&$entity, $entity_type) {
+  if ($entity_type == 'node') {
+    $uuids = array($entity->uid);
+    if (!empty($entity->revision_uid) && $entity->revision_uid != $entity->uid) {
+      $uuids[] = $entity->revision_uid;
+    }
+    $uids = entity_get_id_by_uuid('user', array($uuids));
+    foreach ($uids as $uuid => $uid) {
+      if ($uid == 1) {
+        if ($entity->uid == $uuid) {
+          $entity->uid = 1;
+        }
+        if ($entity->revision_uid == $uuid) {
+          $entity->revision_uid = 1;
+        }
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_deploy_entity_dependenies().
  *
  * @see node_deploy_entity_dependencies().
@@ -42,6 +68,20 @@ function comment_deploy_entity_dependencies($entity, $entity_type) {
     }
     $dependencies['node'] = array($entity->nid => TRUE);
     return $dependencies;
+  }
+}
+
+/**
+ * Implements hook_deploy_entity_alter().
+ *
+ * @see node_deploy_entity_alter().
+ */
+function comment_deploy_entity_alter(&$entity, $entity_type) {
+  if ($entity_type == 'comment') {
+    $uid = reset(entity_get_id_by_uuid('user', array($entity->uid)));
+    if ($uid == 1) {
+      $entity->uid = 1;
+    }
   }
 }
 
