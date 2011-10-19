@@ -26,12 +26,12 @@ class DeployDependencyTestCase extends DeployWebTestCase {
     // Add the 'field_tags' field.
     $user = $this->drupalCreateUser();
     $term1 = $this->createTerm();
+    $term2 = $this->createTerm();
     $node1 = $this->drupalCreateNode(array(
       'type' => 'article',
       'uid' => $user->uid,
-      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term1->tid))),
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term1->tid), array('tid' => $term2->tid))),
     ));
-    $term2 = $this->createTerm();
     $node2 = $this->drupalCreateNode(array(
       'type' => 'article',
       'uid' => $user->uid,
@@ -40,11 +40,18 @@ class DeployDependencyTestCase extends DeployWebTestCase {
       'tnid' => $node1->nid,
       'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term2->tid))),
     ));
+    // This node only has dependencies that should be detected by $node2
+    // already.
+    $node3 = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'uid' => $user->uid,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term1->tid), array('tid' => $term2->tid))),
+    ));
 
     // Add only the last node to the collection. What should come out of the
     // iterator should be all it's dependencies, and last the node it self.
     $collection = array(
-      'node' => array($node2->nid => TRUE),
+      'node' => array($node2->nid => TRUE, $node3->nid => TRUE),
     );
 
     $iterator = deploy_iterator($collection);
@@ -70,13 +77,16 @@ class DeployDependencyTestCase extends DeployWebTestCase {
         case 4:
           $test = ($entity_type == 'node' && $entity_id == $node2->nid);
           break;
+        case 5:
+          $test = ($entity_type == 'node' && $entity_id == $node3->nid);
+          break;
       }
       $placeholders = array('%entity_type' => $entity_type, '%entity_id' => $entity_id);
       $this->assertTrue($test, t('%entity_type %entity_id was iterated over, in correct order.', $placeholders));
       $this->assertTrue(uuid_is_valid($entity->uuid), t('%entity_type %entity_id was loaded with UUID.', $placeholders));
       $i++;
     }
-    $this->assertEqual($i, 5, 'Correct number of entities was iterated over.');
+    $this->assertEqual($i, 6, 'Correct number of entities was iterated over.');
   }
 }
 

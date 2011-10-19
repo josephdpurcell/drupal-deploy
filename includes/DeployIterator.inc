@@ -61,10 +61,12 @@ class DeployIterator implements RecursiveIterator {
    * @param $entities
    *   A structured array of entity ids and their entity types.
    */
-  function __construct($entities, $traversed = array(), $parent = NULL) {
+  function __construct($entities, &$parent = NULL) {
     $this->entities = $entities;
-    $this->traversed = $traversed;
-    $this->parent = $parent;
+    // We need to keep track of what the parent already traversed for us.
+    if (!empty($parent)) {
+      $this->traversed =& $parent->traversed;
+    }
   }
 
   function hasChildren() {
@@ -106,9 +108,6 @@ class DeployIterator implements RecursiveIterator {
 
       // Now mark this current entity as traversed.
       $this->traversed[$this->entityType][$key] = TRUE;
-      if (!empty($this->parent)) {
-        $this->parent->traversed[$this->entityType][$key] = TRUE;
-      }
 
       if (!empty($this->dependencies[$key])) {
         return TRUE;
@@ -144,7 +143,7 @@ class DeployIterator implements RecursiveIterator {
 
     }
 
-    $iterator = new DeployIterator($entities, $this->traversed, $this);
+    $iterator = new DeployIterator($entities, $this);
     $iterator->entityType = $this->entityType;
     return $iterator;
   }

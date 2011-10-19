@@ -104,10 +104,11 @@ function field_deploy_entity_dependencies($entity, $entity_type) {
       drupal_alter('deploy_field_dependency', $field_dependencies, $entity_type, $entity, $field, $instance, $langcode, $items);
 
       if (!empty($field_dependencies)) {
-        // TODO: This is not good enough. Thinking of how the dependency arrays
-        // should look like, two modules returning 'user' dependencies will
-        // overwrite each other.
-        $dependencies = array_merge($dependencies, $field_dependencies);
+        foreach ($field_dependencies as $entity_type => $entity_ids) {
+          foreach ($entity_ids as $entity_id => $something) {
+            $dependencies[$entity_type][$entity_id] = TRUE;
+          }
+        }
       }
     }
   }
