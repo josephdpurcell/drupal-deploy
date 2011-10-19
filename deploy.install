@@ -72,11 +72,18 @@ function deploy_schema() {
         'not null' => TRUE,
         'serialize' => TRUE,
       ),
+      'fetch_only' => array(
+        'description' => 'Indicates if this plan is fetch-only.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'processor_plugin' => array(
         'description' => 'Processor plugin used for this plan.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
+        'default' => '',
       ),
       'processor_config' => array(
         'description' => "Serialized configuration data this plan's processor plugin.",

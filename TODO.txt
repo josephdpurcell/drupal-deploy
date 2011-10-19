@@ -2,8 +2,15 @@
 GENERAL TODO'S
 --------------
 
- * Get dixon's UUID fork commited to the upstream UUID project.
-   http://drupal.org/node/1212954
+ * Consider breaking endpoints out into its own module. Pure fetch-only
+   deployments i.e. over HTTP feeds can't/won't use them. Also, deployments or
+   exports of default content (with Features) doesn't use endpoints.
+
+ * Cosider making aggregators return full entities instead of keys. Views
+   supports this with its function called something like
+   $views->query->get_result_entities(). This could potentially save some code.
+
+ * Better test coverage, including tests for the fetch-only functionality.
 
  * Find a solution to the problem where deployments can't be done with UID 1.
    The reason is because UID 1 don't have the same UUID on the endpoint, since
