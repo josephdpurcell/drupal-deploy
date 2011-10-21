@@ -86,6 +86,42 @@ function comment_deploy_entity_alter(&$entity, $entity_type) {
 }
 
 /**
+ * Implements hook_deploy_entity_dependencies()
+ */
+function taxonomy_deploy_entity_dependencies($entity, $entity_type) {
+  if ($entity_type == 'taxonomy_term') {
+    $dependencies = array();
+    $terms = taxonomy_get_parents($entity->tid);
+    foreach ($terms as $tid => $term) {
+      $dependencies['taxonomy_term'][$tid] = TRUE;
+    }
+    return $dependencies;
+  }
+}
+
+/**
+ * Implements hook_entity_load().
+ *
+ * The 'parent' property isn't attached when terms are loaded. Deploy needs that
+ * variable to correctly deploy terms.
+ */
+function taxonomy_entity_load(&$entities, $entity_type) {
+  if ($entity_type == 'taxonomy_term') {
+    foreach ($entities as &$entity) {
+      if (!isset($entity->parent)) {
+        $parents = taxonomy_get_parents($entity->tid);
+        if (!empty($parents)) {
+          $entity->parent = array();
+          foreach ($parents as $parent) {
+            $entity->parent[] = $parent->tid;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_deploy_entity_dependencies().
  *
  * This hook will go through all fields for an entity and invoke a new hook for
