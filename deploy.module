@@ -137,31 +137,6 @@ function deploy_deploy_services() {
 }
 
 /**
- * Implementation of hook_features_api().
- *
- * The Features support consists of exporting entities from any
- * <em>fetch-only</em> plan. This is useful if you want to deploy your content
- * with code, or provide default content to a distribution.
- *
- * Deployment plans and endpoints are exportable through the CTools Export API
- * wich is better suited for our use case.
- *
- * @todo
- *   Move as much as the features support into uuid.module
- */
-function deploy_features_api() {
-  return array(
-    'deploy_plan_entities' => array(
-      'name' => t('Deployment plan entities'),
-      'default_hook' => 'deploy_plan_default_entities',
-      'default_file' => FEATURES_DEFAULTS_INCLUDED,
-      'features_source' => TRUE,
-      'file' => drupal_get_path('module', 'deploy') .'/deploy.features.inc',
-    ),
-  );
-}
-
-/**
  * Get all aggregator plugins.
  */
 function deploy_get_aggregator_plugins() {
