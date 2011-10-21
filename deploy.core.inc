@@ -44,10 +44,10 @@ function node_deploy_entity_alter(&$entity, $entity_type) {
     foreach ($uids as $uuid => $uid) {
       if ($uid == 1) {
         if ($entity->uid == $uuid) {
-          $entity->uid = 1;
+          $entity->uid = '1';
         }
         if ($entity->revision_uid == $uuid) {
-          $entity->revision_uid = 1;
+          $entity->revision_uid = '1';
         }
       }
     }
@@ -80,7 +80,7 @@ function comment_deploy_entity_alter(&$entity, $entity_type) {
   if ($entity_type == 'comment') {
     $uid = reset(entity_get_id_by_uuid('user', array($entity->uid)));
     if ($uid == 1) {
-      $entity->uid = 1;
+      $entity->uid = '1';
     }
   }
 }
@@ -109,6 +109,32 @@ function field_deploy_entity_dependencies($entity, $entity_type) {
             $dependencies[$entity_type][$entity_id] = TRUE;
           }
         }
+      }
+    }
+  }
+  return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_entity_alter().
+ *
+ * This hook will go through all fields for an entity and invoke a new hook for
+ * all field modules. This saves a lot of work for each field implementaor.
+ */
+function field_deploy_entity_alter(&$entity, $entity_type) {
+  $dependencies = array();
+  list(,, $bundle_name) = entity_extract_ids($entity_type, $entity);
+  $instances = field_info_instances($entity_type, $bundle_name);
+
+  foreach ($instances as $field_name => $instance) {
+    $field = field_info_field($field_name);
+    foreach ($entity->{$field_name} as $langcode => &$items) {
+      // TODO: Can we do this with drupal_alter()? Reason for this quick and
+      // mashup is because I want to keep the argument order consistent between
+      // field hooks, and still possibility to alter arguments.
+      $function = $field['module'] . '_deploy_field_alter';
+      if (function_exists($function)) {
+        $function($entity_type, $entity, $field, $instance, $langcode, $items);
       }
     }
   }
@@ -160,6 +186,38 @@ function file_deploy_field_dependencies($entity_type, $entity, $field, $instance
   $dependencies = array();
   foreach ($items as $item) {
     $dependencies['file'][$item['fid']] = TRUE;
+    if ($item['uid'] != 1) {
+      $dependencies['user'][$item['uid']] = TRUE;
+    }
   }
   return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_entity_alter().
+ */
+function file_deploy_entity_alter(&$entity, $entity_type) {
+  if ($entity_type == 'file') {
+    $uid = reset(entity_get_id_by_uuid('user', array($entity->uid)));
+    if ($uid == 1) {
+      $entity->uid = '1';
+    }
+  }
+}
+
+/**
+ * Implements hook_deploy_field_alter().
+ */
+function file_deploy_field_alter($entity_type, &$entity, $field, $instance, $langcode, &$items) {
+  $uuids = array();
+  foreach ($items as $item) {
+    $uuids[] = $item['uid'];
+  }
+  // Get all UIDs in one query.
+  $uids = entity_get_id_by_uuid('user', array($uuids));
+  foreach ($items as &$item) {
+    if (isset($uids[$item['uid']]) && $uids[$item['uid']] == 1) {
+      $item['uid'] = '1';
+    }
+  }
 }
