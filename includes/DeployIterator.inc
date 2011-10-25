@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Just a wrapper for now.
+ * Wrapper class around the SPL RecursiveIteratorIterator.
  */
 class DeployIteratorIterator extends RecursiveIteratorIterator {}
 
 /**
- * Iterator which does the heavy lifting for detecting dependencies.
+ * Iterator class which does the heavy lifting for detecting dependencies.
  *
  * This iterator is reponsible for taking in an array of entity types and ids,
- * figure out all their dependencies and return an iterable object of all of
- * them, in a deployable order (dependencies first). And since dependencies
+ * figuring out all their dependencies, and returning an iterable object of all
+ * of them in a deployable order (dependencies first). And since dependencies
  * in theory are nested and recursive, we are using a recursive iterator here.
  *
  * @todo
@@ -22,22 +22,49 @@ class DeployIteratorIterator extends RecursiveIteratorIterator {}
  */
 class DeployIterator implements RecursiveIterator {
 
-  var $entities = array();
+  /**
+   * The entities to be iterated over. See the constructor for how this array
+   * is structured.
+   *
+   * @var array
+   */
+  public $entities = array();
 
-  var $dependencies = array();
+  /**
+   * An array of dependencies keyed by entity id.
+   *
+   * @var array
+   */
+  public $dependencies = array();
 
-  var $belongings = array();
+  /**
+   * An array of belongings keyed by entity id.
+   *
+   * @var array
+   */
+  public $belongings = array();
 
-  var $entityType = NULL;
+  /**
+   * Keeps track of the entity type currently being iterated over.
+   *
+   * @var string
+   */
+  public $entityType = NULL;
 
-  var $traversed = array();
+  /**
+   * Keeps track of the entity ids per entity type that have already been trav-
+   * ersed.
+   *
+   * @var array
+   */
+  public $traversed = array();
 
   /**
    * Constructor.
    *
-   * The $entities array should be structured as below, where 'foo', 'bar' and
-   * 'baz' are entity types and the numeric keys are entity ids. Although it's
-   * not required, the value of each key can be a similar structured array of
+   * The $entities array should be structured as below, where all string keys
+   * are entity types and the numeric keys are entity ids. Although it's not
+   * required, the value of each key can be a similar structured array of
    * dependencies that will be parsed recursively.
    * @code
    *   $entities = array(
@@ -58,8 +85,11 @@ class DeployIterator implements RecursiveIterator {
    *   );
    * @endcode
    *
-   * @param $entities
+   * @param array $entities
    *   A structured array of entity ids and their entity types.
+   *
+   * @param array $parent
+   *   The parent array of the current entity.
    */
   function __construct($entities, &$parent = NULL) {
     $this->entities = $entities;
@@ -69,6 +99,12 @@ class DeployIterator implements RecursiveIterator {
     }
   }
 
+  /**
+   * Returns TRUE if an iterator can be created for the current item in the
+   * entities array.
+   *
+   * @return boolean
+   */
   function hasChildren() {
     $key = $this->key();
     $current = $this->current();
@@ -78,12 +114,12 @@ class DeployIterator implements RecursiveIterator {
     }
 
     // Don't check for dependencies twice. They should already have been taken
-    // into account for it it was traversed before.
+    // into account for if it was traversed before.
     if (!isset($this->traversed[$this->entityType][$key])) {
       if (!empty($current['entity'])) {
         // Since the current entity is a UUID entity (with all properties and
         // field references as UUIDs) we need to re-load it as a standard entity
-        // to make life easier for implementators of the following hooks. This
+        // to make life easier for implementors of the following hooks. This
         // should have minor performance implications since the entity should
         // be cached at this point.
         $entity = reset(entity_load($this->entityType, array($current['entity_id'])));
@@ -92,7 +128,7 @@ class DeployIterator implements RecursiveIterator {
         $this->dependencies[$key] = module_invoke_all('deploy_entity_dependencies', $entity, $this->entityType);
         $this->belongings[$key] = module_invoke_all('deploy_entity_belongings', $entity, $this->entityType);
 
-        // Don't add dependencies that was already traversed.
+        // Don't add dependencies that were already traversed.
         foreach ($this->dependencies[$key] as $entity_type => $dependencies) {
           foreach ($dependencies as $entity_id => $something) {
             if (isset($this->traversed[$entity_type][$entity_id])) {
@@ -117,7 +153,9 @@ class DeployIterator implements RecursiveIterator {
   }
 
   /**
-   * Gets the children.
+   * Returns an iterator for the current entry.
+   *
+   * @return DeployIterator
    */
   function getChildren() {
     $key = $this->key();
@@ -133,7 +171,7 @@ class DeployIterator implements RecursiveIterator {
     if (!empty($this->dependencies[$key]) || !empty($this->belongings[$key])) {
       // TODO: We need to merge with $entities from above in some smart way.
       $entities = $this->dependencies[$key];
-      // In an iterator, having children means that the current key it self
+      // In an iterator, having children means that the current key itself
       // isn't a part of the entities. However, this isn't the case when doing
       // deployments. So we add the parent as a part of the entities.
       // And since children always should go first, we add the parent last.
@@ -152,6 +190,8 @@ class DeployIterator implements RecursiveIterator {
    * Get the current value (entity).
    *
    * @todo Implement static caching to avoid multiple entity loads.
+   *
+   * @return array
    */
   function current() {
     $current = current($this->entities);
@@ -174,18 +214,30 @@ class DeployIterator implements RecursiveIterator {
     );
   }
 
+  /**
+   * Returns the key of the current element.
+   */
   function key() {
     return key($this->entities);
   }
 
+  /**
+   * Moves the current position to the next element.
+   */
   function next() {
     return next($this->entities);
   }
 
+  /**
+   * Rewind the Iterator to the first element.
+   */
   function rewind() {
     reset($this->entities);
   }
 
+  /**
+   * Checks if current position is valid.
+   */
   function valid() {
     $key = key($this->entities);
     return ($key !== NULL && $key !== FALSE);
