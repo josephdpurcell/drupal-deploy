@@ -1,21 +1,70 @@
 <?php
 
+/**
+ * Class representing a deployment endpoint.
+ */
 class DeployEndpoint {
 
-  var $debug = FALSE;
+  /**
+   * Whether debug mode is enabled for this endpoint.
+   *
+   * @var boolean
+   */
+  public $debug = FALSE;
 
-  var $service_plugin = NULL;
+  /**
+   * The name of the service plugin to be used to deploy to this endpoint.
+   *
+   * @var string
+   */
+  public $service_plugin = NULL;
 
-  var $service_config = array();
+  /**
+   * An associative array of configuration settings to pass to the service
+   * object's constructor. Allowable keys will depend on the plugin being used.
+   *
+   * @var array
+   */
+  public $service_config = array();
 
-  var $service = NULL;
+  /**
+   * The service object that will be used to push to this endpoint.
+   *
+   * @var DeployService
+   */
+  public $service = NULL;
 
-  var $authenticator_plugin = NULL;
+  /**
+   * The name of the authenticator plugin to be used for this endpoint.
+   *
+   * @var string
+   */
+  public $authenticator_plugin = NULL;
 
-  var $authenticator_config = array();
+  /**
+   * An associative array of configuration settings to pass to the authenticator
+   * object's constructor. Allowable keys will depend on the plugin being used.
+   *
+   * @var array
+   */
+  public $authenticator_config = array();
 
-  var $authenticator = NULL;
+  /**
+   * The authenticator object that will be used to push to this endpoint.
+   *
+   * @var DeployAuthenticator
+   */
+  public $authenticator = NULL;
 
+  /**
+   * Performs a deployment to the endpoint.
+   *
+   * @param DeployPlan $plan
+   *   The plan being deployed.
+   *
+   * @param Traversable $iterator
+   *   Usually this will be an object from a subclass of DeployAggregatorBase.
+   */
   function deploy(DeployPlan $plan, Traversable $iterator) {
     // Since the CTools Export API is declarative by nature, we can't realy on
     // contructor injection and deploy_endpoint_create() as the only factory.
