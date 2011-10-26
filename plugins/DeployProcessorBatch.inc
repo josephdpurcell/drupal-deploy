@@ -1,8 +1,11 @@
 <?php
 
+/**
+ * Processor class using the Batch API
+ */
 class DeployProcessorBatch extends DeployProcessorMemory {
 
-  function process($endpoint_name) {
+  public function process($endpoint_name) {
     if ($endpoint = deploy_endpoint_load($endpoint_name)) {
       $iterator = $this->aggregator->getIterator();
       $operations = array();
@@ -24,12 +27,12 @@ class DeployProcessorBatch extends DeployProcessorMemory {
     }
   }
 
-  function cleanup() {
+  public function cleanup() {
     drupal_set_message(t('Plan %plan has been deployed to its endpoints', array('%plan' => $this->aggregator->plan->title)));
     batch_process('admin/structure/deploy');
   }
 
-  function configForm(&$form_state) {
+  public function configForm(&$form_state) {
     // We have no settings for this processor.
     return array();
   }

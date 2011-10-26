@@ -1,8 +1,11 @@
 <?php
 
+/**
+ * Class for deploying to a REST server using JSON
+ */
 class DeployServiceRestJSON extends DeployServiceRest {
 
-  function deploy(Traversable $iterator) {
+  public function deploy(Traversable $iterator) {
     foreach ($iterator as $current) {
       $data = drupal_json_encode($current);
       $this->config['headers']['Content-Type'] = 'application/json';

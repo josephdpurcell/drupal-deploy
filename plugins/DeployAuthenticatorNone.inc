@@ -1,12 +1,25 @@
 <?php
 
+/**
+ * Authentication class that uses basic authentication.
+ */
 class DeployAuthenticatorNone implements DeployAuthenticator {
 
-  var $service = NULL;
+  /**
+   * The service being used to deploy the plan.
+   *
+   * @var DeployService
+   */
+  public $service = NULL;
 
-  var $config = array();
+  /**
+   * Configuration options.
+   *
+   * @var array
+   */
+  public $config = array();
 
-  function __construct(DeployService $service, Array $config = array()) {
+  public function __construct(DeployService $service, Array $config = array()) {
     $this->service = $service;
     $this->config += array(
       'debug' => FALSE,
@@ -14,11 +27,11 @@ class DeployAuthenticatorNone implements DeployAuthenticator {
     $this->config = array_merge($this->config, $config);
   }
 
-  function deploy(Traversable $iterator) {
+  public function deploy(Traversable $iterator) {
     $this->service->deploy($iterator);
   }
 
-  function configForm(&$form_state) {
+  public function configForm(&$form_state) {
     return array();
   }
 

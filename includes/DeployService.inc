@@ -14,7 +14,7 @@ interface DeployService {
    * @param array $config
    *   An associative array containing the settings for the service plugin.
    */
-  function __construct(DeployPlan $plan, Array $config = array());
+  public function __construct(DeployPlan $plan, Array $config = array());
 
   /**
    * Deploy a plan.
@@ -22,7 +22,7 @@ interface DeployService {
    * @param Traverable $iterator
    *   This will usually be an object of a subclass of DeployAggregatorBase
    */
-  function deploy(Traversable $iterator);
+  public function deploy(Traversable $iterator);
 
   /**
    * Configuration form.
@@ -30,6 +30,6 @@ interface DeployService {
    * @param array $form_state
    *   The complete form state.
    */
-  function configForm(&$form_state);
+  public function configForm(&$form_state);
 
 }

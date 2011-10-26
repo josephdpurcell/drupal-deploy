@@ -1,8 +1,11 @@
 <?php
 
+/**
+ * Processor class using the Batch API
+ */
 class DeployProcessorQueue extends DeployProcessorMemory {
 
-  function process($endpoint_name) {
+  public function process($endpoint_name) {
     if ($endpoint = deploy_endpoint_load($endpoint_name)) {
       $iterator = $this->aggregator->getIterator();
       $queue = DrupalQueue::get('deploy_queue');
@@ -20,7 +23,7 @@ class DeployProcessorQueue extends DeployProcessorMemory {
     }
   }
 
-  function configForm(&$form_state) {
+  public function configForm(&$form_state) {
     // We have no settings for this processor.
     return array();
   }

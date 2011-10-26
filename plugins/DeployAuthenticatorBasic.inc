@@ -1,8 +1,11 @@
 <?php
 
+/**
+ * Authentication class that uses basic authentication.
+ */
 class DeployAuthenticatorBasic extends DeployAuthenticatorNone {
 
-  function __construct(DeployService $service, Array $config = array()) {
+  public function __construct(DeployService $service, Array $config = array()) {
     $this->service = $service;
     $this->config += array(
       'debug' => FALSE,
@@ -12,12 +15,12 @@ class DeployAuthenticatorBasic extends DeployAuthenticatorNone {
     $this->config = array_merge($this->config, $config);
   }
 
-  function deploy(Traversable $iterator) {
+  public function deploy(Traversable $iterator) {
     $this->service->config['headers']['Authorization'] = 'Basic ' . base64_encode($this->config['username'] . ':' . $this->config['password']);
     $this->service->deploy($iterator);
   }
 
-  function configForm(&$form_state) {
+  public function configForm(&$form_state) {
     return array(
       'username' => array(
         '#type' => 'textfield',
