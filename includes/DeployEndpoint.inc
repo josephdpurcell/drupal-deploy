@@ -65,7 +65,7 @@ class DeployEndpoint {
    * @param Traversable $iterator
    *   Usually this will be an object from a subclass of DeployAggregatorBase.
    */
-  function deploy(DeployPlan $plan, Traversable $iterator) {
+  public function deploy(DeployPlan $plan, Traversable $iterator) {
     // Since the CTools Export API is declarative by nature, we can't realy on
     // contructor injection and deploy_endpoint_create() as the only factory.
     if (!empty($this->service_plugin)) {

@@ -91,7 +91,7 @@ class DeployIterator implements RecursiveIterator {
    * @param array $parent
    *   The parent array of the current entity.
    */
-  function __construct($entities, &$parent = NULL) {
+  public function __construct($entities, &$parent = NULL) {
     $this->entities = $entities;
     // We need to keep track of what the parent already traversed for us.
     if (!empty($parent)) {
@@ -105,7 +105,7 @@ class DeployIterator implements RecursiveIterator {
    *
    * @return boolean
    */
-  function hasChildren() {
+  public function hasChildren() {
     $key = $this->key();
     $current = $this->current();
     if (is_array($current) && !isset($current['entity'])) {
@@ -157,7 +157,7 @@ class DeployIterator implements RecursiveIterator {
    *
    * @return DeployIterator
    */
-  function getChildren() {
+  public function getChildren() {
     $key = $this->key();
     $current = $this->current();
 
@@ -193,7 +193,7 @@ class DeployIterator implements RecursiveIterator {
    *
    * @return array
    */
-  function current() {
+  public function current() {
     $current = current($this->entities);
     if (is_array($current)) {
       return $current;
@@ -217,28 +217,30 @@ class DeployIterator implements RecursiveIterator {
   /**
    * Returns the key of the current element.
    */
-  function key() {
+  public function key() {
     return key($this->entities);
   }
 
   /**
    * Moves the current position to the next element.
    */
-  function next() {
+  public function next() {
     return next($this->entities);
   }
 
   /**
-   * Rewind the Iterator to the first element.
+   * Rewinds the Iterator to the first element.
    */
-  function rewind() {
+  public function rewind() {
     reset($this->entities);
   }
 
   /**
    * Checks if current position is valid.
+   *
+   * @return boolean
    */
-  function valid() {
+  public function valid() {
     $key = key($this->entities);
     return ($key !== NULL && $key !== FALSE);
   }
