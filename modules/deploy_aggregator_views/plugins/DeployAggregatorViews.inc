@@ -1,17 +1,20 @@
 <?php
 
+/**
+ * Class for a deploy aggregator that aggregates entities using a View.
+ */
 class DeployAggregatorViews extends DeployAggregatorBase {
 
-  var $config = array();
+  public $config = array();
 
   /**
    * Holds a reference to the plan object that initiated it.
    *
    * @var DeployPlan
    */
-  var $plan;
+  public $plan;
 
-  function __construct(DeployPlan $plan = NULL, Array $config = array()) {
+  public function __construct(DeployPlan $plan = NULL, Array $config = array()) {
     $defaults = array(
       'debug' => FALSE,
       'view_name' => '',
@@ -23,7 +26,7 @@ class DeployAggregatorViews extends DeployAggregatorBase {
   /**
    * Get aggregated entities.
    */
-  function getEntities() {
+  public function getEntities() {
     $view = views_get_view($this->config['view_name'], 'default');
     // TODO: Consider adding a config parameter for $entity_type, since that's
     // not always consistent with $view->base_table.
@@ -38,7 +41,7 @@ class DeployAggregatorViews extends DeployAggregatorBase {
     return $entities;
   }
 
-  function configForm(&$form_state) {
+  public function configForm(&$form_state) {
     $form = array();
     $options = array();
     $views = views_get_all_views();
