@@ -99,7 +99,7 @@ class DeployPlan {
    */
   public function deploy() {
     if (empty($this->processor)) {
-      $this->init();
+      $this->load();
     }
     if (empty($this->processor) || $this->fetch_only) {
       $exception = new DeployPlanException(t("The plan @name can't be deployed in push fashion because it missing a processor plugin or is configured <em>fetch-only</em>.", array('@name' => $plan->name)));
