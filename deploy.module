@@ -320,3 +320,47 @@ function deploy_queue_process_item($item) {
     $endpoint->deploy($plan, $iterator);
   }
 }
+
+/**
+ * Helper function to add deployment dependencies.
+ *
+ * We never treat user UID 0 or 1 as dependencies. Those are low level user
+ * accounts ("anonymous" and "root") that already exists in most endpoint
+ * systems (i.e. when the endpoint happens to be another Drupal site).
+ *
+ * @param $dependencies
+ *   The dependency array.
+ * @param $objects
+ *   Array of objects that should be checked for dependencies in $properties.
+ * @param $entity_type
+ *   The type of entity that $properties will add dependency on.
+ * @param $properties
+ *   An array of properties that adds dependencies to $objects. All properties
+ *   must only point to one entity type at the time.
+ */
+function deploy_add_dependencies(&$dependencies, $objects, $entity_type, $properties) {
+  if (!is_array($objects)) {
+    $objects = array($objects);
+  }
+  if (!is_array($properties)) {
+    $properties = array($properties);
+  }
+
+  foreach ($objects as $object) {
+    foreach ($properties as $property) {
+      $value = NULL;
+      if (is_object($object) && isset($object->{$property})) {
+        $value = $object->{$property};
+      }
+      elseif (is_array($object) && isset($object[$property])) {
+        $value = $object[$property];
+      }
+      if (!empty($value) && !($entity_type == 'user' && ($value == 0 || $value == 1))) {
+        if (!isset($dependencies[$entity_type])) {
+          $dependencies[$entity_type] = array();
+        }
+        $dependencies[$entity_type][$value] = TRUE;
+      }
+    }
+  }
+}

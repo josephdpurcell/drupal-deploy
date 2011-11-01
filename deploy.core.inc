@@ -3,85 +3,39 @@
 /**
  * @file
  * Contains hook implementations for all relevant core module.
+ *
+ * @todo
+ *   Replace all these hook implementations with a generic solution that uses
+ *   info from hook_entity_field_info() and hook_entity_property_info(). That
+ *   info should contain info about what and how dependencies are added.
+ */
+
+/**
+ * @defgroup deploy_property Propery implementations
+ * @{
  */
 
 /**
  * Implements hook_deploy_entity_dependenies().
- *
- * We don't treat user UID 1 as a dependency!
- *
- * UID 1 is considered a root user, which already exists in most endpoint
- * systems and thus causes conflicts, like when endpoints happen to be
- * another Drupal site.
  */
 function node_deploy_entity_dependencies($entity, $entity_type) {
   if ($entity_type == 'node') {
     $dependencies = array();
-    // We don't treat UID 1 as a dependency.
-    if ($entity->uid != 1) {
-      $dependencies['user'] = array($entity->uid => TRUE);
-    }
-    if (!empty($entity->tnid) && $entity->tnid != $entity->nid) {
-      $dependencies['node'] = array($entity->tnid => TRUE);
-    }
+    deploy_add_dependencies($dependencies, $entity, 'user', array('uid', 'revision_uid'));
+    deploy_add_dependencies($dependencies, $entity, 'node', 'tnid');
     return $dependencies;
-  }
-}
-
-/**
- * Implements hook_deploy_entity_alter().
- *
- * Since we aren't treating user UID 1 as a dependency we must alter that UUID
- * back to UID 1 before deploying an entity.
- */
-function node_deploy_entity_alter(&$entity, $entity_type) {
-  if ($entity_type == 'node') {
-    $uuids = array($entity->uid);
-    if (!empty($entity->revision_uid) && $entity->revision_uid != $entity->uid) {
-      $uuids[] = $entity->revision_uid;
-    }
-    $uids = entity_get_id_by_uuid('user', array($uuids));
-    foreach ($uids as $uuid => $uid) {
-      if ($uid == 1) {
-        if ($entity->uid == $uuid) {
-          $entity->uid = '1';
-        }
-        if ($entity->revision_uid == $uuid) {
-          $entity->revision_uid = '1';
-        }
-      }
-    }
   }
 }
 
 /**
  * Implements hook_deploy_entity_dependenies().
- *
- * @see node_deploy_entity_dependencies().
  */
 function comment_deploy_entity_dependencies($entity, $entity_type) {
   if ($entity_type == 'comment') {
     $dependencies = array();
-    // We don't treat UID 1 as a dependency.
-    if ($entity->uid != 1) {
-      $dependencies['user'] = array($entity->uid => TRUE);
-    }
-    $dependencies['node'] = array($entity->nid => TRUE);
+    deploy_add_dependencies($dependencies, $entity, 'user', 'uid');
+    deploy_add_dependencies($dependencies, $entity, 'node', 'nid');
     return $dependencies;
-  }
-}
-
-/**
- * Implements hook_deploy_entity_alter().
- *
- * @see node_deploy_entity_alter().
- */
-function comment_deploy_entity_alter(&$entity, $entity_type) {
-  if ($entity_type == 'comment') {
-    $uid = reset(entity_get_id_by_uuid('user', array($entity->uid)));
-    if ($uid == 1) {
-      $entity->uid = '1';
-    }
   }
 }
 
@@ -100,32 +54,7 @@ function taxonomy_deploy_entity_dependencies($entity, $entity_type) {
 }
 
 /**
- * Implements hook_entity_load().
- *
- * The 'parent' property isn't attached when terms are loaded. Deploy needs that
- * variable to correctly deploy terms.
- */
-function taxonomy_entity_load(&$entities, $entity_type) {
-  if ($entity_type == 'taxonomy_term') {
-    foreach ($entities as &$entity) {
-      if (!isset($entity->parent)) {
-        $parents = taxonomy_get_parents($entity->tid);
-        if (!empty($parents)) {
-          $entity->parent = array();
-          foreach ($parents as $parent) {
-            $entity->parent[] = $parent->tid;
-          }
-        }
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_deploy_entity_dependencies().
- *
- * This hook will go through all fields for an entity and invoke a new hook for
- * all field modules. This saves a lot of work for each field implementaor.
  */
 function field_deploy_entity_dependencies($entity, $entity_type) {
   $dependencies = array();
@@ -152,12 +81,105 @@ function field_deploy_entity_dependencies($entity, $entity_type) {
 }
 
 /**
+ * @} End of "Property implementations"
+ */
+
+/**
+ * @defgroup deploy_field Field implementations
+ * @{
+ */
+
+/**
+ * Implements hook_deploy_field_dependencies().
+ */
+function taxonomy_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+  deploy_add_dependencies($dependencies, $items, 'taxonomy_term', 'tid');
+  return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_field_dependency().
+ */
+function file_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+  deploy_add_dependencies($dependencies, $items, 'file', 'fid');
+  deploy_add_dependencies($dependencies, $items, 'user', 'uid');
+  return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_field_dependencies().
+ */
+function node_reference_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+  deploy_add_dependencies($dependencies, $items, 'node', 'nid');
+  return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_field_dependencies().
+ */
+function user_reference_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+  deploy_add_dependencies($dependencies, $items, 'user', 'uid');
+  return $dependencies;
+}
+
+/**
+ * Implements hook_deploy_field_dependencies().
+ */
+function entityreference_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
+  $dependencies = array();
+  foreach ($items as $item) {
+    $info = entity_get_info($item['target_type']);
+    deploy_add_dependencies($dependencies, $item, $item['target_type'], $info['entity keys']['id']);
+  }
+  return $dependencies;
+}
+
+/**
+ * @} End of "Field implementations"
+ */
+
+/**
+ * @defgroup deploy_alter Alterations
+ * @{
+ */
+
+/**
+ * Implements hook_entity_load().
+ *
+ * The 'parent' property isn't attached when terms are loaded. Deploy needs that
+ * variable to correctly deploy terms.
+ */
+function taxonomy_entity_load(&$entities, $entity_type) {
+  if ($entity_type == 'taxonomy_term') {
+    foreach ($entities as &$entity) {
+      if (!isset($entity->parent)) {
+        $parents = taxonomy_get_parents($entity->tid);
+        if (!empty($parents)) {
+          $entity->parent = array();
+          foreach ($parents as $parent) {
+            $entity->parent[] = $parent->tid;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_deploy_entity_alter().
  *
  * This hook will go through all fields for an entity and invoke a new hook for
  * all field modules. This saves a lot of work for each field implementaor.
  */
 function field_deploy_entity_alter(&$entity, $entity_type) {
+  if (empty($entity) || empty($entity_type)) {
+    return;
+  }
+
   $dependencies = array();
   list(,, $bundle_name) = entity_extract_ids($entity_type, $entity);
   $instances = field_info_instances($entity_type, $bundle_name);
@@ -165,6 +187,13 @@ function field_deploy_entity_alter(&$entity, $entity_type) {
   foreach ($instances as $field_name => $instance) {
     $field = field_info_field($field_name);
     foreach ($entity->{$field_name} as $langcode => &$items) {
+      foreach ($items as &$item) {
+        // The 'safe_value' key is attached on runtime. We don't need to deploy
+        // that.
+        if (isset($item['safe_value'])) {
+          unset($item['safe_value']);
+        }
+      }
       // TODO: Can we do this with drupal_alter()? Reason for this quick and
       // mashup is because I want to keep the argument order consistent between
       // field hooks, and still possibility to alter arguments.
@@ -178,82 +207,5 @@ function field_deploy_entity_alter(&$entity, $entity_type) {
 }
 
 /**
- * Implements hook_deploy_field_dependencies().
+ * @} End of "Alterations"
  */
-function taxonomy_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
-  $dependencies = array();
-  foreach ($items as $item) {
-    $dependencies['taxonomy_term'][$item['tid']] = TRUE;
-  }
-  return $dependencies;
-}
-
-/**
- * Implements hook_deploy_field_dependencies().
- */
-function node_reference_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
-  $dependencies = array();
-  foreach ($items as $item) {
-    $dependencies['node'][$item['nid']] = TRUE;
-  }
-  return $dependencies;
-}
-
-/**
- * Implements hook_deploy_field_dependencies().
- *
- * @see node_deploy_entity_dependencies().
- */
-function user_reference_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
-  $dependencies = array();
-  foreach ($items as $item) {
-    // We don't treat UID 1 as a dependency.
-    if ($item['uid'] != 1) {
-      $dependencies['user'][$item['uid']] = TRUE;
-    }
-  }
-  return $dependencies;
-}
-
-/**
- * Implements hook_deploy_field_dependency().
- */
-function file_deploy_field_dependencies($entity_type, $entity, $field, $instance, $langcode, $items) {
-  $dependencies = array();
-  foreach ($items as $item) {
-    $dependencies['file'][$item['fid']] = TRUE;
-    if ($item['uid'] != 1) {
-      $dependencies['user'][$item['uid']] = TRUE;
-    }
-  }
-  return $dependencies;
-}
-
-/**
- * Implements hook_deploy_entity_alter().
- */
-function file_deploy_entity_alter(&$entity, $entity_type) {
-  if ($entity_type == 'file') {
-    $uid = reset(entity_get_id_by_uuid('user', array($entity->uid)));
-    if ($uid == 1) {
-      $entity->uid = '1';
-    }
-  }
-}
-
-/**
- * Implements hook_deploy_field_alter().
- */
-function file_deploy_field_alter($entity_type, &$entity, $field, $instance, $langcode, &$items) {
-  $uuids = array();
-  foreach ($items as $item) {
-    $uuids[] = $item['uid'];
-  }
-  // Get all UIDs in one query.
-  $uids = entity_get_id_by_uuid('user', array($uuids));
-  foreach ($items as &$item) {
-    if (isset($uids[$item['uid']]) && $uids[$item['uid']] == 1) {
-      $item['uid'] = '1';
-    }
-  }
-}
