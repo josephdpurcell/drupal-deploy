@@ -16,7 +16,7 @@ function deploy_example_deploy_endpoints_default() {
   $endpoint->name = 'deploy_example_endpoint';
   $endpoint->title = 'Simple example endpoint';
   $endpoint->description = 'Example remote endpoint not using any authentication.';
-  $endpoint->debug = 0;
+  $endpoint->debug = 1;
   $endpoint->authenticator_plugin = 'DeployAuthenticatorNone';
   $endpoint->authenticator_config = array();
   $endpoint->service_plugin = 'DeployServiceRestJSON';
