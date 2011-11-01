@@ -355,7 +355,7 @@ function deploy_add_dependencies(&$dependencies, $objects, $entity_type, $proper
       elseif (is_array($object) && isset($object[$property])) {
         $value = $object[$property];
       }
-      if (!empty($value) && !($entity_type == 'user' && ($value == 0 || $value == 1))) {
+      if (!empty($value) && !($entity_type == 'user' && ((int)$value == 0 || (int)$value == 1))) {
         if (!isset($dependencies[$entity_type])) {
           $dependencies[$entity_type] = array();
         }
