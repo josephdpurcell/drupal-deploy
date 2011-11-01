@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_deploy_endpoints_default().
+ * Implements hook_deploy_endpoints_default().
  */
 function deploy_example_deploy_endpoints_default() {
   $export = array();

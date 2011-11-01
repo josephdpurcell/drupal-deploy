@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_deploy_plans_default().
+ * Implements hook_deploy_plans_default().
  */
 function deploy_example_deploy_plans_default() {
   $export = array();
@@ -16,11 +16,12 @@ function deploy_example_deploy_plans_default() {
   $plan->name = 'deploy_example_plan';
   $plan->title = 'Simple example plan';
   $plan->description = 'Simple example plan that aggregates all new content on the site with Views for deployment.';
-  $plan->debug = 0;
+  $plan->debug = 1;
   $plan->aggregator_plugin = 'DeployAggregatorViews';
   $plan->aggregator_config = array(
     'view_name' => 'deploy_example_aggregator',
   );
+  $plan->fetch_only = 0;
   $plan->processor_plugin = 'DeployProcessorMemory';
   $plan->processor_config = array();
   $plan->endpoints = array(

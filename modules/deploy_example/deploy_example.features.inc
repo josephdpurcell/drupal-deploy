@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_ctools_plugin_api().
+ * Implements hook_ctools_plugin_api().
  */
 function deploy_example_ctools_plugin_api() {
   list($module, $api) = func_get_args();
@@ -19,7 +19,7 @@ function deploy_example_ctools_plugin_api() {
 }
 
 /**
- * Implementation of hook_views_api().
+ * Implements hook_views_api().
  */
 function deploy_example_views_api() {
   list($module, $api) = func_get_args();
