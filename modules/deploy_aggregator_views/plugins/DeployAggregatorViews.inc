@@ -28,10 +28,9 @@ class DeployAggregatorViews extends DeployAggregatorBase {
    */
   public function getEntities() {
     $view = views_get_view($this->config['view_name'], 'default');
-    // TODO: Consider adding a config parameter for $entity_type, since that's
-    // not always consistent with $view->base_table.
-    $entity_type = $view->base_table;
-    $entity_id_field = $view->base_field;
+    $table_data = views_fetch_data($view->base_table);
+    $entity_type = $table_data['table']['entity type'];
+    $entity_id_field = $table_data['table']['base']['field'];
 
     $view_results = views_get_view_result($view->name, 'default');
     $entities = array();
