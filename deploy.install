@@ -183,5 +183,43 @@ function deploy_schema() {
     'primary key' => array('eid', 'name'),
   );
 
+  $schema['deploy_manager_entities'] = array(
+    'description' => t('Holds entities to be deployed for managed plans.'),
+    'fields' => array(
+      'plan_name' => array(
+        'description' => t('The name of the deployment plan this item applies to.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'entity_type' => array(
+        'description' => t('The type of entity, e.g. "node", "user".'),
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+      ),
+      'entity_id' => array(
+        'description' => t('The entity ID to be deployed.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The entity revision ID to be deployed.',
+      ),
+      'timestamp' => array(
+        'description' => t('The unix timestamp indicating when this item was added to the deployment plan.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('plan_name', 'entity_type', 'entity_id', 'revision_id'),
+  );
+
   return $schema;
 }
