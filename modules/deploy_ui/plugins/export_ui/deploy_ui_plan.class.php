@@ -162,7 +162,7 @@ class deploy_ui_plan extends ctools_export_ui {
     }
 
     // Endpoint.
-    if (!empty($form_state['values']['endpoints'])) {
+    if (!empty($form_state['values']['endpoints']) && empty($item->fetch_only)) {
       $item->endpoints = $form_state['values']['endpoints'];
     }
     else {
