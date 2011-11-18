@@ -1,140 +1,10 @@
 <?php
 
 /**
- * Include core implementations.
+ * Include core implementations and Deploy's own implementations.
  */
+module_load_include('inc', 'deploy', 'deploy.manager');
 module_load_include('inc', 'deploy', 'deploy.core');
-
-/**
- * Implementation of hook_ctools_plugin_type().
- *
- * @todo
- *   Find out if we really need 'use hooks'.
- */
-function deploy_ctools_plugin_type() {
-  return array(
-    'authenticators' => array(
-      'cache' => TRUE,
-      'use hooks' => TRUE,
-      'classes' => array('handler'),
-    ),
-    'services' => array(
-      'cache' => TRUE,
-      'use hooks' => TRUE,
-      'classes' => array('handler'),
-    ),
-    'aggregators' => array(
-      'cache' => TRUE,
-      'use hooks' => TRUE,
-      'classes' => array('handler'),
-    ),
-    'processors' => array(
-      'cache' => TRUE,
-      'use hooks' => TRUE,
-      'classes' => array('handler'),
-    ),
-  );
-}
-
-/**
- * Implementation of hook_deploy_processors().
- */
-function deploy_deploy_processors() {
-  $path = drupal_get_path('module', 'deploy') . '/plugins';
-  return array(
-    'DeployProcessorQueue' => array(
-      'name' => 'Queue API',
-      'description' => 'Adds all resources for deployment to the Queue API. Works best with larger deployments where deployment speed is not critical.',
-      'handler' => array(
-        'class' => 'DeployProcessorQueue',
-        'file' => 'DeployProcessorQueue.inc',
-        'path' => $path,
-      ),
-    ),
-    'DeployProcessorMemory' => array(
-      'name' => 'Memory processor',
-      'description' => 'A simple processor that deploys all resources to all endpoints in memory. Works best when triggered from Drush.',
-      'handler' => array(
-        'class' => 'DeployProcessorMemory',
-        'file' => 'DeployProcessorMemory.inc',
-        'path' => $path,
-      ),
-    ),
-    'DeployProcessorBatch' => array(
-      'name' => 'Batch API',
-      'description' => 'Adds all resources for deployment to the Batch API. Works best with larger deployments where deployment speed is not critical.',
-      'handler' => array(
-        'class' => 'DeployProcessorBatch',
-        'file' => 'DeployProcessorBatch.inc',
-        'path' => $path,
-      ),
-    ),
-
-  );
-}
-
-/**
- * Implementation of hook_deploy_authentications().
- */
-function deploy_deploy_authenticators() {
-  $path = drupal_get_path('module', 'deploy') . '/plugins';
-  return array(
-    'DeployAuthenticatorNone' => array(
-      'name' => 'No authentication',
-      'description' => "Doesn't perform any form of authentication at all.",
-      'handler' => array(
-        'class' => 'DeployAuthenticatorNone',
-        'file' => 'DeployAuthenticatorNone.inc',
-        'path' => $path,
-      ),
-    ),
-    'DeployAuthenticatorBasic' => array(
-      'name' => 'Basic HTTP',
-      'description' => 'Performs basic HTTP authentication on the endpoint.',
-      'handler' => array(
-        'class' => 'DeployAuthenticatorBasic',
-        'file' => 'DeployAuthenticatorBasic.inc',
-        'path' => $path,
-      ),
-    ),
-    'DeployAuthenticatorOAuth' => array(
-      'name' => 'oAuth',
-      'description' => 'Uses the oAuth protocol to authenticate with the endpoint.',
-      'handler' => array(
-        'class' => 'DeployAuthenticatorOAuth',
-        'file' => 'DeployAuthenticatorOAuth.inc',
-        'path' => $path,
-      ),
-    ),
-  );
-}
-
-/**
- * Implementation of hook_deploy_services().
- */
-function deploy_deploy_services() {
-  $path = drupal_get_path('module', 'deploy') . '/plugins';
-  return array(
-    'DeployServiceRestJSON' => array(
-      'name' => 'REST JSON',
-      'description' => 'Defines a REST service that can receive JSON data.',
-      'handler' => array(
-        'class' => 'DeployServiceRestJSON',
-        'file' => 'DeployServiceRestJSON.inc',
-        'path' => $path,
-      ),
-    ),
-    'DeployServiceRestXML' => array(
-      'name' => 'REST XML',
-      'description' => 'Defines a REST service that can receive XML data.',
-      'handler' => array(
-        'class' => 'DeployServiceRestXML',
-        'file' => 'DeployServiceRestXML.inc',
-        'path' => $path,
-      ),
-    ),
-  );
-}
 
 /**
  * Get all aggregator plugins.
@@ -207,7 +77,6 @@ function deploy_get_service_plugin($name) {
  */
 function deploy_plan_create($schema, $item) {
   $plan = new DeployPlan;
-
   // Unserialize our serialized params.
   foreach ($schema['fields'] as $field => $info) {
     if (!empty($info['serialize'])) {
@@ -247,11 +116,22 @@ function deploy_plan_load_all($args = array()) {
 }
 
 /**
+ * Options callback for the deploy_plan data type.
+ */
+function deploy_plan_get_options($args = array()) {
+  $plans = deploy_plan_load_all($args);
+  $options = array();
+  foreach ($plans as $plan_name => $info) {
+    $options[$plan_name] = $info->title;
+  }
+  return $options;
+}
+
+/**
  * Object factory for a deployment endpoint.
  */
 function deploy_endpoint_create($schema, $item) {
   $endpoint = new DeployEndpoint;
-
   // Unserialize our serialized params.
   foreach ($schema['fields'] as $field => $info) {
     if (!empty($info['serialize'])) {
@@ -298,24 +178,23 @@ function deploy_iterator($collection) {
  * Implements hook_cron_queue_info().
  */
 function deploy_cron_queue_info() {
-  $queues['deploy_queue'] = array(
-    'worker callback' => 'deploy_queue_process_item',
-    'time' => 60,
+  return array(
+    'deploy_queue' => array(
+      'worker callback' => 'deploy_queue_process_item',
+      'time' => 60,
+    ),
   );
-  return $queues;
 }
 
 /**
  * Processes a single queued item for deployment.
  */
 function deploy_queue_process_item($item) {
-  $endpoint = deploy_endpoint_load($item['endpoint']);
-  $plan = deploy_plan_load($item['plan']);
+  $endpoint = deploy_endpoint_load($item['endpoint_name']);
+  $plan = deploy_plan_load($item['plan_name']);
 
   if ($plan && $endpoint) {
-    $collection = array(
-      $item['type'] => array($item['eid'] => TRUE)
-    );
+    $collection = array($item['entity_type'] => array($item['entity_id'] => TRUE));
     $iterator = deploy_iterator($collection);
     $endpoint->deploy($plan, $iterator);
   }

@@ -11,7 +11,7 @@
  */
 
 /**
- * @defgroup deploy_property Propery implementations
+ * @defgroup deploy_property Propery dependency implementations
  * @{
  */
 
@@ -81,11 +81,11 @@ function field_deploy_entity_dependencies($entity, $entity_type) {
 }
 
 /**
- * @} End of "Property implementations"
+ * @} End of "Property dependency implementations"
  */
 
 /**
- * @defgroup deploy_field Field implementations
+ * @defgroup deploy_field Field dependency implementations
  * @{
  */
 
@@ -139,11 +139,11 @@ function entityreference_deploy_field_dependencies($entity_type, $entity, $field
 }
 
 /**
- * @} End of "Field implementations"
+ * @} End of "Field dependency implementations"
  */
 
 /**
- * @defgroup deploy_alter Alterations
+ * @defgroup deploy_alter Deployment alterations
  * @{
  */
 
@@ -207,5 +207,241 @@ function field_deploy_entity_alter(&$entity, $entity_type) {
 }
 
 /**
- * @} End of "Alterations"
+ * @} End of "Deployment alterations"
+ */
+
+/**
+ * @defgroup deploy_deploy Deploy's implementations of its own API.
+ * @{
+ */
+
+/**
+ * Implementation of hook_ctools_plugin_type().
+ *
+ * @todo
+ *   Find out if we really need 'use hooks'.
+ */
+function deploy_ctools_plugin_type() {
+  return array(
+    'authenticators' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'services' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'aggregators' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'processors' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_deploy_aggregators().
+ */
+function deploy_deploy_aggregators() {
+  $path = drupal_get_path('module', 'deploy') . '/plugins';
+  return array(
+    'DeployAggregatorManaged' => array(
+      'name' => 'Managed aggregator',
+      'description' => 'Provides methods for modules (or users) to manually manage entitites to be aggregated for deployment.',
+      'handler' => array(
+        'class' => 'DeployAggregatorManaged',
+        'file' => 'DeployAggregatorManaged.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_deploy_processors().
+ */
+function deploy_deploy_processors() {
+  $path = drupal_get_path('module', 'deploy') . '/plugins';
+  return array(
+    'DeployProcessorMemory' => array(
+      'name' => 'Memory processor',
+      'description' => 'All entities are deployed in memory. Works best with small deployments.',
+      'handler' => array(
+        'class' => 'DeployProcessorMemory',
+        'file' => 'DeployProcessorMemory.inc',
+        'path' => $path,
+      ),
+    ),
+    'DeployProcessorQueue' => array(
+      'name' => 'Queue API',
+      'description' => 'All entities are queued for deployment with the Queue API. Works best with large deployments. Can be used with a separate queue worker to achive very fast and parallel deployments.',
+      'handler' => array(
+        'class' => 'DeployProcessorQueue',
+        'file' => 'DeployProcessorQueue.inc',
+        'path' => $path,
+      ),
+    ),
+    'DeployProcessorBatch' => array(
+      'name' => 'Batch API',
+      'description' => 'All entities are processed with the Batch API. Works best when deployments are done through the UI.',
+      'handler' => array(
+        'class' => 'DeployProcessorBatch',
+        'file' => 'DeployProcessorBatch.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_deploy_authentications().
+ */
+function deploy_deploy_authenticators() {
+  $path = drupal_get_path('module', 'deploy') . '/plugins';
+  return array(
+    'DeployAuthenticatorSession' => array(
+      'name' => 'Session authentication',
+      'description' => 'Performs session authentication on the endpoint. Works well when the endpoint happends to be a Drupal site using Services module and session authentication.',
+      'handler' => array(
+        'class' => 'DeployAuthenticatorSession',
+        'file' => 'DeployAuthenticatorSession.inc',
+        'path' => $path,
+      ),
+    ),
+    'DeployAuthenticatorOAuth' => array(
+      'name' => 'oAuth',
+      'description' => 'Uses the oAuth protocol to authenticate with the endpoint. <strong>Does not work yet!</strong>',
+      'handler' => array(
+        'class' => 'DeployAuthenticatorOAuth',
+        'file' => 'DeployAuthenticatorOAuth.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_deploy_services().
+ */
+function deploy_deploy_services() {
+  $path = drupal_get_path('module', 'deploy') . '/plugins';
+  return array(
+    'DeployServiceRestJSON' => array(
+      'name' => 'REST JSON',
+      'description' => 'Deploys over a REST service that can receive JSON data. Works well when the endpoint happens to be a Drupal sites using Services module with REST server.',
+      'handler' => array(
+        'class' => 'DeployServiceRestJSON',
+        'file' => 'DeployServiceRestJSON.inc',
+        'path' => $path,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_deploy_entity_deployed().
+ */
+function deploy_deploy_entity_deployed($plan, $entity_type, $entity, $context) {
+  if (!empty($plan->aggregator_config['delete_post_deploy'])) {
+    if (!isset($context['response']->error)) {
+      deploy_manager_delete_from_plan($plan->name, $entity_type, $entity);
+    }
+  }
+}
+
+/**
+ * @} End of "Deploy's implementations of its own API."
+ */
+
+/**
+ * @defgroup deploy_operations Bulk operations
+ * @{
+ */
+
+/**
+ * Implements hook_node_operations().
+ */
+function deploy_node_operations() {
+  $operations = array();
+  $options = deploy_manager_plan_get_options();
+  foreach ($options as $plan_name => $plan_title) {
+    $operations['deploy:add:' . $plan_name] = array(
+      'label' => $plan_title,
+      'callback' => 'deploy_node_operation_add_to_managed_plan',
+      'callback arguments' => array('plan_name' => $plan_name),
+    );
+    $operations['deploy:delete:' . $plan_name] = array(
+      'label' => $plan_title,
+      'callback' => 'deploy_node_operation_delete_from_managed_plan',
+      'callback arguments' => array('plan_name' => $plan_name),
+    );
+  }
+  return $operations;
+}
+
+/**
+ * Node operation callback.
+ */
+function deploy_node_operation_add_to_managed_plan($nids, $plan_name) {
+  $plan = deploy_plan_load($plan_name);
+  foreach ($nids as $nid) {
+    $node = node_load($nid);
+    deploy_manager_add_to_plan($plan_name, 'node', $node);
+  }
+  $deploy_link = url("admin/structure/deploy/plans/list/$plan_name/deploy", array('query' => array('cancel_path' => 'admin/content')));
+  $overview_link = url('admin/structure/deploy');
+  drupal_set_message(t('Nodes where added to <a href="!overview">@plan</a>. You might want to <a href="!deploy">deploy the plan</a>.', array('@plan' => $plan->title, '!overview' => $overview_link, '!deploy' => $deploy_link)));
+}
+
+/**
+ * Node operation callback.
+ */
+function deploy_node_operation_delete_from_managed_plan($nids, $plan_name) {
+  $plan = deploy_plan_load($plan_name);
+  foreach ($nids as $nid) {
+    $node = node_load($nid);
+    deploy_manager_delete_from_plan($plan_name, 'node', $node);
+  }
+  $deploy_link = url("admin/structure/deploy/plans/list/$plan_name/deploy", array('query' => array('cancel_path' => 'admin/content')));
+  $overview_link = url('admin/structure/deploy');
+  drupal_set_message(t('Nodes where deleted from <a href="!overview">@plan</a>. You might want to <a href="!deploy">deploy the plan</a>.', array('@plan' => $plan->title, '!overview' => $overview_link, '!deploy' => $deploy_link)));
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function deploy_form_node_admin_content_alter(&$form, $form_state) {
+  if (empty($form['admin']['options']['operation']['#options'])) {
+    return;
+  }
+  $options = &$form['admin']['options']['operation']['#options'];
+  $group_add = t('Add to managed deployment plan');
+  $options[$group_add] = array();
+  $group_delete = t('Remove from managed deployment plan');
+  $options[$group_delete] = array();
+  foreach ($form['admin']['options']['operation']['#options'] as $key => $value) {
+    list($module) = explode(':', $key);
+    if ($module == 'deploy') {
+      list(,$op) = explode(':', $key);
+      unset($options[$key]);
+      if ($op == 'add') {
+        unset($options[$key]);
+        $options[$group_add][$key] = $value;
+      }
+      elseif ($op == 'delete') {
+        $options[$group_delete][$key] = $value;
+      }
+    }
+  }
+}
+
+/**
+ * @} End of "Bulk operations"
  */
