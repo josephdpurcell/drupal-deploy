@@ -6,13 +6,12 @@
 class DeployServiceRestJSON extends DeployServiceRest {
 
   public function deploy(Traversable $iterator) {
-    foreach ($iterator as $current) {
-      $data = drupal_json_encode($current);
+    foreach ($iterator as $data) {
+      $json_data = drupal_json_encode($data);
       $this->config['headers']['Content-Type'] = 'application/json';
-      $response = $this->httpPut($current['entity']->uuid, $data, 'json');
-      // TODO: Change eid to entity_id.
-      $args = array('eid' => $current['entity_id'], 'response' => $response, 'plan' => $this->plan->name);
-      module_invoke_all('deploy_item_deployed', $this, $args);
+      $response = $this->httpPut($data['entity']->uuid, $json_data, 'json');
+      $context = array('response' => $response);
+      module_invoke_all('deploy_entity_deployed', $this->plan, $data['entity_type'], $data['entity'], $context);
     }
   }
 }
