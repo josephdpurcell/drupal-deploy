@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Deploy Manager Example feature.
- */
-
-include_once('deploy_manager_example.features.inc');
