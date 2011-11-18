@@ -10,16 +10,21 @@ class DeployProcessorQueue extends DeployProcessorMemory {
       $iterator = $this->aggregator->getIterator();
       $queue = DrupalQueue::get('deploy_queue');
 
-      foreach ($iterator as $entity_wrapper) {
-        $item = array(
-          'plan' => $this->aggregator->plan->name,
-          'eid' => $entity_wrapper->getIdentifier(),
-          'type' => $entity_wrapper->type(),
-          'endpoint' => $endpoint_name,
-        );
-        $queue->createItem($item);
+      foreach ($iterator as $data) {
+        // Since we are queuing for unknown time, we only want to queue
+        // originators. Their dependencies will be figured out anyhow when
+        // processing later on.
+        if ($data['relationship']['type'] == ENTITY_RELATIONSHIP_ORIGIN) {
+          $item = array(
+            'plan_name' => $this->aggregator->plan->name,
+            'entity_type' => $data['entity_type'],
+            'entity_id' => $data['entity_id'],
+            'endpoint_name' => $endpoint_name,
+          );
+          $queue->createItem($item);
+        }
       }
-      drupal_set_message(t('Plan %plan has been queued for deployment to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
+      drupal_set_message(t('%plan has been queued for deployment to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
     }
   }
 
