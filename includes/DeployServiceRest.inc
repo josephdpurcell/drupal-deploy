@@ -68,7 +68,10 @@ class DeployServiceRest implements DeployService {
    *   The format of the data, e.g. 'json' or 'xml'.
    */
   public function httpPut($uuid, $data, $format) {
+     // TODO: Consider making the resource path configurable. For now, the
+     // default UUID Services path is OK, since it covers 99% of the use cases.
     $url = $this->config['url'] . '/uuid_entity/' . $uuid . '.' . $format;
+
     $options = array(
       'method' => 'PUT',
       'headers' => $this->config['headers'],
@@ -77,8 +80,7 @@ class DeployServiceRest implements DeployService {
 
     if ($this->config['debug']) {
       watchdog('deploy', 'Request URL: %url', array('%url' => $url), WATCHDOG_DEBUG);
-      watchdog('deploy', 'Request headers: <pre>@headers</pre>', array('@headers' => print_r($this->headers, TRUE)), WATCHDOG_DEBUG);
-      watchdog('deploy', 'Request data: <pre>@data</pre>', array('@data' => $data), WATCHDOG_DEBUG);
+      watchdog('deploy', 'Request options: <pre>@options</pre>', array('@options' => print_r($options, TRUE)), WATCHDOG_DEBUG);
     }
 
     $response = drupal_http_request($url, $options);
@@ -87,6 +89,7 @@ class DeployServiceRest implements DeployService {
       watchdog('deploy', 'Request response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
     }
     if (isset($response->error)) {
+      // TODO: Throw exception.
       watchdog('deploy', 'Request response error: %code %error', array('%code' => $response->code, '%error' => $response->error), WATCHDOG_ERROR);
     }
     return $response;
