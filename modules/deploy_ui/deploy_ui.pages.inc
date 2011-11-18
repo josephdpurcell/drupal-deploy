@@ -20,7 +20,15 @@ function deploy_ui_overview_page() {
 
       // Construct a usable array for the theme function.
       foreach ($entities as $entity) {
-        $title = check_plain($entity->{$entity_info['entity keys']['label']});
+        $title = '';
+        if (isset($entity_info['entity keys']['label'])) {
+          $title = filter_xss($entity->{$entity_info['entity keys']['label']});
+        }
+        // Walk-around for the user entity that apparently doesn't leverage
+        // the entity key 'label'.
+        elseif (isset($entity->uid) && isset($entity->name)) {
+          $title = filter_xss($entity->name);
+        }
         if (isset($entity_info['uri callback'])) {
           $uri = $entity_info['uri callback']($entity);
           $title = l($title, $uri['path'], array('html' => TRUE));
