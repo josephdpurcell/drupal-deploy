@@ -5,7 +5,6 @@ core = 7.x
 
 dependencies[] = ctools
 dependencies[] = uuid
-dependencies[] = entity
 
 files[] = includes/DeployAggregator.inc
 files[] = includes/DeployAuthenticator.inc
@@ -16,14 +15,12 @@ files[] = includes/DeployProcessor.inc
 files[] = includes/DeployService.inc
 files[] = includes/DeployServiceRest.inc
 
-files[] = plugins/DeployAuthenticatorBasic.inc
-files[] = plugins/DeployAuthenticatorNone.inc
+files[] = plugins/DeployAuthenticatorSession.inc
 files[] = plugins/DeployAuthenticatorOAuth.inc
 files[] = plugins/DeployProcessorMemory.inc
 files[] = plugins/DeployProcessorQueue.inc
 files[] = plugins/DeployProcessorBatch.inc
 files[] = plugins/DeployServiceRestJSON.inc
-files[] = plugins/DeployServiceRestXML.inc
 
 files[] = deploy.test
 files[] = deploy_test_case.php
