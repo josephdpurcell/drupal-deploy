@@ -17,9 +17,9 @@ function deploy_example_deploy_plans_default() {
   $plan->title = 'Simple example plan';
   $plan->description = 'Simple example plan that aggregates all new content on the site with Views for deployment.';
   $plan->debug = 1;
-  $plan->aggregator_plugin = 'DeployAggregatorViews';
+  $plan->aggregator_plugin = 'DeployAggregatorManaged';
   $plan->aggregator_config = array(
-    'view_name' => 'deploy_example_aggregator',
+    'delete_post_deploy' => 0,
   );
   $plan->fetch_only = 0;
   $plan->processor_plugin = 'DeployProcessorMemory';

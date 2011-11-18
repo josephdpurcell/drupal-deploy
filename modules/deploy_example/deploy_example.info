@@ -1,6 +1,5 @@
 core = "7.x"
 dependencies[] = "deploy"
-dependencies[] = "deploy_aggregator_views"
 dependencies[] = "deploy_ui"
 dependencies[] = "views"
 dependencies[] = "views_ui"
