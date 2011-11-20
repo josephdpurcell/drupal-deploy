@@ -19,13 +19,19 @@ class DeployWebTestCase extends DrupalWebTestCase {
     }
 
     // Set up our origin site.
-    $this->setUpSite('deploy_origin', array('entity', 'ctools', 'features', 'views', 'views_ui', 'uuid', 'deploy', 'deploy_ui', 'deploy_aggregator_views', 'deploy_example'));
+    $this->setUpSite('deploy_origin', array('entity', 'ctools', 'features', 'views', 'views_ui', 'uuid', 'deploy', 'deploy_ui', 'deploy_example'));
 
     // Switch back to original site to be able to set up a new site.
     $this->switchSite('deploy_origin', 'simpletest_original_default');
 
     // Set up one endpoint site.
     $this->setUpSite('deploy_endpoint', array('entity', 'ctools', 'features', 'uuid', 'services', 'rest_server', 'uuid_services', 'uuid_services_example'));
+
+    // This is the user that will be used to authenticate the deployment between
+    // the site. We add it to $GLOBALS so we can access the user info on the
+    // origin site and configure the endpoint object with its username and
+    // password.
+    $GLOBALS['endpoint_user'] = $this->drupalCreateUser(array('access content', 'administer nodes', 'update uuid entity resources'));
 
     // Switch back to origin site where we want to start.
     $this->switchSite('deploy_endpoint', 'deploy_origin');
@@ -132,18 +138,13 @@ class DeployWebTestCase extends DrupalWebTestCase {
 
   /**
    * Overridden method adjusted to work with this testing framework.
-   *
-   * @todo
-   *   This method is broken, and therefore also breaks tests implementing it.
    */
   protected function cronRun() {
-    $user_agent = drupal_generate_test_ua($this->sites[$site_key]->databasePrefix);
-    $headers = array('User-Agent' => $user_agent);
-    $options = array(
-      'external' => TRUE,
-      'query' => array('cron_key' => variable_get('cron_key', 'drupal')),
-    );
-    $this->drupalGet($GLOBALS['base_url'] . '/cron.php', $options, $headers);
+    // The "regular" way of running cron in SimpleTest doesn't work for us,
+    // since we have a very complex setup with a several "virtual" SimpleTest
+    // sites. This is an easier way of running cron. It doesn't cover as many
+    // test cases, but it's good enough.
+    drupal_cron_run();
   }
 
   /**
@@ -166,6 +167,10 @@ class DeployWebTestCase extends DrupalWebTestCase {
    */
   protected function editEndpoint($endpoint_name, $site_key) {
     $endpoint = deploy_endpoint_load($endpoint_name);
+    $endpoint->authenticator_config = array(
+      'username' => $GLOBALS['endpoint_user']->name,
+      'password' => $GLOBALS['endpoint_user']->pass_raw,
+    );
     $endpoint->service_config['url'] = url('api', array('absolute' => TRUE));
     $user_agent = drupal_generate_test_ua($this->sites[$site_key]->databasePrefix);
     $endpoint->service_config['headers'] = array('User-Agent' => $user_agent);
@@ -183,10 +188,10 @@ class DeployWebTestCase extends DrupalWebTestCase {
     if (empty($name)) {
       return;
     }
-    $deployment_plan = deploy_plan_load($name);
-    $deployment_plan->deploy();
+    $plan = deploy_plan_load($name);
+    $plan->deploy();
     // Some processors depends on cron.
-    //$this->cronRun();
+    $this->cronRun();
   }
 
   /**
@@ -225,7 +230,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
    * @todo
    *   Test with translations too.
    */
-  protected function deployRun($plan_name) {
+  protected function runScenario($plan_name) {
     // Switch to our production site.
     $this->switchSite('deploy_origin', 'deploy_endpoint');
 
@@ -251,6 +256,9 @@ class DeployWebTestCase extends DrupalWebTestCase {
       'uid' => $user_stage->uid,
       'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term_stage->tid))),
     ));
+
+    // Now add the node to the plan.
+    deploy_manager_add_to_plan($plan_name, 'node', $node_stage);
 
     // This will deploy the node only. But with dependencies (like the author
     // and the term).

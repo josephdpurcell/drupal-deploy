@@ -2,20 +2,16 @@
 GENERAL TODO'S
 --------------
 
- * Consider breaking endpoints out into its own module. Pure fetch-only
-   deployments i.e. over HTTP feeds can't/won't use them. Also, deployments or
-   exports of default content (with Features) doesn't use endpoints.
+ * Conditionally integrate with Encrypt (http://drupal.org/project/encrypt) to
+   store all config data for all authenticators.
 
  * Cosider making aggregators return full entities instead of keys. Views
    supports this with its function called something like
    $views->query->get_result_entities(). This could potentially save some code.
 
- * Better test coverage, including tests for the fetch-only functionality.
-
- * Find a solution to the problem where deployments can't be done with UID 1.
-   The reason is because UID 1 don't have the same UUID on the endpoint, since
-   that user is always created during installation. A possible solution could be
-   to provide a UI where manual update of UID 1 UUID is possible.
+ * Better test coverage
+     - Test the fetch-only functionality
+     - Test the dashboard and other cruical UI elements like the "Deploy" button
 
  * Implement hook_help() where needed.
 
@@ -25,20 +21,15 @@ GENERAL TODO'S
      - access deployment overview
      - make deployments
 
- * Make all plugins more private and isolate necessary methods and parameters.
-
- * Change the 'eid' key to 'entity_id' to be consistent with core.
-
- * Change 'items' and 'collection' to 'entities', since that is what we really
-   are dealing with.
+ * Make all plugins more private and isolate necessary methods and parameters
+     - Oversee how plugins are sharing/add config between each other.
+     - Oversee how default config keys should be set in plugin objects.
 
  * See if we can integrate with Entity API and hook_entity_property_info() in a
    way. Would be nice if we just could mark properties and fields as holding
    a dependency, eventually with a 'dependency callback' similar to the
    'getter callback'. This would save a lot of dependency code and make
    'hook_deploy_entity_dependency' redundant.
-
- * Oversee how default config keys should be set in plugin objects.
 
  * See if we really need to define plugins through hooks. Is $plugin enough
    maybe, like 'content_types' etc. are defined. Performance implications?
