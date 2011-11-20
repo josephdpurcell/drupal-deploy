@@ -23,42 +23,57 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
   }
 
   public function deploy(Traversable $iterator) {
-    // TODO: Consider making the resource/action path configurable. For now,
-    // the default Services path is OK, since it covers 99% of the use cases.
-    $login_url = $this->service->config['url'] . '/user/login';
-    $logout_url = $this->service->config['url'] . '/user/logout';
+    // Only authenticate if we've got a username and password. This allows for
+    // deployment as an anonymous user. There are usecases for that.
+    if (!empty($this->config['username']) && !empty($this->config['password'])) {
+      // TODO: Consider making the resource/action path configurable. For now,
+      // the default Services path is OK, since it covers 99% of the use cases.
+      $login_url = $this->service->config['url'] . '/user/login';
+      $logout_url = $this->service->config['url'] . '/user/logout';
 
-    $options = array(
-      'method' => 'POST',
-      'headers' => array('Content-Type' => 'application/json'),
-      'data' => drupal_json_encode(array(
-        'username' => $this->config['username'],
-        'password' => $this->config['password'],
-      )),
-    );
+      $options = array(
+        'method' => 'POST',
+        'headers' => array('Content-Type' => 'application/json'),
+        'data' => drupal_json_encode(array(
+          'username' => $this->config['username'],
+          'password' => $this->config['password'],
+        )),
+      );
 
-    if ($this->config['debug']) {
-      watchdog('deploy', 'Login request URL: %url', array('%url' => $login_url), WATCHDOG_DEBUG);
-      watchdog('deploy', 'Login request options: <pre>@options</pre>', array('@options' => print_r($options, TRUE)), WATCHDOG_DEBUG);
+      if ($this->config['debug']) {
+        watchdog('deploy', 'Login request URL: %url', array('%url' => $login_url), WATCHDOG_DEBUG);
+        watchdog('deploy', 'Login request options: <pre>@options</pre>', array('@options' => print_r($options, TRUE)), WATCHDOG_DEBUG);
+      }
+
+      // Login on the endpoint.
+      $response = drupal_http_request($login_url, $options);
+
+      if ($this->config['debug']) {
+        watchdog('deploy', 'Login response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
+      }
+      if (isset($response->error)) {
+        // TODO: Throw exception.
+        watchdog('deploy', 'Login error: %code %error', array('%code' => $response->code, '%error' => $response->error), WATCHDOG_ERROR);
+      }
+
+      if ($response->code == 200 && !empty($response->headers['set-cookie'])) {
+        // Set the session cookie, retrieved from the login request on the
+        // endpoint, for all calls made by the service.
+        $this->service->config['headers']['Cookie'] = $response->headers['set-cookie'];
+      }
+      else {
+        // TODO: Throw exception because of failed authnetication.
+      }
+    }
+    else {
+      watchdog('deploy', 'Deployment authentication is done anonymously, without user credentials.', array(), WATCHDOG_NOTICE);
     }
 
-    // Login on the endpoint.
-    $response = drupal_http_request($login_url, $options);
+    // Deploy the plan.
+    $this->service->deploy($iterator);
 
-    if ($this->config['debug']) {
-      watchdog('deploy', 'Login response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
-    }
-    if (isset($response->error)) {
-      // TODO: Throw exception.
-      watchdog('deploy', 'Login error: %code %error', array('%code' => $response->code, '%error' => $response->error), WATCHDOG_ERROR);
-    }
-
-    if ($response->code == 200 && !empty($response->headers['set-cookie'])) {
-      // Set the session cookie, retrieved from the login request on the
-      // endpoint, for all calls made by the service.
-      $this->service->config['headers']['Cookie'] = $response->headers['set-cookie'];
-      // Deploy the plan.
-      $this->service->deploy($iterator);
+    // We only need to log out if we logged in and got a session cookie.
+    if (!empty($this->service->config['headers']['Cookie'])) {
       // Log out, since we are done now.
       $options = array(
         'method' => 'POST',
@@ -69,9 +84,6 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
       if ($this->config['debug']) {
         watchdog('deploy', 'Logout response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
       }
-    }
-    else {
-      // TODO: Throw exception.
     }
   }
 
