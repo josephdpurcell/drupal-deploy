@@ -2,9 +2,41 @@
 
 /**
  * Include core implementations and Deploy's own implementations.
+ *
+ * @todo
+ *   Do this properly with hook_hook_info().
  */
 module_load_include('inc', 'deploy', 'deploy.manager');
 module_load_include('inc', 'deploy', 'deploy.core');
+module_load_include('inc', 'deploy', 'deploy.deploy');
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function deploy_ctools_plugin_type() {
+  return array(
+    'authenticators' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'services' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'aggregators' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'processors' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+      'classes' => array('handler'),
+    ),
+  );
+}
 
 /**
  * Get all aggregator plugins.
@@ -72,8 +104,6 @@ function deploy_get_service_plugin($name) {
 
 /**
  * Object factory for a deployment plan.
- *
- * This is only used when the object is loaded from the database.
  */
 function deploy_plan_create($schema, $item) {
   $plan = new DeployPlan;
