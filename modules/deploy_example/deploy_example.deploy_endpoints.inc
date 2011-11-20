@@ -19,8 +19,8 @@ function deploy_example_deploy_endpoints_default() {
   $endpoint->debug = 1;
   $endpoint->authenticator_plugin = 'DeployAuthenticatorSession';
   $endpoint->authenticator_config = array(
-    'username' => 'admin',
-    'password' => 'admin',
+    'username' => '',
+    'password' => '',
   );
   $endpoint->service_plugin = 'DeployServiceRestJSON';
   $endpoint->service_config = array(
