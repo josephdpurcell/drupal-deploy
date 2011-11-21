@@ -7,10 +7,9 @@ class DeployProcessorQueue extends DeployProcessorMemory {
 
   public function process($endpoint_name) {
     if ($endpoint = deploy_endpoint_load($endpoint_name)) {
-      $iterator = $this->aggregator->getIterator();
       $queue = DrupalQueue::get('deploy_queue');
 
-      foreach ($iterator as $data) {
+      foreach ($this->aggregator as $data) {
         // Since we are queuing for unknown time, we only want to queue
         // originators. Their dependencies will be figured out anyhow when
         // processing later on.
