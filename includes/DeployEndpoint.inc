@@ -56,27 +56,38 @@ class DeployEndpoint {
    */
   public $authenticator = NULL;
 
-  /**
-   * Performs a deployment to the endpoint.
-   *
-   * @param DeployPlan $plan
-   *   The plan being deployed.
-   *
-   * @param Traversable $iterator
-   *   Usually this will be an object from a subclass of DeployAggregatorBase.
-   */
-  public function deploy(DeployPlan $plan, Traversable $iterator) {
+  public function load() {
     // Since the CTools Export API is declarative by nature, we can't realy on
     // contructor injection and deploy_endpoint_create() as the only factory.
     if (!empty($this->service_plugin)) {
       $service_config = $this->service_config + array('debug' => $this->debug);
-      $this->service = new $this->service_plugin($plan, $service_config);
+      $this->service = new $this->service_plugin($service_config);
     }
     if (!empty($this->authenticator_plugin)) {
       $authenticator_config = $this->authenticator_config + array('debug' => $this->debug);
       $this->authenticator = new $this->authenticator_plugin($this->service, $authenticator_config);
     }
+  }
 
-    $this->authenticator->deploy($iterator);
+  /**
+   * Performs a deployment to the endpoint.
+   *
+   * @param interger $deployment_key
+   *   The unique deployment key for this deployment.
+   *
+   * @param Traversable $iterator
+   *   Usually this will be an object from a subclass of DeployAggregatorBase.
+   */
+  public function deploy($lock_name, $deployment_key, Traversable $iterator) {
+    try {
+      if (empty($this->authenticator)) {
+        $this->load();
+      }
+      $this->authenticator->deploy($iterator);
+    }
+    catch(Exception $e) {
+      lock_release($lock_name);
+      watchdog_exception('deploy', $e);
+    }
   }
 }

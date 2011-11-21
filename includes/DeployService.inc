@@ -14,7 +14,7 @@ interface DeployService {
    * @param array $config
    *   An associative array containing the settings for the service plugin.
    */
-  public function __construct(DeployPlan $plan, Array $config = array());
+  public function __construct(Array $config = array());
 
   /**
    * Deploy a plan.

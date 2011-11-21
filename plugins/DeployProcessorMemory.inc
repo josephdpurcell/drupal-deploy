@@ -6,7 +6,7 @@
 class DeployProcessorMemory implements DeployProcessor {
 
   /**
-   * The aggregator containing the items to be processed.
+   * The aggregator containing the entities to be processed.
    *
    * @var DeployAggregator
    */
@@ -27,14 +27,32 @@ class DeployProcessorMemory implements DeployProcessor {
     $this->config = array_merge($this->config, $config);
   }
 
-  public function deploy($endpoint_name) {
-    if ($endpoint = deploy_endpoint_load($endpoint_name)) {
-      $endpoint->deploy($this->aggregator->plan, $this->aggregator);
-      drupal_set_message(t('Plan %plan has been deployed to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
+  protected function processOperations(Array $operations = array()) {
+    if (!empty($operations)) {
+      foreach ($this->aggregator as $data) {
+        foreach ($operations as $operation) {
+          $operation['callback']($this->aggregator->plan->name, $data);
+        }
+      }
     }
   }
 
-  public function cleanup() {}
+  public function preProcess(Array $operations = array()) {
+    $this->processOperations($operations);
+  }
+
+  public function deploy(DeployEndpoint $endpoint) {
+    $endpoint->deploy($this->aggregator->plan, $this->aggregator);
+    drupal_set_message(t('Plan %plan has been deployed to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
+  }
+
+  public function publish(DeployEndpoint $endpoint) {
+    $endpoint->publish($this->aggregator->plan, $this->aggregator);
+  }
+
+  public function postProcess(Array $operations = array()) {
+    $this->processOperations($operations);
+  }
 
   public function configForm(&$form_state) {
     // We have no settings for this processor.

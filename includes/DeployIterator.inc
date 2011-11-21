@@ -2,6 +2,11 @@
 
 /**
  * Wrapper class around the SPL RecursiveIteratorIterator.
+ *
+ * @todo
+ *   We need to implement some static caching of the inner iterator here. One
+ *   deployment involves a lot of iteration around the DeployIterator which is
+ *   heavy.
  */
 class DeployIteratorIterator extends RecursiveIteratorIterator {}
 
@@ -290,5 +295,15 @@ class DeployIterator implements RecursiveIterator {
   public function valid() {
     $key = key($this->entities);
     return ($key !== NULL && $key !== FALSE);
+  }
+}
+
+/**
+ * Fake iterator that can be used when a DeployIterator is needed but we don't
+ * want to check for dependencies.
+ */
+class DeployFakeIterator extends DeployIterator {
+  public function hasChildren() {
+    return FALSE;
   }
 }

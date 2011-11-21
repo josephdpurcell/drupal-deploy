@@ -9,9 +9,7 @@ class DeployServiceRestJSON extends DeployServiceRest {
     foreach ($iterator as $data) {
       $json_data = drupal_json_encode($data);
       $this->config['headers']['Content-Type'] = 'application/json';
-      $response = $this->httpPut($data['entity']->uuid, $json_data, 'json');
-      $context = array('response' => $response);
-      module_invoke_all('deploy_entity_deployed', $this->plan, $data['entity_type'], $data['entity'], $context);
+      $this->httpPut($data['entity']->uuid, $json_data, 'json');
     }
   }
 }

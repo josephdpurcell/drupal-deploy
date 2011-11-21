@@ -1,9 +1,14 @@
 <?php
 
 /**
- * Exception raised by a deployment plan when it cannot be deployed.
+ * Exception raised by malformed deployment plans.
  */
-class DeployPlanException extends Exception {}
+class DeployPlanMalformedException extends Exception {}
+
+/**
+ * Exception raised by malformed deployment plans.
+ */
+class DeployPlanRunningException extends Exception {}
 
 /**
  * Class representing a deployment plan.
@@ -102,14 +107,52 @@ class DeployPlan {
       $this->load();
     }
     if (empty($this->processor) || $this->fetch_only) {
-      $exception = new DeployPlanException(t("The plan @name can't be deployed in push fashion because it missing a processor plugin or is configured <em>fetch-only</em>.", array('@name' => $plan->name)));
-      watchdog_exception('error', $exception);
-      return FALSE;
+      throw new DeployPlanMalformedException(t("The plan %plan can't be deployed in push fashion because it's missing a processor plugin or is <em>fetch-only</em>.", array('%plan' => $this->name)));
     }
-    foreach ($this->endpoints as $endpoint_name) {
-      $this->processor->deploy($endpoint_name);
+    if (empty($this->endpoints)) {
+      throw new DeployPlanMalformedException(t("The plan %plan can't be deployed in push fashion because it needs at least one endpoint to deploy to", array('%plan' => $this->name)));
     }
-    $this->processor->cleanup();
+
+    // We only allow one deployment of each plan at the time.
+    $lock_name = 'deploy_plan_' . $this->name;
+    if (!lock_aquire($lock_name)) {
+      throw new DeployPlanRunningException(t('A deployment of %plan is already running.', array('%plan' => $this->name)));
+    }
+
+    try {
+      $deployment_key = deploy_deployment_log(NULL, DEPLOY_STATUS_STARTED, $this->name);
+
+      // Allow other modules to do some preprocessing.
+      $operations = module_invoke_all('deploy_preprocess_operations');
+      $this->processor->preProcess($operations);
+
+      // We deploy to all endpoints first, then we publish the deployments. This
+      // will keep higher data consistency across all endpoints.
+      $endpoints = array();
+      foreach ($this->endpoints as $endpoint_name) {
+        if ($endpoint = deploy_endpoint_load($endpoint_name)) {
+          $endpoints[] = $endpoint;
+          $this->processor->deploy($lock_name, $deployment_key, $endpoint);
+        }
+        else {
+          throw new DeployPlanException(t("The plan %plan can't be deployed because the endpoint %endpoint is invalid.", array('%plan' => $this->name, '%endpoint' => $endpoint_name)));
+        }
+      }
+      foreach ($endpoints as $endpoint) {
+        $this->processor->publish($endpoint);
+      }
+
+      // Allow other modules to do some postprocessing.
+      $operations = module_invoke_all('deploy_postprocess_operations');
+      $this->processor->postProcess($operations);
+    }
+    catch (Exception $e) {
+      // We have to release the lock if any exceptions where thrown.
+      lock_release($lock_name);
+      // Log the deployment as failed.
+      deploy_deployment_log($deployment_key, DEPLOY_STATUS_FAILED);
+      throw $e;
+    }
   }
 
   /**

@@ -37,7 +37,7 @@ class DeployServiceRest implements DeployService {
    * @param array $config
    *   An associative array of configuration settings for the service plugin.
    */
-  public function __construct(DeployPlan $plan, Array $config = array()) {
+  public function __construct(Array $config = array()) {
     $this->config += array(
       'debug' => FALSE,
       'url' => '',

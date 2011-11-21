@@ -17,18 +17,43 @@ interface DeployProcessor {
   public function __construct(DeployAggregator $aggregator, Array $config = array());
 
   /**
-   * Main processing method that should hand over the aggregator to the endpoint
-   * for deployment.
+   * Runs all preprocess operations.
    *
-   * @param string $endpoint_name
-   *   The name of the endpoint being deployed to.
+   * @param array $operations
+   *   An array of all operations to be run. Each operation contains a
+   *   'callback' key with the name of the function to be run. Each function
+   *   should take the aggregator as an argument.
    */
-  public function deploy($endpoint_name);
+  public function preProcess(Array $operations = array());
 
   /**
-   * Cleanup method where the processors can cleanup after itself.
+   * Main processing method that should hand over the aggregator to the endpoint
+   * to deploy all the entities.
+   *
+   * @param DeployEndpoint $endpoint
+   *   The endpoint object to hand over the aggregator to.
    */
-  public function cleanup();
+  public function deploy(DeployEndpoint $endpoint);
+
+  /**
+   * Processing method that should hand over the aggregator to the endpoint
+   * to publish all deployed entities. This method will only be called after
+   * successful deployments.
+   *
+   * @param DeployEndpoint $endpoint
+   *   The endpoint object to hand over the aggregator to.
+   */
+  public function publish(DeployEndpoint $endpoint);
+
+  /**
+   * Runs all postprocess operations.
+   *
+   * @param array $operations
+   *   An array of all operations to be run. Each operation contains a
+   *   'callback' key with the name of the function to be run. Each function
+   *   should take the aggregator as an argument.
+   */
+  public function postProcess(Array $operations = array());
 
   /**
    * Configuration form.

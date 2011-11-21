@@ -11,6 +11,16 @@ module_load_include('inc', 'deploy', 'deploy.core');
 module_load_include('inc', 'deploy', 'deploy.deploy');
 
 /**
+ * Deployment statuses.
+ */
+define('DEPLOY_STATUS_FAILED', 0);
+define('DEPLOY_STATUS_STARTED', 1);
+define('DEPLOY_STATUS_QUEUED', 2);
+define('DEPLOY_STATUS_PROCESSING', 3);
+define('DEPLOY_STATUS_DEPLOYED', 4);
+define('DEPLOY_STATUS_PUBLISHED', 5);
+
+/**
  * Implements hook_ctools_plugin_type().
  */
 function deploy_ctools_plugin_type() {
@@ -209,8 +219,12 @@ function deploy_iterator($collection) {
  */
 function deploy_cron_queue_info() {
   return array(
-    'deploy_queue_deploy' => array(
-      'worker callback' => 'deploy_queue_deploy_worker',
+    'deploy_deploy' => array(
+      'worker callback' => 'deploy_queue_worker_deploy',
+      'time' => 60,
+    ),
+    'deploy_publish' => array(
+      'worker callback' => 'deploy_queue_worker_publish',
       'time' => 60,
     ),
   );
@@ -271,5 +285,60 @@ function deploy_add_dependencies(&$dependencies, $objects, $entity_type, $proper
         $dependencies[$entity_type][$value] = TRUE;
       }
     }
+  }
+}
+
+/**
+ * Helper function to retrieve relevant information about a deployment status.
+ */
+function deploy_deployment_status($status = NULL, $key = NULL) {
+  $info = array(
+    DEPLOY_STATUS_FAILED => array(
+      'title' => t('Failed'),
+    ),
+    DEPLOY_STATUS_STARTED => array(
+      'title' => t('Started'),
+    ),
+    DEPLOY_STATUS_QUEUED => array(
+      'title' => t('Queued'),
+    ),
+    DEPLOY_STATUS_PROCESSING => array(
+      'title' => t('Processing'),
+    ),
+    DEPLOY_STATUS_DEPLOYED => array(
+      'title' => t('Deployed'),
+    ),
+    DEPLOY_STATUS_PUBLISHED => array(
+      'title' => t('Published'),
+    ),
+  );
+  if ($status === NULL && $key === NULL) {
+    return $info;
+  }
+  elseif ($status !== NULL && $key === NULL) {
+    if (isset($info[$status])) {
+      return $info[$status];
+    }
+  }
+  elseif ($status !== NULL && $key !== NULL) {
+    if (isset($info[$status][$key])) {
+      return $info[$status][$key];
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Helper function to log deployments.
+ */
+function deploy_deployment_log($key, $status, $plan_name = NULL, $timestamp = NULL) {
+  if ($timestamp === NULL) {
+    $timestamp = time();
+  }
+  if ($key === NULL) {
+    // TODO: Add new log entry.
+  }
+  else {
+    // TODO: Update log entry.
   }
 }
