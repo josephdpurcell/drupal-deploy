@@ -15,6 +15,7 @@ files[] = includes/DeployProcessor.inc
 files[] = includes/DeployService.inc
 files[] = includes/DeployServiceRest.inc
 
+files[] = plugins/DeployAggregatorManaged.inc
 files[] = plugins/DeployAuthenticatorSession.inc
 files[] = plugins/DeployAuthenticatorOAuth.inc
 files[] = plugins/DeployProcessorMemory.inc
