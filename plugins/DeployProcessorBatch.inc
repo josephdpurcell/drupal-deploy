@@ -5,7 +5,7 @@
  */
 class DeployProcessorBatch extends DeployProcessorMemory {
 
-  public function process($endpoint_name) {
+  public function deploy($endpoint_name) {
     if ($endpoint = deploy_endpoint_load($endpoint_name)) {
       $operations = array();
 
@@ -20,7 +20,7 @@ class DeployProcessorBatch extends DeployProcessorMemory {
             'entity_id' => $data['entity_id'],
             'endpoint_name' => $endpoint_name,
           );
-          $operations[] = array('deploy_queue_process_item', array($item));
+          $operations[] = array('deploy_queue_deploy_worker', array($item));
         }
       }
       $batch = array(

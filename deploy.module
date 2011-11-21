@@ -209,8 +209,8 @@ function deploy_iterator($collection) {
  */
 function deploy_cron_queue_info() {
   return array(
-    'deploy_queue' => array(
-      'worker callback' => 'deploy_queue_process_item',
+    'deploy_queue_deploy' => array(
+      'worker callback' => 'deploy_queue_deploy_worker',
       'time' => 60,
     ),
   );
@@ -219,7 +219,7 @@ function deploy_cron_queue_info() {
 /**
  * Processes a single queued item for deployment.
  */
-function deploy_queue_process_item($item) {
+function deploy_queue_deploy_worker($item) {
   $endpoint = deploy_endpoint_load($item['endpoint_name']);
   $plan = deploy_plan_load($item['plan_name']);
 

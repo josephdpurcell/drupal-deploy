@@ -107,7 +107,7 @@ class DeployPlan {
       return FALSE;
     }
     foreach ($this->endpoints as $endpoint_name) {
-      $this->processor->process($endpoint_name);
+      $this->processor->deploy($endpoint_name);
     }
     $this->processor->cleanup();
   }

@@ -17,12 +17,13 @@ interface DeployProcessor {
   public function __construct(DeployAggregator $aggregator, Array $config = array());
 
   /**
-   * Main process method that should hand over the plan to the endpoint.
+   * Main processing method that should hand over the aggregator to the endpoint
+   * for deployment.
    *
    * @param string $endpoint_name
    *   The name of the endpoint being deployed to.
    */
-  public function process($endpoint_name);
+  public function deploy($endpoint_name);
 
   /**
    * Cleanup method where the processors can cleanup after itself.

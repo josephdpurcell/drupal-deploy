@@ -27,7 +27,7 @@ class DeployProcessorMemory implements DeployProcessor {
     $this->config = array_merge($this->config, $config);
   }
 
-  public function process($endpoint_name) {
+  public function deploy($endpoint_name) {
     if ($endpoint = deploy_endpoint_load($endpoint_name)) {
       $endpoint->deploy($this->aggregator->plan, $this->aggregator);
       drupal_set_message(t('Plan %plan has been deployed to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
