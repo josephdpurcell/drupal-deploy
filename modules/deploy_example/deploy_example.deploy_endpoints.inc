@@ -14,8 +14,8 @@ function deploy_example_deploy_endpoints_default() {
   $endpoint->disabled = FALSE; /* Edit this to true to make a default endpoint disabled initially */
   $endpoint->api_version = 1;
   $endpoint->name = 'deploy_example_endpoint';
-  $endpoint->title = 'Simple example endpoint';
-  $endpoint->description = 'Example remote endpoint not using any authentication.';
+  $endpoint->title = 'Example endpoint';
+  $endpoint->description = 'Example endpoint using session authentication (but no pre-configured user credentials). Works well with the UUID Services Example feature on the endpoint site.';
   $endpoint->debug = 1;
   $endpoint->authenticator_plugin = 'DeployAuthenticatorSession';
   $endpoint->authenticator_config = array(

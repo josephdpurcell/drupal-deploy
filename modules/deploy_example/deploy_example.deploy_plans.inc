@@ -14,8 +14,8 @@ function deploy_example_deploy_plans_default() {
   $plan->disabled = FALSE; /* Edit this to true to make a default plan disabled initially */
   $plan->api_version = 1;
   $plan->name = 'deploy_example_plan';
-  $plan->title = 'Simple example plan';
-  $plan->description = 'Simple example plan that aggregates all new content on the site with Views for deployment.';
+  $plan->title = 'Example plan';
+  $plan->description = 'Example plan configured for manual deployments with the managed aggragator. Works well with the UUID Services Example feature on the endpoint site.';
   $plan->debug = 1;
   $plan->aggregator_plugin = 'DeployAggregatorManaged';
   $plan->aggregator_config = array(
