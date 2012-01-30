@@ -10,7 +10,7 @@ function deploy_manager_get_entities($plan_name) {
   $collection = array();
   $result = db_query("SELECT * FROM {deploy_manager_entities} WHERE plan_name = :plan_name", array(':plan_name' => $plan_name));
   foreach ($result as $record) {
-    $collection[$record->entity_type][$record->entity_id] = TRUE;
+    $collection[$record->entity_type][] = $record->entity_id;
   }
   // If the plan fetched from the database is empty, try fetch default UUID
   // entities (keyed with the name of this plan).
