@@ -47,7 +47,7 @@ function taxonomy_deploy_entity_dependencies($entity, $entity_type) {
     $dependencies = array();
     $terms = taxonomy_get_parents($entity->tid);
     foreach ($terms as $tid => $term) {
-      $dependencies['taxonomy_term'][$tid] = TRUE;
+      $dependencies['taxonomy_term'][] = $tid;
     }
     return $dependencies;
   }
@@ -70,8 +70,8 @@ function field_deploy_entity_dependencies($entity, $entity_type) {
 
       if (!empty($field_dependencies)) {
         foreach ($field_dependencies as $entity_type => $entity_ids) {
-          foreach ($entity_ids as $entity_id => $something) {
-            $dependencies[$entity_type][$entity_id] = TRUE;
+          foreach ($entity_ids as $entity_id) {
+            $dependencies[$entity_type][] = $entity_id;
           }
         }
       }

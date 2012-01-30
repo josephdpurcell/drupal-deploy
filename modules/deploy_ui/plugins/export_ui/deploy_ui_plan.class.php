@@ -249,7 +249,12 @@ class deploy_ui_plan extends ctools_export_ui {
     $output = drupal_build_form('deploy_ui_plan_confirm_form', $form_state);
 
     if (!empty($form_state['executed'])) {
-      $plan->deploy();
+      try {
+        $plan->deploy();
+      }
+      catch (Exception $e) {
+        drupal_set_message(t('Something went wrong during the deployment. Check your logs or the status of the deployment for more information.'), 'error');
+      }
       drupal_goto('admin/structure/deploy');
     }
 

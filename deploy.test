@@ -50,34 +50,38 @@ class DeployDependencyTestCase extends DeployWebTestCase {
 
     // Add only the last node to the collection. What should come out of the
     // iterator should be all it's dependencies, and last the node it self.
-    $collection = array(
-      'node' => array($node2->nid => TRUE, $node3->nid => TRUE),
+    $entities = array(
+      'node' => array($node2->nid, $node3->nid),
     );
 
-    $iterator = deploy_iterator($collection);
+    $iterator = deploy_iterator($entities);
     $i = 0;
-    foreach ($iterator as $current) {
+    foreach ($iterator as $entity) {
       $test = FALSE;
-      $entity_type = $current['entity_type'];
-      $entity_id = $current['entity_id'];
-      $entity = $current['entity'];
+      $entity_type = $entity->__metadata['type'];
       switch ($i) {
         case 0:
+          $entity_id = $entity->tid;
           $test = ($entity_type == 'taxonomy_term' && $entity_id == $term2->tid);
           break;
         case 1:
+          $entity_id = $entity->uid;
           $test = ($entity_type == 'user' && $entity_id == $user->uid);
           break;
         case 2:
+          $entity_id = $entity->tid;
           $test = ($entity_type == 'taxonomy_term' && $entity_id == $term1->tid);
           break;
         case 3:
+          $entity_id = $entity->nid;
           $test = ($entity_type == 'node' && $entity_id == $node1->nid);
           break;
         case 4:
+          $entity_id = $entity->nid;
           $test = ($entity_type == 'node' && $entity_id == $node2->nid);
           break;
         case 5:
+          $entity_id = $entity->nid;
           $test = ($entity_type == 'node' && $entity_id == $node3->nid);
           break;
       }

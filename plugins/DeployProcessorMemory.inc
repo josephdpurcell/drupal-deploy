@@ -29,9 +29,9 @@ class DeployProcessorMemory implements DeployProcessor {
 
   protected function processOperations(Array $operations = array()) {
     if (!empty($operations)) {
-      foreach ($this->aggregator as $data) {
+      foreach ($this->aggregator as $entity) {
         foreach ($operations as $operation) {
-          $operation['callback']($this->aggregator->plan->name, $data);
+          $operation['callback']($this->aggregator->plan->name, $entity);
         }
       }
     }
@@ -41,13 +41,13 @@ class DeployProcessorMemory implements DeployProcessor {
     $this->processOperations($operations);
   }
 
-  public function deploy(DeployEndpoint $endpoint) {
-    $endpoint->deploy($this->aggregator->plan, $this->aggregator);
-    drupal_set_message(t('Plan %plan has been deployed to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
+  public function deploy($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
+    $endpoint->deploy($deployment_key, $this->aggregator, $lock_name);
   }
 
-  public function publish(DeployEndpoint $endpoint) {
-    $endpoint->publish($this->aggregator->plan, $this->aggregator);
+  public function publish($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
+    $endpoint->publish($deployment_key, $this->aggregator, $lock_name);
+    drupal_set_message(t('Plan %plan has been deployed and published to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
   }
 
   public function postProcess(Array $operations = array()) {

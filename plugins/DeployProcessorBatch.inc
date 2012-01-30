@@ -22,26 +22,43 @@ class DeployProcessorBatch extends DeployProcessorMemory {
     }
   }
 
-  public function deploy(DeployEndpoint $endpoint) {
-    foreach ($this->aggregator as $data) {
-      $this->operations[] = array('deploy_batch_operation_deploy', array($this->aggregator->plan->name, $endpoint->name, $data));
+  public function deploy($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
+    deploy_log($deployment_key, DEPLOY_STATUS_PROCESSING);
+    foreach ($this->aggregator as $entity) {
+      $entity_info = entity_get_info($entity->__metadata['type']);
+      $id_key = $entity_info['entity keys']['id'];
+
+      $entity->__metadata['id'] = $entity->{$id_key};
+      $entity->__metadata['deployment_key'] = $deployment_key;
+      $entity->__metadata['plan_name'] = $this->aggregator->plan->name;
+      $entity->__metadata['endpoint_name'] = $endpoint->name;
+      $entity->__metadata['lock_name'] = $lock_name;
+      $this->operations[] = array('deploy_queue_worker_deploy', array($entity));
     }
   }
 
-  public function publish(DeployEndpoint $endpoint) {
-    foreach ($this->aggregator as $data) {
-      $this->operations[] = array('deploy_batch_operation_publish', array($this->aggregator->plan->name, $endpoint->name, $data));
+  public function publish($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
+    foreach ($this->aggregator as $entity) {
+      $entity_info = entity_get_info($entity->__metadata['type']);
+      $id_key = $entity_info['entity keys']['id'];
+
+      $entity->__metadata['id'] = $entity->{$id_key};
+      $entity->__metadata['deployment_key'] = $deployment_key;
+      $entity->__metadata['plan_name'] = $this->aggregator->plan->name;
+      $entity->__metadata['endpoint_name'] = $endpoint->name;
+      $entity->__metadata['lock_name'] = $lock_name;
+      $this->operations[] = array('deploy_queue_worker_publish', array($entity));
     }
   }
 
   public function postProcess(Array $operations = array()) {
     $this->processOperations($operations);
     $batch = array(
-      'title' => t('Deploying %plan to %endpoint', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)),
+      'title' => t('Deploying %plan', array('%plan' => $this->aggregator->plan->title)),
       'operations' => $this->operations,
+      'finished' => 'deploy_batch_finished_operation',
     );
     batch_set($batch);
-    drupal_set_message(t('%plan has been deployed to its endpoints', array('%plan' => $this->aggregator->plan->title)));
     batch_process('admin/structure/deploy');
   }
 }

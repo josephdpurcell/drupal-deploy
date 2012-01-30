@@ -194,11 +194,12 @@ function deploy_schema() {
   $schema['deploy_deployments'] = array(
     'description' => 'Log of all deployments pushed from this site.',
     'fields' => array(
-      'key' => array(
-        'description' => 'Primary key for tracking a deployment.',
+      'did' => array(
+        'description' => 'Deployment ID.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'no export' => TRUE,
       ),
       'plan_name' => array(
         'description' => 'Plan name responsible for this deployment.',
@@ -206,14 +207,28 @@ function deploy_schema() {
         'length' => 128,
         'not null' => TRUE,
       ),
+      'uuid' => array(
+        'description' => 'UUID key for tracking a deployment.',
+        'type' => 'char',
+        'length' => 36,
+        'not null' => TRUE,
+      ),
+      'lid' => array(
+        'description' => 'Pointer to the latest log entry for this deployment (deploy_log.lid).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
-    'primary key' => array('key'),
+    'primary key' => array('did'),
     'indexes' => array(
+      'uuid' => array('uuid'),
       'plan_name' => array('plan_name'),
+      'uuid_plan_name' => array('uuid', 'plan_name'),
     ),
   );
 
-  $schema['deploy_deployment_log'] = array(
+  $schema['deploy_log'] = array(
     'description' => 'Log of all status updates for a deployment.',
     'fields' => array(
       'lid' => array(
@@ -223,10 +238,10 @@ function deploy_schema() {
         'not null' => TRUE,
         'no export' => TRUE,
       ),
-      'key' => array(
-        'description' => 'Deployment key.',
-        'type' => 'int',
-        'unsigned' => TRUE,
+      'uuid' => array(
+        'description' => 'UUID reference to a deployment (deploy_deployments.uuid).',
+        'type' => 'char',
+        'length' => 36,
         'not null' => TRUE,
       ),
       'status' => array(
@@ -235,22 +250,22 @@ function deploy_schema() {
         'not null' => TRUE,
         'default' => 1,
       ),
-      'message' => array(
-        'description' => 'A relevant log message',
-        'type' => 'text',
-        'size' => 'big',
-        'not null' => TRUE,
-      ),
       'timestamp' => array(
         'description' => 'Timestamp when this log entry was updated.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
+      'message' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big',
+        'description' => 'Complementary message, e.g. the exception in case of a failure.',
+      ),
     ),
     'primary key' => array('lid'),
     'indexes' => array(
-      'key' => array('key'),
+      'uuid' => array('uuid'),
     ),
   );
 

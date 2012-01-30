@@ -15,10 +15,9 @@ module_load_include('inc', 'deploy', 'deploy.deploy');
  */
 define('DEPLOY_STATUS_FAILED', 0);
 define('DEPLOY_STATUS_STARTED', 1);
-define('DEPLOY_STATUS_QUEUED', 2);
-define('DEPLOY_STATUS_PROCESSING', 3);
-define('DEPLOY_STATUS_DEPLOYED', 4);
-define('DEPLOY_STATUS_PUBLISHED', 5);
+define('DEPLOY_STATUS_PROCESSING', 2);
+define('DEPLOY_STATUS_DEPLOYED', 3);
+define('DEPLOY_STATUS_PUBLISHED', 4);
 
 /**
  * Implements hook_ctools_plugin_type().
@@ -137,6 +136,7 @@ function deploy_plan_load($name) {
   if (isset($plans[$name])) {
     return $plans[$name];
   }
+  return FALSE;
 }
 
 /**
@@ -168,6 +168,23 @@ function deploy_plan_get_options($args = array()) {
 }
 
 /**
+ * Helper function to recieve the status of a plan.
+ */
+function deploy_plan_get_status($name) {
+  $query = db_select('deploy_deployments', 'dd');
+  $query->join('deploy_log', 'dl', 'dd.lid = dl.lid');
+
+  $status = $query
+    ->fields('dl', array('status'))
+    ->condition('dd.plan_name', $name)
+    ->orderBy('dl.timestamp', 'DESC')
+    ->range(0, 1)
+    ->execute()
+    ->fetchField();
+  return $status;
+}
+
+/**
  * Object factory for a deployment endpoint.
  */
 function deploy_endpoint_create($schema, $item) {
@@ -192,6 +209,7 @@ function deploy_endpoint_load($name) {
   if (isset($endpoints[$name])) {
     return $endpoints[$name];
   }
+  return FALSE;
 }
 
 /**
@@ -233,14 +251,42 @@ function deploy_cron_queue_info() {
 /**
  * Processes a single queued item for deployment.
  */
-function deploy_queue_deploy_worker($item) {
-  $endpoint = deploy_endpoint_load($item['endpoint_name']);
-  $plan = deploy_plan_load($item['plan_name']);
+function deploy_queue_worker_deploy($entity, &$context = NULL) {
+  $endpoint = deploy_endpoint_load($entity->__metadata['endpoint_name']);
+  $plan = deploy_plan_load($entity->__metadata['plan_name']);
 
   if ($plan && $endpoint) {
-    $collection = array($item['entity_type'] => array($item['entity_id'] => TRUE));
-    $iterator = deploy_iterator($collection);
-    $endpoint->deploy($plan, $iterator);
+    $entities = array($entity->__metadata['type'] => array($entity->__metadata['id']));
+    $iterator = deploy_iterator($entities);
+    $endpoint->deploy($entity->__metadata['deployment_key'], $iterator, $entity->__metadata['lock_name']);
+  }
+}
+
+/**
+ * Processes a single queued item for publishing.
+ */
+function deploy_queue_worker_publish($entity, &$context = NULL) {
+  $endpoint = deploy_endpoint_load($entity->__metadata['endpoint_name']);
+  $plan = deploy_plan_load($entity->__metadata['plan_name']);
+
+  if ($plan && $endpoint) {
+    $entities = array($entity->__metadata['type'] => array($entity->__metadata['id']));
+    $iterator = deploy_iterator($entities);
+    $endpoint->publish($entity->__metadata['deployment_key'], $iterator, $entity->__metadata['lock_name']);
+    $context['results'][$entity->__metadata['endpoint_name']] = $entity->__metadata['plan_name'];
+  }
+}
+
+/**
+ * Batch API 'finished' callback.
+ */
+function deploy_batch_finished_operation($success, $results, $operations) {
+  if ($success) {
+    foreach ($results as $endpoint_name => $plan_name) {
+      $endpoint = deploy_endpoint_load($endpoint_name);
+      $plan = deploy_plan_load($plan_name);
+      drupal_set_message(t('Plan %plan has been deployed and published to %endpoint.', array('%plan' => $plan->title, '%endpoint' => $endpoint->title)));
+    }
   }
 }
 
@@ -282,7 +328,7 @@ function deploy_add_dependencies(&$dependencies, $objects, $entity_type, $proper
         if (!isset($dependencies[$entity_type])) {
           $dependencies[$entity_type] = array();
         }
-        $dependencies[$entity_type][$value] = TRUE;
+        $dependencies[$entity_type][] = $value;
       }
     }
   }
@@ -291,25 +337,37 @@ function deploy_add_dependencies(&$dependencies, $objects, $entity_type, $proper
 /**
  * Helper function to retrieve relevant information about a deployment status.
  */
-function deploy_deployment_status($status = NULL, $key = NULL) {
+function deploy_status_info($status = NULL, $key = NULL) {
   $info = array(
     DEPLOY_STATUS_FAILED => array(
       'title' => t('Failed'),
+      'keyed message' => 'Deployment %key failed.',
+      'watchdog' => WATCHDOG_ERROR,
+      'class' => 'error',
     ),
     DEPLOY_STATUS_STARTED => array(
       'title' => t('Started'),
-    ),
-    DEPLOY_STATUS_QUEUED => array(
-      'title' => t('Queued'),
+      'keyed message' => 'Deployment of %key started.',
+      'watchdog' => WATCHDOG_INFO,
+      'class' => 'warning',
     ),
     DEPLOY_STATUS_PROCESSING => array(
       'title' => t('Processing'),
+      'keyed message' => 'Deployment %key is processing.',
+      'watchdog' => WATCHDOG_INFO,
+      'class' => 'warning',
     ),
     DEPLOY_STATUS_DEPLOYED => array(
       'title' => t('Deployed'),
+      'watchdog' => WATCHDOG_INFO,
+      'keyed message' => 'Deployment %key was deployed.',
+      'class' => 'warning',
     ),
     DEPLOY_STATUS_PUBLISHED => array(
       'title' => t('Published'),
+      'keyed message' => 'Deployment %key was published.',
+      'watchdog' => WATCHDOG_INFO,
+      'class' => 'status',
     ),
   );
   if ($status === NULL && $key === NULL) {
@@ -330,15 +388,61 @@ function deploy_deployment_status($status = NULL, $key = NULL) {
 
 /**
  * Helper function to log deployments.
+ *
+ * This function also logs to the watchdog log for more visibility.
+ *
+ * @param mixed $key
+ *   Can be either an existing key (UUID) or a string of a plan name indicating
+ *   that a new deployment is started and a key needs to be generated.
+ * @param integer $status
+ *   Status code.
+ * @param string $message
+ *   A message to log.
+ * @param array $variables
+ *   Placeholder variables to be used in $message.
  */
-function deploy_deployment_log($key, $status, $plan_name = NULL, $timestamp = NULL) {
+function deploy_log($key, $status, $message = '', $variables = array(), $timestamp = NULL) {
+  // Log to watchdog for more visibility.
+  $info = deploy_status_info($status);
+  if ($status == DEPLOY_STATUS_FAILED) {
+    watchdog_exception('deploy', $message);
+  }
+  else {
+    watchdog('deploy', $info['keyed message'], array('%key' => $key), $info['watchdog']);
+  }
   if ($timestamp === NULL) {
     $timestamp = time();
   }
-  if ($key === NULL) {
-    // TODO: Add new log entry.
+  // If the key isn't a UUID, then it's a plan name indicating that a new
+  // deployment has started.
+  if ($key && !uuid_is_valid($key)) {
+    $plan_name = $key;
+    $key = uuid_generate();
+    db_insert('deploy_deployments')
+      ->fields(array(
+        'plan_name' => $plan_name,
+        'uuid' => $key,
+      ))
+      ->execute();
   }
-  else {
-    // TODO: Update log entry.
+  if (uuid_is_valid($key)) {
+    // Add the log entry for this deployment.
+    $lid = db_insert('deploy_log')
+      ->fields(array(
+        'uuid' => $key,
+        'status' => $status,
+        'message' => $message,
+        'timestamp' => $timestamp,
+      ))
+      ->execute();
+    // Update the log pointer for this deployment.
+    db_update('deploy_deployments')
+      ->fields(array(
+        'lid' => $lid,
+      ))
+      ->condition('uuid', $key)
+      ->execute();
+    return $key;
   }
+  return FALSE;
 }

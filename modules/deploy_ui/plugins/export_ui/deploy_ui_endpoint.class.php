@@ -112,9 +112,7 @@ class deploy_ui_endpoint extends ctools_export_ui {
     if (!is_array($item->authenticator_config)) {
       $item->authenticator_config = unserialize($item->authenticator_config);
     }
-
-    $fake_plan = new DeployPlan();
-    $service = new $item->service_plugin($fake_plan, (array)$item->service_config);
+    $service = new $item->service_plugin((array)$item->service_config);
     // Create the authenticator object.
     $authenticator = new $item->authenticator_plugin($service, (array)$item->authenticator_config);
 
@@ -145,10 +143,7 @@ class deploy_ui_endpoint extends ctools_export_ui {
     if (!is_array($item->service_config)) {
       $item->service_config = unserialize($item->service_config);
     }
-
-    // Create the service object.
-    $fake_plan = new DeployPlan();
-    $service = new $item->service_plugin($fake_plan, (array)$item->service_config);
+    $service = new $item->service_plugin((array)$item->service_config);
 
     $form['service_config'] = $service->configForm($form_state);
     if (!empty($form['service_config'])) {

@@ -35,7 +35,7 @@ class DeployAggregatorViews extends DeployAggregatorBase {
     $view_results = views_get_view_result($view->name, 'default');
     $entities = array();
     foreach ($view_results as $view_result) {
-      $entities[$entity_type][$view_result->{$entity_id_field}] = TRUE;
+      $entities[$entity_type][] = $view_result->{$entity_id_field};
     }
     return $entities;
   }
@@ -43,7 +43,7 @@ class DeployAggregatorViews extends DeployAggregatorBase {
   public function configForm(&$form_state) {
     $form = array();
     $options = array();
-    $views = views_get_all_views();
+    $views = views_get_enabled_views();
 
     foreach ($views as $view_name => $view) {
       $options[$view_name] = !empty($view->human_name) ? $view->human_name : $view->name;

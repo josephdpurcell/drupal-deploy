@@ -22,17 +22,7 @@ class DeployServiceRest implements DeployService {
   public $headers = array();
 
   /**
-   * The deployment plan being deployed.
-   *
-   * @var DeployPlan
-   */
-  protected $plan;
-
-  /**
    * Constructor for a service plugin.
-   *
-   * @param DeployPlan $plan
-   *   The deployment plan being deployed.
    *
    * @param array $config
    *   An associative array of configuration settings for the service plugin.
@@ -44,55 +34,41 @@ class DeployServiceRest implements DeployService {
       'headers' => array(),
     );
     $this->config = array_merge($this->config, $config);
-    $this->plan = $plan;
   }
 
-  /**
-   * Deploy a plan using this service.
-   *
-   * @param Traversable $iterator
-   *   This will usually be an object of a subclass of DeployAggregatorBase.
-   */
   public function deploy(Traversable $iterator) {}
 
-  /**
-   * Makes a http PUT request to deploy an item.
-   *
-   * @param string $uuid
-   *   The uuid of the entity being deployed.
-   *
-   * @param string @data
-   *   A string of data, which will be the payload of the request.
-   *
-   * @param string $format
-   *   The format of the data, e.g. 'json' or 'xml'.
-   */
-  public function httpPut($uuid, $data, $format) {
-     // TODO: Consider making the resource path configurable. For now, the
-     // default UUID Services path is OK, since it covers 99% of the use cases.
-    $url = $this->config['url'] . '/uuid_entity/' . $uuid . '.' . $format;
+  public function publish(Traversable $iterator) {}
 
+  /**
+   * Makes a HTTP request.
+   *
+   * @param string $url
+   *   The URL to request.
+   * @param string $method
+   *   The request method to use, like 'POST', 'GET' or 'PUT'.
+   * @param string $data
+   *   The payload to send with the request.
+   */
+  public function httpRequest($url, $method, $data = NULL) {
     $options = array(
-      'method' => 'PUT',
+      'method' => $method,
       'headers' => $this->config['headers'],
-      'data' => $data
+      'data' => $data,
     );
 
     if ($this->config['debug']) {
-      watchdog('deploy', 'Request URL: %url', array('%url' => $url), WATCHDOG_DEBUG);
-      watchdog('deploy', 'Request options: <pre>@options</pre>', array('@options' => print_r($options, TRUE)), WATCHDOG_DEBUG);
+      watchdog('deploy', 'Service request: %url <pre>@options</pre>', array('%url' => $url, '@options' => print_r($options, TRUE)), WATCHDOG_DEBUG);
     }
 
     $response = drupal_http_request($url, $options);
 
     if ($this->config['debug']) {
-      watchdog('deploy', 'Request response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
+      watchdog('deploy', 'Service response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
     }
-    if (isset($response->error)) {
-      // TODO: Throw exception.
-      watchdog('deploy', 'Request response error: %code %error', array('%code' => $response->code, '%error' => $response->error), WATCHDOG_ERROR);
+    if (isset($response->error) || !in_array($response->code, array(200, 304))) {
+      throw new DeployServiceException(t('Service error: @code @error', array('@code' => $response->code, '@error' => $response->error)));
     }
-    return $response;
   }
 
   /**

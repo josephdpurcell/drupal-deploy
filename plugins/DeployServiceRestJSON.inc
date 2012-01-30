@@ -6,10 +6,23 @@
 class DeployServiceRestJSON extends DeployServiceRest {
 
   public function deploy(Traversable $iterator) {
-    foreach ($iterator as $data) {
-      $json_data = drupal_json_encode($data);
+    foreach ($iterator as $entity) {
+      $json_data = drupal_json_encode($entity);
       $this->config['headers']['Content-Type'] = 'application/json';
-      $this->httpPut($data['entity']->uuid, $json_data, 'json');
+
+      // TODO: Consider making the resource path configurable.
+      $url = $this->config['url'] . '/' . $entity->__metadata['uri'] . '.json';
+      $this->httpRequest($url, 'PUT', $json_data);
+    }
+  }
+
+  public function publish(Traversable $iterator) {
+    foreach ($iterator as $entity) {
+      $this->config['headers']['Content-Type'] = 'application/json';
+
+      // TODO: Consider making the resource path configurable.
+      $url = $this->config['url'] . '/' . $entity->__metadata['uri'] . '/publish';
+      //$this->httpRequest($url, 'POST');
     }
   }
 }

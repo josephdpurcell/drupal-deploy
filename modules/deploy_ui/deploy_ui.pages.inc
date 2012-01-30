@@ -16,7 +16,7 @@ function deploy_ui_overview_page() {
     foreach ($entity_keys as $entity_type => $entity_ids) {
       // Get the entity info and all entities of this type.
       $entity_info = entity_get_info($entity_type);
-      $entities = entity_load($entity_type, array_keys($entity_ids));
+      $entities = entity_load($entity_type, $entity_ids);
 
       // Construct a usable array for the theme function.
       foreach ($entities as $entity) {
@@ -42,11 +42,12 @@ function deploy_ui_overview_page() {
 
     // Construct a usable array for the theme function.
     $blocks[] = array(
-      'name' => check_plain($plan->name),
-      'title' => check_plain($plan->title),
-      'description' => check_plain($plan->description),
+      'plan_name' => check_plain($plan->name),
+      'plan_title' => check_plain($plan->title),
+      'plan_description' => check_plain($plan->description),
       'content' => theme('deploy_ui_overview_plan_content', array('info' => $info)),
       'fetch_only' => $plan->fetch_only,
+      'status' => deploy_plan_get_status($plan->name),
     );
   }
   return theme('deploy_ui_overview', array('blocks' => $blocks));
@@ -76,6 +77,8 @@ function theme_deploy_ui_overview_plan_content($variables) {
  * Theme callback for the overview page.
  */
 function theme_deploy_ui_overview($variables) {
+  drupal_add_css(drupal_get_path('module', 'deploy_ui') . '/css/deploy_ui.admin.css');
+
   $blocks = $variables['blocks'];
   $container = array();
 
@@ -88,16 +91,25 @@ function theme_deploy_ui_overview($variables) {
   $output = '<div class="admin clearfix">';
   foreach ($container as $position => $blocks) {
     foreach ($blocks as $block) {
+      $status_info = deploy_status_info($block['status']);
+
       $output .= '<div class="' . $position . ' clearfix">';
-      $output .= '<div class="admin-panel">';
-      $output .= '<h3>' . $block['title'] . '</h3>';
+      $output .= '<div class="admin-panel deploy-panel">';
+      $output .= '<h3>' . $block['plan_title'] . '</h3>';
+      if (!$block['fetch_only']) {
+        $output .= '<div class="messages ' . $status_info['class'] . '">';
+        $output .= '<h4 class="element-invisible">Status message</h4>';
+        $output .= $status_info['title'];
+        $output .= '</div>';
+      }
       $output .= '<div class="description">';
-      $output .= $block['description'];
+      $output .= '<h4 class="element-invisible">Plan description</h4>';
+      $output .= $block['plan_description'];
       $output .= '</div>';
       if (!$block['fetch_only']) {
         $actions = array(array(
           'title' => t('Deploy'),
-          'href' => 'admin/structure/deploy/plans/list/' . $block['name'] . '/deploy',
+          'href' => 'admin/structure/deploy/plans/list/' . $block['plan_name'] . '/deploy',
           'query' => array(
             'cancel_path' => $_GET['q'],
           )

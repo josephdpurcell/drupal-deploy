@@ -25,7 +25,7 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
   public function deploy(Traversable $iterator) {
     // Only authenticate if we've got a username and password. This allows for
     // deployment as an anonymous user. There are usecases for that.
-    if (!empty($this->config['username']) && !empty($this->config['password'])) {
+    if (!empty($this->config['username'])) {
       // TODO: Consider making the resource/action path configurable. For now,
       // the default Services path is OK, since it covers 99% of the use cases.
       $login_url = $this->service->config['url'] . '/user/login';
@@ -41,32 +41,29 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
       );
 
       if ($this->config['debug']) {
-        watchdog('deploy', 'Login request URL: %url', array('%url' => $login_url), WATCHDOG_DEBUG);
-        watchdog('deploy', 'Login request options: <pre>@options</pre>', array('@options' => print_r($options, TRUE)), WATCHDOG_DEBUG);
+        watchdog('deploy', 'Authentication request: %url <pre>@options</pre>', array('%url' => $login_url, '@options' => print_r($options, TRUE)), WATCHDOG_DEBUG);
       }
 
       // Login on the endpoint.
       $response = drupal_http_request($login_url, $options);
 
       if ($this->config['debug']) {
-        watchdog('deploy', 'Login response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
+        watchdog('deploy', 'Authentication response: <pre>@response</pre>', array('@response' => print_r($response, TRUE)), WATCHDOG_DEBUG);
       }
-      if (isset($response->error)) {
-        // TODO: Throw exception.
-        watchdog('deploy', 'Login error: %code %error', array('%code' => $response->code, '%error' => $response->error), WATCHDOG_ERROR);
+      if (isset($response->error) || !in_array($response->code, array(200, 304))) {
+        throw new DeployAuthenticationException(t('Authentication error: @code @error', array('@code' => $response->code, '@error' => $response->error)));
       }
-
-      if ($response->code == 200 && !empty($response->headers['set-cookie'])) {
+      if (!empty($response->headers['set-cookie'])) {
         // Set the session cookie, retrieved from the login request on the
         // endpoint, for all calls made by the service.
         $this->service->config['headers']['Cookie'] = $response->headers['set-cookie'];
       }
       else {
-        // TODO: Throw exception because of failed authnetication.
+        throw new DeployAuthenticationException(t("No 'set-cookie' header was returned from the authentication request."));
       }
     }
     else {
-      watchdog('deploy', 'Deployment authentication is done anonymously, without user credentials.', array(), WATCHDOG_NOTICE);
+      watchdog('deploy', 'Deployment authentication was done without user credentials.', array(), WATCHDOG_WARNING);
     }
 
     // Deploy the plan.

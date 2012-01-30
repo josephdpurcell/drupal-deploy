@@ -35,6 +35,7 @@ $plugin = array(
   ),
 
   'allowed operations' => array(
+    'edit' => array('title' => t('Edit')),
     'deploy' => array('title' => t('Deploy')),
   ),
 

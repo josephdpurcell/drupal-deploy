@@ -37,3 +37,8 @@ interface DeployAuthenticator {
   public function configForm(&$form_state);
 
 }
+
+/**
+ * Exception thrown when authentication fails.
+ */
+class DeployAuthenticationException extends Exception {}
