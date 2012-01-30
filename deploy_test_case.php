@@ -19,19 +19,19 @@ class DeployWebTestCase extends DrupalWebTestCase {
     }
 
     // Set up our origin site.
-    $this->setUpSite('deploy_origin', array('entity', 'ctools', 'features', 'views', 'views_ui', 'uuid', 'deploy', 'deploy_ui', 'deploy_example'));
+    $this->setUpSite('deploy_origin', array('entity', 'ctools', 'uuid', 'deploy', 'deploy_ui', 'deploy_example'));
 
     // Switch back to original site to be able to set up a new site.
     $this->switchSite('deploy_origin', 'simpletest_original_default');
 
     // Set up one endpoint site.
-    $this->setUpSite('deploy_endpoint', array('entity', 'ctools', 'features', 'uuid', 'services', 'rest_server', 'uuid_services', 'uuid_services_example'));
+    $this->setUpSite('deploy_endpoint', array('entity', 'ctools', 'uuid', 'services', 'rest_server', 'uuid_services', 'uuid_services_example'));
 
     // This is the user that will be used to authenticate the deployment between
     // the site. We add it to $GLOBALS so we can access the user info on the
     // origin site and configure the endpoint object with its username and
     // password.
-    $GLOBALS['endpoint_user'] = $this->drupalCreateUser(array('access content', 'administer nodes', 'update uuid entity resources'));
+    $GLOBALS['endpoint_user'] = $this->drupalCreateUser(array('access content', 'create article content', 'edit any article content', 'administer users', 'administer taxonomy'));
 
     // Switch back to origin site where we want to start.
     $this->switchSite('deploy_endpoint', 'deploy_origin');
