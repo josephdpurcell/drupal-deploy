@@ -27,15 +27,18 @@ class DeployIterator extends EntityDependencyIterator {
     if (is_array($current)) {
       return $current;
     }
-    $uuid = reset(entity_get_uuid_by_id($this->entityType, array($this->entityId)));
+    $uuids = entity_get_uuid_by_id($this->entityType, array($this->entityId));
+    $uuid = reset($uuids);
     // Load the current entity with UUID.
-    $entity = reset(entity_uuid_load($this->entityType, array($uuid)));
+    $entities = entity_uuid_load($this->entityType, array($uuid));
+    $entity = reset($entities);
     // Add necessary metadata to the entity.
     $origin = FALSE;
     if (!empty($this->origins[$this->entityType][$this->entityId])) {
       $origin_type = $this->origins[$this->entityType][$this->entityId]['type'];
       $origin_id = $this->origins[$this->entityType][$this->entityId]['id'];
-      $origin_uuid = reset(entity_get_uuid_by_id($origin_type, array($origin_id)));
+      $origin_uuids = entity_get_uuid_by_id($origin_type, array($origin_id));
+      $origin_uuid = reset($origin_uuids);
       $origin = array(
         '__deferred' => array(
           'uri' => $origin_type . '/' . $origin_uuid,

@@ -24,7 +24,8 @@ function deploy_manager_get_entities($plan_name) {
           if ($data['relationship']['type'] == ENTITY_RELATIONSHIP_ORIGIN) {
             // We can't do a multi load/insert per entity type here, since they
             // need to be added in the order the come.
-            $entity_id = reset(entity_get_id_by_uuid($data['entity_type'], array($data['entity_uuid'])));
+            $entity_ids = entity_get_id_by_uuid($data['entity_type'], array($data['entity_uuid']));
+            $entity_id = reset($entity_ids);
             if (!empty($entity_id)) {
               $collection[$data['entity_type']][] = $entity_id;
             }

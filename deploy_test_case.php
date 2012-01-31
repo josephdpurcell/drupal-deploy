@@ -120,6 +120,9 @@ class DeployWebTestCase extends DrupalWebTestCase {
    * Save state.
    */
   protected function saveState($key) {
+    if (!isset($this->sites[$key])) {
+      $this->sites[$key] = new stdClass;
+    }
     $this->sites[$key]->cookieFile = $this->cookieFile;
     $this->sites[$key]->databasePrefix = $this->databasePrefix;
     $this->sites[$key]->curlHandle = $this->curlHandle;
@@ -269,9 +272,12 @@ class DeployWebTestCase extends DrupalWebTestCase {
 
     // Load the deployed entities to test. Since we don't know their primary IDs
     // here on the production site we look them up using their UUIDs.
-    $user_prod = reset(entity_uuid_load('user', array($user_stage->uuid), array(), TRUE));
-    $term_prod = reset(entity_uuid_load('taxonomy_term', array($term_stage->uuid), array(), TRUE));
-    $node_prod = reset(entity_uuid_load('node', array($node_stage->uuid), array(), TRUE));
+    $users = entity_uuid_load('user', array($user_stage->uuid), array(), TRUE);
+    $terms = entity_uuid_load('taxonomy_term', array($term_stage->uuid), array(), TRUE);
+    $nodes = entity_uuid_load('node', array($node_stage->uuid), array(), TRUE);
+    $user_prod = reset($users);
+    $term_prod = reset($terms);
+    $node_prod = reset($nodes);
 
     // Test to see if all entities are locally different, but universally the
     // same. They should be, since we forced the sites out of sync earlier.
@@ -304,7 +310,8 @@ class DeployWebTestCase extends DrupalWebTestCase {
     // Switch back to production to assert the changes.
     $this->switchSite('deploy_origin', 'deploy_endpoint');
 
-    $node_prod = reset(entity_uuid_load('node', array($node_stage->uuid), array(), TRUE));
+    $nodes = entity_uuid_load('node', array($node_stage->uuid), array(), TRUE);
+    $node_prod = reset($nodes);
     $test = (($node_prod->title == $node_stage->title) && ($node_prod->title != $node_title_orig));
     $this->assertTrue($test, 'Node was successfully updated after new deployment.');
   }
