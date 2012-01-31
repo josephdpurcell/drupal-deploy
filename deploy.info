@@ -4,6 +4,7 @@ package = Deployment
 core = 7.x
 
 dependencies[] = ctools
+dependencies[] = entity_dependency
 dependencies[] = uuid
 
 files[] = includes/DeployAggregator.inc

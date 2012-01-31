@@ -227,9 +227,9 @@ function deploy_endpoint_load_all() {
  * Constructs a deployment iterator, which is the core of the dependency
  * framework.
  */
-function deploy_iterator($collection) {
-  $iterator = new DeployIterator($collection);
-  return new DeployIteratorIterator($iterator);
+function deploy_iterator($entities) {
+  $iterator = new DeployIterator($entities);
+  return new EntityDependencyIteratorIterator($iterator);
 }
 
 /**
@@ -286,50 +286,6 @@ function deploy_batch_finished_operation($success, $results, $operations) {
       $endpoint = deploy_endpoint_load($endpoint_name);
       $plan = deploy_plan_load($plan_name);
       drupal_set_message(t('Plan %plan has been deployed and published to %endpoint.', array('%plan' => $plan->title, '%endpoint' => $endpoint->title)));
-    }
-  }
-}
-
-/**
- * Helper function to add deployment dependencies.
- *
- * We never treat user UID 0 or 1 as dependencies. Those are low level user
- * accounts ("anonymous" and "root") that already exists in most endpoint
- * systems (i.e. when the endpoint happens to be another Drupal site).
- *
- * @param $dependencies
- *   The dependency array.
- * @param $objects
- *   Array of objects that should be checked for dependencies in $properties.
- * @param $entity_type
- *   The type of entity that $properties will add dependency on.
- * @param $properties
- *   An array of properties that adds dependencies to $objects. All properties
- *   must only point to one entity type at the time.
- */
-function deploy_add_dependencies(&$dependencies, $objects, $entity_type, $properties) {
-  if (!is_array($objects)) {
-    $objects = array($objects);
-  }
-  if (!is_array($properties)) {
-    $properties = array($properties);
-  }
-
-  foreach ($objects as $object) {
-    foreach ($properties as $property) {
-      $value = NULL;
-      if (is_object($object) && isset($object->{$property})) {
-        $value = $object->{$property};
-      }
-      elseif (is_array($object) && isset($object[$property])) {
-        $value = $object[$property];
-      }
-      if (!empty($value) && !($entity_type == 'user' && ((int)$value == 0 || (int)$value == 1))) {
-        if (!isset($dependencies[$entity_type])) {
-          $dependencies[$entity_type] = array();
-        }
-        $dependencies[$entity_type][] = $value;
-      }
     }
   }
 }
