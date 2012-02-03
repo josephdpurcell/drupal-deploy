@@ -9,8 +9,9 @@ class DeployProcessorQueue extends DeployProcessorMemory {
     deploy_log($deployment_key, DEPLOY_STATUS_PROCESSING);
     $queue = DrupalQueue::get('deploy_deploy');
     foreach ($this->aggregator as $entity) {
-      // We don't want entities that has an origin.
-      if (empty($entity->__metadata['origin'])) {
+      // We don't want entities that has a cause, i.e. not dependencies, because
+      // those'll be taken care of when the service iterates over the queue.
+      if (empty($entity->__metadata['cause'])) {
         $entity_info = entity_get_info($entity->__metadata['type']);
         $id_key = $entity_info['entity keys']['id'];
 
@@ -27,8 +28,9 @@ class DeployProcessorQueue extends DeployProcessorMemory {
   public function publish($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
     $queue = DrupalQueue::get('deploy_publish');
     foreach ($this->aggregator as $entity) {
-      // We don't want entities that has an origin.
-      if (empty($entity->__metadata['origin'])) {
+      // We don't want entities that has a cause, i.e. not dependencies, because
+      // those'll be taken care of when the service iterates over the queue.
+      if (empty($entity->__metadata['cause'])) {
         $entity_info = entity_get_info($entity->__metadata['type']);
         $id_key = $entity_info['entity keys']['id'];
 
