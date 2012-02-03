@@ -46,10 +46,12 @@ function field_deploy_entity_alter(&$entity, $entity_type) {
     $field = field_info_field($field_name);
     foreach ($entity->{$field_name} as $langcode => &$items) {
       foreach ($items as &$item) {
-        // The 'safe_value' key is attached on runtime. We don't need to deploy
-        // that.
-        if (isset($item['safe_value'])) {
-          unset($item['safe_value']);
+        // This can potentially save *a lot* of bandwidth, since these values
+        // aren't really needed when deploying.
+        foreach (array('safe_value', 'safe_summary') as $key) {
+          if (isset($item[$key])) {
+            unset($item[$key]);
+          }
         }
       }
       // TODO: Can we do this with drupal_alter()? Reason for this quick and
