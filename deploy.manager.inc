@@ -7,34 +7,33 @@
  *   Name of the managed plan to fetch entities from.
  */
 function deploy_manager_get_entities($plan_name) {
-  $collection = array();
+  $entities = array();
   $result = db_query("SELECT * FROM {deploy_manager_entities} WHERE plan_name = :plan_name", array(':plan_name' => $plan_name));
   foreach ($result as $record) {
-    $collection[$record->entity_type][] = $record->entity_id;
+    $entities[$record->entity_type][] = $record->entity_id;
   }
   // If the plan fetched from the database is empty, try fetch default UUID
-  // entities (keyed with the name of this plan).
-  if (empty($collection)) {
-    $collections = module_invoke_all('uuid_default_entities');
-    foreach ($collections as $collection_name => $entities) {
-      if ($collection_name == $plan_name) {
-        foreach ($entities as $data) {
-          // We're not adding dependencies when writing to the plan. They'll be
-          // looked up and added when we read from the plan.
-          if ($data['relationship']['type'] == ENTITY_RELATIONSHIP_ORIGIN) {
-            // We can't do a multi load/insert per entity type here, since they
-            // need to be added in the order the come.
-            $entity_ids = entity_get_id_by_uuid($data['entity_type'], array($data['entity_uuid']));
-            $entity_id = reset($entity_ids);
-            if (!empty($entity_id)) {
-              $collection[$data['entity_type']][] = $entity_id;
-            }
+  // entities (keyed with this plan name).
+  if (empty($entities)) {
+    features_include_defaults(array('uuid_entities'));
+    $plans = module_invoke_all('uuid_default_entities');
+    if (isset($plans[$plan_name])) {
+      foreach ($plans[$plan_name] as $entity) {
+        // We don't want entities that has a cause, i.e. not dependencies, because
+        // those'll be taken care of when the service iterates over the queue.
+        if (empty($entity->__metadata['cause'])) {
+          $entity_type = $entity->__metadata['type'];
+          $entity_info = entity_get_info($entity_type);
+          $entity_ids = entity_get_id_by_uuid($entity_type, array($entity->{$entity_info['entity keys']['uuid']}));
+          $entity_id = reset($entity_ids);
+          if (!empty($entity_id)) {
+            $entities[$entity_type][] = $entity_id;
           }
         }
       }
     }
   }
-  return $collection;
+  return $entities;
 }
 
 /**
