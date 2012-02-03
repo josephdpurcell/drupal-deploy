@@ -6,49 +6,35 @@
  */
 
 /**
- * Implements hook_rules_data_info().
- */
-function deploy_rules_data_info() {
-  return array(
-    'deploy_plan' => array(
-      'label' => t('deploy plan'),
-      'group' => t('Deploy'),
-      'ui class' => 'RulesDataUIText',
-    ),
-  );
-}
-
-/**
  * Implements hook_rules_action_info().
  */
 function deploy_rules_action_info() {
-  $entity_types = entity_get_info();
-  $entity_type_options = array_keys($entity_types);
-
   return array(
     'deploy_rules_action_deploy_plan' => array(
       'label' => t('Deploy a plan'),
       'group' => t('Deploy'),
       'parameter' => array(
-        'plan' => array(
-          'type' => 'deploy_plan',
-          'label' => t('Plan'),
+        'plan_name' => array(
+          'type' => 'text',
+          'label' => t('Plan name'),
           'options list' => 'deploy_rules_plan_get_options'
         ),
       ),
     ),
     'deploy_rules_action_add_to_managed_plan' => array(
-      'label' => t('Add an entity to a managed deployment plan'),
+      'label' => t('Add entity to managed deployment plan'),
       'group' => t('Deploy'),
       'parameter' => array(
-        'plan' => array(
-          'type' => 'deploy_plan',
-          'label' => t('Plan'),
+        'plan_name' => array(
+          'type' => 'text',
+          'label' => t('Plan name'),
+          'description' => t('The plan to add the entity to.'),
           'options list' => 'deploy_rules_manager_plan_get_options'
         ),
         'entity' => array(
-          'type' => $entity_type_options,
+          'type' => 'entity',
           'label' => t('Entity'),
+          'description' => t('The entity that shall be added to the plan.'),
           'wrapped' => TRUE,
         ),
       ),
@@ -73,12 +59,12 @@ function deploy_rules_manager_plan_get_options() {
 /**
  * Action callback for the "Deploy a plan" action.
  */
-function deploy_rules_action_deploy_plan($name) {
-  if ($plan = deploy_manager_plan_load($name)) {
+function deploy_rules_action_deploy_plan($plan_name) {
+  if ($plan = deploy_manager_plan_load($plan_name)) {
     $plan->deploy();
     return;
   }
-  watchdog('deploy', 'Cannot deploy non-existent plan @name', array('@name' => $name), WATCHDOG_ERROR);
+  watchdog('deploy', 'Cannot deploy non-managed plan %name', array('%name' => $plan_name), WATCHDOG_ERROR);
 }
 
 /**
@@ -86,7 +72,7 @@ function deploy_rules_action_deploy_plan($name) {
  */
 function deploy_rules_action_add_to_managed_plan($plan_name, $entity_wrapper) {
   if (!deploy_manager_plan_load($plan_name)) {
-    watchdog('deploy manager', 'Attempted to add to a non-existent deploy plan or one that cannot be arbitrarily added to: @plan', array('@plan' => $plan_name));
+    watchdog('deploy', 'Cannot add to non-managed plan %name', array('%name' => $plan_name), WATCHDOG_ERROR);
     return;
   }
   $entity_type = $entity_wrapper->type();
