@@ -233,6 +233,27 @@ function deploy_iterator($entities) {
 }
 
 /**
+ * Helper function to get operation info.
+ */
+function deploy_get_operation_info($event_name = NULL) {
+  $cache = &drupal_static(__FUNCTION__);
+  if (empty($cache)) {
+    $operations = module_invoke_all('deploy_operation_info');
+    foreach (array('preprocess', 'postprocess') as $event) {
+      // Avoid empty keys.
+      if (!isset($operations[$event])) {
+        $operations[$event] = array();
+      }
+    }
+    $cache = $operations;
+  }
+  if (!empty($event_name)) {
+    return $cache[$event_name];
+  }
+  return $cache;
+}
+
+/**
  * Implements hook_cron_queue_info().
  */
 function deploy_cron_queue_info() {

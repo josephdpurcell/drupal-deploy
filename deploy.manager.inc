@@ -120,3 +120,13 @@ function deploy_manager_delete_from_plan($plan_name, $entity_type, $entity) {
     ->condition('entity_id', $entity_id)
     ->execute();
 }
+
+/**
+ * Postprocess operation callback.
+ */
+function deploy_manager_postprocess_operation($plan_name, $entity) {
+  $plan = deploy_plan_load($plan_name);
+  if (!empty($plan->aggregator_config['delete_post_deploy'])) {
+    deploy_manager_delete_from_plan($plan->name, $entity->__metadata['type'], $entity);
+  }
+}

@@ -6,6 +6,17 @@
  */
 
 /**
+ * Implements hook_deploy_operation_info().
+ */
+function deploy_deploy_operation_info() {
+  return array(
+    'postprocess' => array(
+      array('callback' => 'deploy_manager_postprocess_operation'),
+    ),
+  );
+}
+
+/**
  * Implements hook_deploy_aggregators().
  */
 function deploy_deploy_aggregators() {
@@ -102,15 +113,4 @@ function deploy_deploy_services() {
       ),
     ),
   );
-}
-
-/**
- * Implements hook_deploy_entity_deployed().
- */
-function deploy_deploy_entity_deployed($plan, $entity_type, $entity, $context) {
-  if (!empty($plan->aggregator_config['delete_post_deploy'])) {
-    if (!isset($context['response']->error)) {
-      deploy_manager_delete_from_plan($plan->name, $entity_type, $entity);
-    }
-  }
 }

@@ -14,9 +14,9 @@ class DeployProcessorBatch extends DeployProcessorMemory {
 
   protected function processOperations(Array $operations = array()) {
     if (!empty($operations)) {
-      foreach ($this->aggregator as $data) {
+      foreach ($this->aggregator as $entity) {
         foreach ($operations as $operation) {
-          $this->operations[] = array($operation['callback'], array($this->aggregator->plan->name, $item));
+          $this->operations[] = array($operation['callback'], array($this->aggregator->plan->name, $entity));
         }
       }
     }

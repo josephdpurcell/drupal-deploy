@@ -122,7 +122,7 @@ class DeployPlan {
     try {
       $deployment_key = deploy_log($this->name, DEPLOY_STATUS_STARTED);
       // Allow other modules to do some preprocessing.
-      $operations = module_invoke_all('deploy_preprocess_operations');
+      $operations = deploy_get_operation_info('preprocess');
       $this->processor->preProcess($operations);
 
       // Log that we are going into the processing phase.
@@ -144,8 +144,10 @@ class DeployPlan {
         $this->processor->publish($deployment_key, $endpoint, $lock_name);
       }
 
-      // Allow other modules to do some postprocessing.
-      $operations = module_invoke_all('deploy_postprocess_operations');
+      // TODO: This has to be moved, to be triggered by each processor instead.
+      // The reason is because it's not guaratneed that the deployment has
+      // actually run here. Only the processor it self knows.
+      $operations = deploy_get_operation_info('postprocess');
       $this->processor->postProcess($operations);
     }
     catch (Exception $e) {
@@ -197,6 +199,6 @@ class DeployPlan {
     if (empty($this->aggregator)) {
       $this->init();
     }
-    return $this->aggregator;
+    return $this->aggregator->getIterator();
   }
 }
