@@ -29,26 +29,22 @@ class DeployIterator extends EntityDependencyIterator {
     }
     $uuids = entity_get_uuid_by_id($this->entityType, array($this->entityId));
     $uuid = reset($uuids);
-    // Load the current entity with UUID.
-    $entities = entity_uuid_load($this->entityType, array($uuid));
+    // Load the current entity with UUID. We need to reset the cache here in
+    // order to ensure that we are deploying a fresh version if the entity.
+    $entities = entity_uuid_load($this->entityType, array($uuid), NULL, TRUE);
     $entity = reset($entities);
     // Add necessary metadata to the entity.
-    $origin = FALSE;
-    if (!empty($this->origins[$this->entityType][$this->entityId])) {
-      $origin_type = $this->origins[$this->entityType][$this->entityId]['type'];
-      $origin_id = $this->origins[$this->entityType][$this->entityId]['id'];
-      $origin_uuids = entity_get_uuid_by_id($origin_type, array($origin_id));
-      $origin_uuid = reset($origin_uuids);
-      $origin = array(
-        '__deferred' => array(
-          'uri' => $origin_type . '/' . $origin_uuid,
-        ),
-      );
+    $cause = FALSE;
+    if (!empty($this->causes[$this->entityType][$this->entityId])) {
+      $cause_type = $this->causes[$this->entityType][$this->entityId]['type'];
+      $cause_uuids = entity_get_uuid_by_id($cause_type, array($this->causes[$this->entityType][$this->entityId]['id']));
+      $cause_uuid = reset($cause_uuids);
+      $cause = $cause_type . '/' . $cause_uuid;
     }
     $entity->__metadata = array(
       'type' => $this->entityType,
       'uri' => $this->entityType . '/' . $uuid,
-      'origin' => $origin,
+      'cause' => $cause,
     );
     // Now mark this as traversed.
     $this->traversed[$this->entityType][$this->entityId] = TRUE;
