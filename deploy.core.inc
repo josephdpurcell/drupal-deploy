@@ -134,7 +134,7 @@ function deploy_form_node_admin_content_alter(&$form, $form_state) {
   $options = &$form['admin']['options']['operation']['#options'];
   $group_add = t('Add to managed deployment plan');
   $options[$group_add] = array();
-  $group_delete = t('Remove from managed deployment plan');
+  $group_delete = t('Delete from managed deployment plan');
   $options[$group_delete] = array();
   foreach ($form['admin']['options']['operation']['#options'] as $key => $value) {
     list($module) = explode(':', $key);
