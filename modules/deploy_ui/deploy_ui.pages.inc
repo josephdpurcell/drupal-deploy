@@ -67,7 +67,7 @@ function theme_deploy_ui_overview_plan_content($variables) {
   if (empty($rows)) {
     $rows = array(array(array(
       'colspan' => 2,
-      'data' => t('No content available.'),
+      'data' => t('Currently no content in this plan.'),
     )));
   }
   return theme('table', array('header' => $header, 'rows' => $rows));

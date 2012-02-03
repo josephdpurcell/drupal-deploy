@@ -34,11 +34,10 @@ class DeployAggregatorManaged extends DeployAggregatorBase {
     $form = array();
     $form['delete_post_deploy'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Delete successfully deployed items'),
-      '#description' => t('If checked, each successfully deployed entity will be automatically removed from the plan.'),
+      '#title' => t('Delete successfully deployed entities from the plan'),
+      '#description' => t('If checked, each successfully deployed entity will be automatically deleted from the plan.'),
       '#default_value' => $this->config['delete_post_deploy'],
     );
     return $form;
   }
-
 }
