@@ -11,9 +11,7 @@ class DeployIterator extends EntityDependencyIterator {
    * @return DeployIterator
    */
   public function getChildren() {
-    $iterator = new DeployIterator($this->getChildrenEntities(), $this);
-    $iterator->entityType = $this->entityType;
-    return $iterator;
+    return new DeployIterator($this->getChildrenEntities(), $this);
   }
 
   /**
@@ -23,10 +21,6 @@ class DeployIterator extends EntityDependencyIterator {
    * @see http://www.odata.org/developers/protocols
    */
   public function current() {
-    $current = current($this->entities);
-    if (is_array($current)) {
-      return $current;
-    }
     $uuids = entity_get_uuid_by_id($this->entityType, array($this->entityId));
     $uuid = reset($uuids);
     // Load the current entity with UUID. We need to reset the cache here in
