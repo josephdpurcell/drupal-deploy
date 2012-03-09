@@ -21,29 +21,35 @@ class DeployIterator extends EntityDependencyIterator {
    * @see http://www.odata.org/developers/protocols
    */
   public function current() {
-    $uuids = entity_get_uuid_by_id($this->entityType, array($this->entityId));
+    $current = current($this->entities);
+
+    $uuids = entity_get_uuid_by_id($current['type'], array($current['id']));
     $uuid = reset($uuids);
-    // Load the current entity with UUID. We need to reset the cache here in
-    // order to ensure that we are deploying a fresh version if the entity.
-    $entities = entity_uuid_load($this->entityType, array($uuid), NULL, TRUE);
+    // Load the current entity with UUID.
+    $entities = entity_uuid_load($current['type'], array($uuid));
     $entity = reset($entities);
     // Add necessary metadata to the entity.
-    $cause = FALSE;
-    if (!empty($this->causes[$this->entityType][$this->entityId])) {
-      $cause_type = $this->causes[$this->entityType][$this->entityId]['type'];
-      $cause_uuids = entity_get_uuid_by_id($cause_type, array($this->causes[$this->entityType][$this->entityId]['id']));
-      $cause_uuid = reset($cause_uuids);
-      $cause = $cause_type . '/' . $cause_uuid;
+    $origin = FALSE;
+    if (!empty($this->origins[$current['type']][$current['id']])) {
+      $origin_type = $this->origins[$current['type']][$current['id']]['type'];
+      $origin_id = $this->origins[$current['type']][$current['id']]['id'];
+      $origin_uuids = entity_get_uuid_by_id($origin_type, array($origin_id));
+      $origin_uuid = reset($origin_uuids);
+      $origin = array(
+        '__deferred' => array(
+          'uri' => $origin_type . '/' . $origin_uuid,
+        ),
+      );
     }
     $entity->__metadata = array(
-      'type' => $this->entityType,
-      'uri' => $this->entityType . '/' . $uuid,
-      'cause' => $cause,
+      'type' => $current['type'],
+      'uri' => $current['type'] . '/' . $uuid,
+      'origin' => $origin,
     );
     // Now mark this as traversed.
-    $this->traversed[$this->entityType][$this->entityId] = TRUE;
+    $this->traversed[$current['type']][$current['id']] = TRUE;
     // Let other modules have their say.
-    drupal_alter('deploy_entity', $entity, $this->entityType);
+    drupal_alter('deploy_entity', $entity, $current['type']);
     return $entity;
   }
 }
