@@ -350,12 +350,12 @@ function deploy_status_info($status = NULL, $key = NULL) {
   if ($status === NULL && $key === NULL) {
     return $info;
   }
-  elseif ($status !== NULL && $key === NULL) {
+  elseif ($status !== NULL && $status !== FALSE && $key === NULL) {
     if (isset($info[$status])) {
       return $info[$status];
     }
   }
-  elseif ($status !== NULL && $key !== NULL) {
+  elseif ($status !== NULL && $status !== FALSE && $key !== NULL && $key !== FALSE) {
     if (isset($info[$status][$key])) {
       return $info[$status][$key];
     }

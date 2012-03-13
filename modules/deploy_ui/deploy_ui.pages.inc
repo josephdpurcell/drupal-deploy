@@ -96,7 +96,7 @@ function theme_deploy_ui_overview($variables) {
       $output .= '<div class="' . $position . ' clearfix">';
       $output .= '<div class="admin-panel deploy-panel">';
       $output .= '<h3>' . $block['plan_title'] . '</h3>';
-      if (!$block['fetch_only']) {
+      if (!$block['fetch_only'] && $status_info) {
         $output .= '<div class="messages ' . $status_info['class'] . '">';
         $output .= '<h4 class="element-invisible">Status message</h4>';
         $output .= $status_info['title'];
