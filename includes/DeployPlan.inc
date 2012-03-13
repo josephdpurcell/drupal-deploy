@@ -11,6 +11,11 @@ class DeployPlanMalformedException extends Exception {}
 class DeployPlanRunningException extends Exception {}
 
 /**
+ * Exception raised by deployment plans.
+ */
+class DeployPlanException extends Exception {}
+
+/**
  * Class representing a deployment plan.
  */
 class DeployPlan {

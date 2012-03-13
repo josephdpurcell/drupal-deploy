@@ -277,7 +277,7 @@ function deploy_queue_worker_deploy($entity, &$context = NULL) {
   $plan = deploy_plan_load($entity->__metadata['plan_name']);
 
   if ($plan && $endpoint) {
-    $entities = array($entity->__metadata['type'] => array($entity->__metadata['id']));
+    $entities = array(array('type' => $entity->__metadata['type'], 'id' => $entity->__metadata['id']));
     $iterator = deploy_iterator($entities);
     $endpoint->deploy($entity->__metadata['deployment_key'], $iterator, $entity->__metadata['lock_name']);
   }
@@ -291,7 +291,7 @@ function deploy_queue_worker_publish($entity, &$context = NULL) {
   $plan = deploy_plan_load($entity->__metadata['plan_name']);
 
   if ($plan && $endpoint) {
-    $entities = array($entity->__metadata['type'] => array($entity->__metadata['id']));
+    $entities = array(array('type' => $entity->__metadata['type'], 'id' => $entity->__metadata['id']));
     $iterator = deploy_iterator($entities);
     $endpoint->publish($entity->__metadata['deployment_key'], $iterator, $entity->__metadata['lock_name']);
     $context['results'][$entity->__metadata['endpoint_name']] = $entity->__metadata['plan_name'];
