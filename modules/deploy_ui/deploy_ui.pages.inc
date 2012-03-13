@@ -13,8 +13,9 @@ function deploy_ui_overview_page() {
 
     // Get the entity keys from the aggregator.
     $entity_keys = $plan->getEntities();
-    foreach ($entity_keys as $entity_type => $entity_ids) {
+    foreach ($entity_keys as $entity_ids) {
       // Get the entity info and all entities of this type.
+      $entity_type = $entity_ids['type'];
       $entity_info = entity_get_info($entity_type);
       $entities = entity_load($entity_type, $entity_ids);
 
