@@ -1,5 +1,5 @@
 <?php
-
+ 
 /**
  * Page callback for the overview page.
  */
@@ -13,10 +13,10 @@ function deploy_ui_overview_page() {
 
     // Get the entity keys from the aggregator.
     $entity_keys = $plan->getEntities();
-    foreach ($entity_keys as $entity_type => $entity_ids) {
+    foreach ($entity_keys as $entity_key) {
       // Get the entity info and all entities of this type.
-      $entity_info = entity_get_info($entity_type);
-      $entities = entity_load($entity_type, $entity_ids);
+      $entity_info = entity_get_info($entity_key['type']);
+      $entities = entity_load($entity_key['type'], array($entity_key['id']));
 
       // Construct a usable array for the theme function.
       foreach ($entities as $entity) {
