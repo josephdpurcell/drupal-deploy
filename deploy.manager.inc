@@ -15,7 +15,9 @@ function deploy_manager_get_entities($plan_name) {
   // If the plan fetched from the database is empty, try fetch default UUID
   // entities (keyed with this plan name).
   if (empty($entities)) {
-    features_include_defaults(array('uuid_entities'));
+    if (modules_exist('features')) {
+      features_include_defaults(array('uuid_entities'));
+    }
     $plans = module_invoke_all('uuid_default_entities');
     if (isset($plans[$plan_name])) {
       foreach ($plans[$plan_name] as $entity) {
