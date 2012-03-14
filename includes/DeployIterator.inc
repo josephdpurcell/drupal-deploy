@@ -29,22 +29,18 @@ class DeployIterator extends EntityDependencyIterator {
     $entities = entity_uuid_load($current['type'], array($uuid));
     $entity = reset($entities);
     // Add necessary metadata to the entity.
-    $origin = FALSE;
-    if (!empty($this->origins[$current['type']][$current['id']])) {
-      $origin_type = $this->origins[$current['type']][$current['id']]['type'];
-      $origin_id = $this->origins[$current['type']][$current['id']]['id'];
-      $origin_uuids = entity_get_uuid_by_id($origin_type, array($origin_id));
-      $origin_uuid = reset($origin_uuids);
-      $origin = array(
-        '__deferred' => array(
-          'uri' => $origin_type . '/' . $origin_uuid,
-        ),
-      );
+    $cause = FALSE;
+    if (!empty($this->causes[$current['type']][$current['id']])) {
+      $cause_type = $this->causes[$current['type']][$current['id']]['type'];
+      $cause_id = $this->causes[$current['type']][$current['id']]['id'];
+      $cause_uuids = entity_get_uuid_by_id($cause_type, array($cause_id));
+      $cause_uuid = reset($cause_uuids);
+      $cause = $cause_type . '/' . $cause_uuid;
     }
     $entity->__metadata = array(
       'type' => $current['type'],
       'uri' => $current['type'] . '/' . $uuid,
-      'origin' => $origin,
+      'cause' => $cause,
     );
     // Now mark this as traversed.
     $this->traversed[$current['type']][$current['id']] = TRUE;
