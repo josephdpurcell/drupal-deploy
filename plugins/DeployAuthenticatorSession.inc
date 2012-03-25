@@ -53,13 +53,13 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
       if (isset($response->error) || !in_array($response->code, array(200, 304))) {
         throw new DeployAuthenticationException(t('Authentication error: @code @error', array('@code' => $response->code, '@error' => $response->error)));
       }
-      if (!empty($response->headers['set-cookie'])) {
-        // Set the session cookie, retrieved from the login request on the
-        // endpoint, for all calls made by the service.
-        $this->service->config['headers']['Cookie'] = $response->headers['set-cookie'];
-      }
-      else {
-        throw new DeployAuthenticationException(t("No 'set-cookie' header was returned from the authentication request."));
+
+      $response_data = drupal_json_decode($response->data);
+
+      if ($response_data['session_name'] && $response_data['sessid']) {
+        $this->service->config['headers']['Cookie'] = $response_data['session_name'] . "=" . $response_data['sessid'] . ";";
+      } else {
+        throw new DeployAuthenticationException(t("No session was returned from the authentication request."));
       }
     }
     else {
