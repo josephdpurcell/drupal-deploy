@@ -133,3 +133,13 @@ function deploy_manager_postprocess_operation($plan_name, $entity) {
     deploy_manager_delete_from_plan($plan->name, $entity->__metadata['type'], $entity);
   }
 }
+
+/**
+ * Implements hook_entity_delete().
+ */
+function deploy_entity_delete($entity, $entity_type) {
+  $plans = deploy_manager_plan_load_all();
+  foreach ($plans as $plan) {
+    deploy_manager_delete_from_plan($plan->name, $entity_type, $entity);
+  }
+}
