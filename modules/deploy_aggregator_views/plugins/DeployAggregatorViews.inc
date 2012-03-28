@@ -35,7 +35,7 @@ class DeployAggregatorViews extends DeployAggregatorBase {
     $view_results = views_get_view_result($view->name, 'default');
     $entities = array();
     foreach ($view_results as $view_result) {
-      $entities[$entity_type][] = $view_result->{$entity_id_field};
+      $entities[] = array('type' => $entity_type, 'id' => $view_result->{$entity_id_field});
     }
     return $entities;
   }
