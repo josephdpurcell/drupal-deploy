@@ -142,8 +142,18 @@ class DeployPlan {
           $this->processor->deploy($deployment_key, $endpoint, $lock_name);
         }
         else {
-          throw new DeployPlanException(t("The plan @plan can't be deployed because the endpoint @endpoint is invalid.", array('@plan' => $this->name, '@endpoint' => $endpoint_name)));
+          if (!empty($endpoint)) {
+            throw new DeployPlanException(t("The plan @plan can't be deployed because the endpoint @endpoint is invalid.", array('@plan' => $this->name, '@endpoint' => $endpoint_name)));
+          }
+          elseif ((int) $endpoint == 0) {
+            $endpoint_available = TRUE;
+          }
         }
+      }
+      // If no endpoints were loaded but an endpoint does exist (though unchecked for plan)
+      // throw error indicating endpoint is available but must be selected.
+      if (empty($endpoints) && isset($endpoint_available)) {
+        throw new DeployPlanException(t("The plan @plan can't be deployed; no endpoint is selected.", array('@plan' => $this->name)));
       }
       foreach ($endpoints as $endpoint) {
         $this->processor->publish($deployment_key, $endpoint, $lock_name);
