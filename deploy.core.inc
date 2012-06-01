@@ -29,6 +29,17 @@ function taxonomy_entity_load(&$entities, $entity_type) {
 
 /**
  * Implements hook_deploy_entity_alter().
+ */
+function file_deploy_entity_alter(&$entity, $entity_type) {
+  if ($entity_type == 'file') {
+    if (!isset($entity->file_contents)) {
+      $entity->file_contents = base64_encode(file_get_contents($entity->uri));
+    }
+  }
+}
+
+/**
+ * Implements hook_deploy_entity_alter().
  *
  * This hook will go through all fields for an entity and invoke a new hook for
  * all field modules. This saves a lot of work for each field implementaor.
