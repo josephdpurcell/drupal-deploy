@@ -21,6 +21,27 @@ class DeployPlanException extends Exception {}
 class DeployPlan {
 
   /**
+   * The name of this plan.
+   *
+   * @var string
+   */
+  public $name = '';
+
+  /**
+   * The title of this plan.
+   *
+   * @var string
+   */
+  public $title = '';
+
+  /**
+   * The description of this plan.
+   *
+   * @var string
+   */
+  public $description = '';
+ 
+  /**
    * Whether debug mode is enabled for this plan.
    *
    * @var boolean
