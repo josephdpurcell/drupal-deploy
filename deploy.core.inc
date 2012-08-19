@@ -118,7 +118,7 @@ function deploy_node_operation_add_to_managed_plan($nids, $plan_name) {
   }
   $deploy_link = url("admin/structure/deploy/plans/list/$plan_name/deploy", array('query' => array('cancel_path' => 'admin/content')));
   $overview_link = url('admin/structure/deploy');
-  drupal_set_message(t('Nodes where added to <a href="!overview">@plan</a>. You might want to <a href="!deploy">deploy the plan</a>.', array('@plan' => $plan->title, '!overview' => $overview_link, '!deploy' => $deploy_link)));
+  drupal_set_message(t('Nodes were added to <a href="!overview">@plan</a>. You might want to <a href="!deploy">deploy the plan</a>.', array('@plan' => $plan->title, '!overview' => $overview_link, '!deploy' => $deploy_link)));
 }
 
 /**
@@ -132,7 +132,7 @@ function deploy_node_operation_delete_from_managed_plan($nids, $plan_name) {
   }
   $deploy_link = url("admin/structure/deploy/plans/list/$plan_name/deploy", array('query' => array('cancel_path' => 'admin/content')));
   $overview_link = url('admin/structure/deploy');
-  drupal_set_message(t('Nodes where deleted from <a href="!overview">@plan</a>. You might want to <a href="!deploy">deploy the plan</a>.', array('@plan' => $plan->title, '!overview' => $overview_link, '!deploy' => $deploy_link)));
+  drupal_set_message(t('Nodes were deleted from <a href="!overview">@plan</a>. You might want to <a href="!deploy">deploy the plan</a>.', array('@plan' => $plan->title, '!overview' => $overview_link, '!deploy' => $deploy_link)));
 }
 
 /**
