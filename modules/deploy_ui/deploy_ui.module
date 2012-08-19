@@ -26,18 +26,6 @@ function deploy_ui_menu() {
 }
 
 /**
- * Implementation of hook_permission().
- */
-function deploy_ui_permission() {
-  return array(
-    'administer deployments' => array(
-      'title' => t('Administer deployments'),
-      'description' => t('Perform administrative tasks around deployments, like plans and endpoints.'),
-    ),
-  );
-}
-
-/**
  * Implements hook_theme().
  */
 function deploy_ui_theme() {

@@ -20,6 +20,18 @@ define('DEPLOY_STATUS_DEPLOYED', 3);
 define('DEPLOY_STATUS_PUBLISHED', 4);
 
 /**
+ * Implements hook_permission().
+ */
+function deploy_permission() {
+  return array(
+    'administer deployments' => array(
+      'title' => t('Administer deployments'),
+      'description' => t('Perform administrative tasks around deployments, like plans and endpoints.'),
+    ),
+  );
+}
+
+/**
  * Implements hook_ctools_plugin_type().
  */
 function deploy_ctools_plugin_type() {
