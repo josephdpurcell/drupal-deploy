@@ -236,6 +236,24 @@ function deploy_endpoint_load_all() {
 }
 
 /**
+ * Writes a deployment plan.
+ */
+function deploy_plan_save($data) {
+
+  $plan = new DeployPlan();
+  foreach ($data as $key => $value) {
+    $plan->{$key} = $value;
+  }
+  
+  $returned = ctools_export_crud_save('deploy_plans', $plan);
+  if (SAVED_NEW !== $returned && SAVED_UPDATED !== $returned) {
+    throw new DeployPlanException('Failed to create plan.');
+  }
+
+  return $plan;
+}
+
+/**
  * Constructs a deployment iterator, which is the core of the dependency
  * framework.
  */
