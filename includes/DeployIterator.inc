@@ -6,6 +6,11 @@
 class DeployIterator extends EntityDependencyIterator {
 
   /**
+   * Cache entity information.
+   */
+  protected static $entity_info = array();
+
+  /**
    * We override this method since we need to return our own iterator.
    *
    * @return DeployIterator
@@ -21,12 +26,27 @@ class DeployIterator extends EntityDependencyIterator {
    * @see http://www.odata.org/developers/protocols
    */
   public function current() {
+
     $current = current($this->entities);
+
+    // Load and cache the entity info.
+    if (!isset(self::$entity_info[$current['type']])) {
+      self::$entity_info[$current['type']] = entity_get_info($current['type']);
+    }
 
     $uuids = entity_get_uuid_by_id($current['type'], array($current['id']));
     $uuid = reset($uuids);
+
+    $conditions = array();
+    $unique_id = $current['id'];
+    if (!empty($current['revision_id']) && !empty(self::$entity_info[$current['type']]['entity keys']['revision uuid'])) {
+      $revision_key = self::$entity_info[$current['type']]['entity keys']['revision uuid'];
+      $conditions[$revision_key] = reset(entity_get_uuid_by_id($current['type'], array($current['revision_id']), TRUE));
+      $unique_id .= "-{$current['revision_id']}"; 
+    }
+
     // Load the current entity with UUID.
-    $entities = entity_uuid_load($current['type'], array($uuid));
+    $entities = entity_uuid_load($current['type'], array($uuid), $conditions);
     $entity = reset($entities);
     // Add necessary metadata to the entity.
     $cause = FALSE;
@@ -43,7 +63,7 @@ class DeployIterator extends EntityDependencyIterator {
       'cause' => $cause,
     );
     // Now mark this as traversed.
-    $this->traversed[$current['type']][$current['id']] = TRUE;
+    $this->traversed[$current['type']][$unique_id] = TRUE;
     // Let other modules have their say.
     drupal_alter('deploy_entity', $entity, $current['type']);
     return $entity;
