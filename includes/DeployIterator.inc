@@ -41,7 +41,8 @@ class DeployIterator extends EntityDependencyIterator {
     $unique_id = $current['id'];
     if (!empty($current['revision_id']) && !empty(self::$entity_info[$current['type']]['entity keys']['revision uuid'])) {
       $revision_key = self::$entity_info[$current['type']]['entity keys']['revision uuid'];
-      $conditions[$revision_key] = reset(entity_get_uuid_by_id($current['type'], array($current['revision_id']), TRUE));
+      $revisions = entity_get_uuid_by_id($current['type'], array($current['revision_id']), TRUE);
+      $conditions[$revision_key] = reset($revisions);
       $unique_id .= "-{$current['revision_id']}"; 
     }
 
