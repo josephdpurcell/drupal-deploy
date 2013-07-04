@@ -4,3 +4,4 @@ package = Deployment
 core = 7.x
 dependencies[] = deploy
 dependencies[] = ctools
+configure = admin/structure/deploy
