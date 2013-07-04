@@ -58,6 +58,26 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
 
       if ($response_data['session_name'] && $response_data['sessid']) {
         $this->service->config['headers']['Cookie'] = $response_data['session_name'] . "=" . $response_data['sessid'] . ";";
+        // We have to get a CSFR Token from the server and pass along with
+        // each services call (introduced in Services 7.x-3.4
+        // as per SA-CONTRIB-2013-051; https://drupal.org/node/2012982).
+        $parts = parse_url($this->service->config['url']);
+        $port = '';
+        if (isset($parts['port'])) {
+          $port = ':' . $parts['port'];
+        }
+        $token_url = $parts['scheme'] . '://' . $parts['host'] . $port . '/services/session/token';
+
+        $token_response = drupal_http_request($token_url, array('method' => 'GET', 'headers' => $this->service->config['headers']));
+        if (isset($token_response->error) || !in_array($token_response->code, array(200, 304))) {
+          throw new DeployAuthenticationException(t('Authentication error: @code @error', array('@code' => $token_response->code, '@error' => t('Failed to retrieve CSRF token.'))));
+        }
+
+        if ($this->config['debug']) {
+          watchdog('deploy', 'Session CSRF Token response: @response', array('@response' => print_r($token_response, TRUE)), WATCHDOG_DEBUG);
+        }
+
+        $this->service->config['headers']['X-CSRF-Token'] = trim($token_response->data);
       } else {
         throw new DeployAuthenticationException(t("No session was returned from the authentication request."));
       }
@@ -74,7 +94,10 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
       // Log out, since we are done now.
       $options = array(
         'method' => 'POST',
-        'headers' => array('Cookie' => $response->headers['set-cookie']),
+        'headers' => array(
+          'Cookie' => $response->headers['set-cookie'],
+          'X-CSRF-Token' => trim($token_response->data),
+        ),
       );
       $response = drupal_http_request($logout_url, $options);
 
