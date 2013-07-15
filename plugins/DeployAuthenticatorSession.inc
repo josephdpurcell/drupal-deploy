@@ -63,10 +63,20 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
         // as per SA-CONTRIB-2013-051; https://drupal.org/node/2012982).
         $parts = parse_url($this->service->config['url']);
         $port = '';
+
         if (isset($parts['port'])) {
           $port = ':' . $parts['port'];
         }
-        $token_url = $parts['scheme'] . '://' . $parts['host'] . $port . '/services/session/token';
+
+       if (isset($parts['user'])) {
+          $user = $parts['user'];
+        }
+
+        if (isset($parts['pass'])) {
+          $pass = $parts['pass'];
+        }
+
+        $token_url = $parts['scheme'] . '://' . ($user ? $user . ':' . $pass . '@' : '') . $parts['host'] . $port . '/services/session/token';
 
         $token_response = drupal_http_request($token_url, array('method' => 'GET', 'headers' => $this->service->config['headers']));
         if (isset($token_response->error) || !in_array($token_response->code, array(200, 304))) {
