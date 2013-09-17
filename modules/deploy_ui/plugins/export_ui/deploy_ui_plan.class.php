@@ -203,7 +203,7 @@ class deploy_ui_plan extends ctools_export_ui {
 
   function edit_form_processor(&$form, &$form_state) {
     $item = $form_state['item'];
-    if (!empty($item->process_plugin)) {
+    if (!empty($item->processor_plugin)) {
       if (!is_array($item->processor_config)) {
         $item->processor_config = unserialize($item->processor_config);
       }
@@ -214,11 +214,11 @@ class deploy_ui_plan extends ctools_export_ui {
       $processor = new $item->processor_plugin($aggregator, (array)$item->processor_config);
 
       $form['processor_config'] = $processor->configForm($form_state);
-      if (!empty($form['config']['processor_config'])) {
+      if (!empty($form['processor_config'])) {
         $form['processor_config']['#tree'] = TRUE;
       }
     }
-    if (empty($item->process_plugin) || empty($form['config']['processor_config'])) {
+    if (empty($item->processor_plugin) || empty($form['processor_config'])) {
       $form['empty'] = array(
         '#type' => 'markup',
         '#markup' => '<p>' . t("No processor plugin is selected, or the selected processor plugin doesn't have any settings.") . '</p>'

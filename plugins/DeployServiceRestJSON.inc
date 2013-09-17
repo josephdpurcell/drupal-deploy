@@ -12,6 +12,13 @@ class DeployServiceRestJSON extends DeployServiceRest {
 
       // TODO: Consider making the resource path configurable.
       $url = $this->config['url'] . '/' . $entity->__metadata['uri'] . '.json';
+      // Temporary hack for the built-in PHP 5.4 web server that doesn't route
+      // filenames correctly.
+      // TODO: See if we can remove the .json suffix for all server. The
+      // Content-Type header should be enough in most (all?) cases.
+      if (php_sapi_name() == 'cli-server') {
+        $url = $this->config['url'] . '/' . $entity->__metadata['uri'];
+      }
       $this->httpRequest($url, 'PUT', $json_data);
     }
   }
