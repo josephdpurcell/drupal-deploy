@@ -299,13 +299,39 @@ function deploy_schema() {
       ),
       'timestamp' => array(
         'description' => 'The unix timestamp indicating when this item was added to the deployment plan.',
-        'type' => 'int',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 4,
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
     ),
     'primary key' => array('plan_name', 'entity_type', 'entity_id', 'revision_id'),
+    'indexes' => array(
+      'timstamp' => array('timestamp'),
+    ),
   );
 
   return $schema;
+}
+
+/**
+ * Convert timestamp for deploy_manager_entities to float for more precision.
+ */
+function deploy_update_7001(&$sandbox) {
+  $spec = array(
+    'description' => 'The unix timestamp indicating when this item was added to the deployment plan.',
+    'type' => 'numeric',
+    'precision' => 16,
+    'scale' => 4,
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+
+  db_change_field('deploy_manager_entities', 'timestamp', 'timestamp', $spec);
+
+  // Now we add the new index so MySQL doesn't whinge.
+  db_add_index('deploy_manager_entities', 'timstamp', array('timestamp'));
 }

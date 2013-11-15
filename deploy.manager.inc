@@ -8,7 +8,7 @@
  */
 function deploy_manager_get_entities($plan_name) {
   $entities = array();
-  $result = db_query("SELECT * FROM {deploy_manager_entities} WHERE plan_name = :plan_name", array(':plan_name' => $plan_name));
+  $result = db_query("SELECT * FROM {deploy_manager_entities} WHERE plan_name = :plan_name ORDER BY timestamp", array(':plan_name' => $plan_name));
   foreach ($result as $record) {
     $entities[] = array('type' => $record->entity_type, 'id' => $record->entity_id, 'revision_id' => $record->revision_id);
   }
@@ -96,7 +96,7 @@ function deploy_manager_add_to_plan($plan_name, $entity_type, $entity) {
         'entity_type' => $entity_type,
         'entity_id' => $entity_id,
         'revision_id' => $revision_id,
-        'timestamp' => time(),
+        'timestamp' => microtime(TRUE),
       ))
       ->execute();
   }
