@@ -61,6 +61,7 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
         // We have to get a CSFR Token from the server and pass along with
         // each services call (introduced in Services 7.x-3.4
         // as per SA-CONTRIB-2013-051; https://drupal.org/node/2012982).
+        $user = NULL;
         $parts = parse_url($this->service->config['url']);
         $port = '';
 
