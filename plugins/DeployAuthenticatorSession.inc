@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Session based authentication plugin.
+ */
 
 /**
  * Authentication class that uses session authentication.
@@ -12,6 +16,9 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
    */
   public $config = array();
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct(DeployService $service, Array $config = array()) {
     $this->service = $service;
     $this->config += array(
@@ -22,6 +29,9 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
     $this->config = array_merge($this->config, $config);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function deploy(Traversable $iterator) {
     // Only authenticate if we've got a username and password. This allows for
     // deployment as an anonymous user. There are usecases for that.
@@ -69,7 +79,7 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
           $port = ':' . $parts['port'];
         }
 
-       if (isset($parts['user'])) {
+        if (isset($parts['user'])) {
           $user = $parts['user'];
         }
 
@@ -89,7 +99,8 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
         }
 
         $this->service->config['headers']['X-CSRF-Token'] = trim($token_response->data);
-      } else {
+      }
+      else {
         throw new DeployAuthenticationException(t("No session was returned from the authentication request."));
       }
     }
@@ -118,6 +129,9 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function configForm(&$form_state) {
     return array(
       'username' => array(

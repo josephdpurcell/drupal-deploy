@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * UI plugin for Deploy UI.
+ */
 
 $plugin = array(
   'schema' => 'deploy_plans',

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Interface definition for deploy authenticators.
+ */
 
 /**
  * Interface for deploy authenticators.

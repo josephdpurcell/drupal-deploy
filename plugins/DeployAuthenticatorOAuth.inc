@@ -1,6 +1,17 @@
 <?php
+/**
+ * @file
+ * oAuth authentcation plugin for Deploy.
+ */
 
+/**
+ * Incomplete Authenticator class that uses oAuth.
+ */
 class DeployAuthenticatorOAuth implements DeployAuthenticator {
+
+  /**
+   * {@inheritdoc}
+   */
   public function __construct(DeployService $service, Array $config = array()) {
     $this->service = $service;
     $this->config += array(
@@ -9,10 +20,16 @@ class DeployAuthenticatorOAuth implements DeployAuthenticator {
     $this->config = array_merge($this->config, $config);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function deploy(Traversable $iterator) {
 
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function configForm(&$form_state) {
     return array();
   }

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Deploy UI endpoint plugin definition.
+ */
 
 $plugin = array(
   'schema' => 'deploy_endpoints',

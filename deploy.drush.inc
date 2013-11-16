@@ -153,7 +153,7 @@ function drush_deploy_create_plan($name) {
   );
 
   $plan = deploy_plan_save($plan);
-  
+
   drush_print(dt('Created new plan @pid.', array('@pid' => $plan->pid)));
   drush_print_pipe($plan->pid);
 }

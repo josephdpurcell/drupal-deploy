@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Interface definition for deploy processors.
+ */
 
 /**
  * The interface for deployment processors.

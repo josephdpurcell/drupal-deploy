@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Deploy interator implementation.
+ */
 
 /**
  * Iterator class which does the heavy lifting for detecting dependencies.
@@ -43,7 +47,7 @@ class DeployIterator extends EntityDependencyIterator {
       $revision_key = self::$entity_info[$current['type']]['entity keys']['revision uuid'];
       $revisions = entity_get_uuid_by_id($current['type'], array($current['revision_id']), TRUE);
       $conditions[$revision_key] = reset($revisions);
-      $unique_id .= "-{$current['revision_id']}"; 
+      $unique_id .= "-{$current['revision_id']}";
     }
 
     // Load the current entity with UUID.

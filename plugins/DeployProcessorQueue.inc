@@ -1,10 +1,17 @@
 <?php
+/**
+ * @file
+ * Queue API plugin for deploy Processor.
+ */
 
 /**
- * Processor class using the Batch API
+ * Processor class using the Queue API
  */
 class DeployProcessorQueue extends DeployProcessorMemory {
 
+  /**
+   * {@inheritdoc}
+   */
   public function deploy($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
     deploy_log($deployment_key, DEPLOY_STATUS_PROCESSING);
     $queue = DrupalQueue::get('deploy_deploy');
@@ -25,6 +32,9 @@ class DeployProcessorQueue extends DeployProcessorMemory {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function publish($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
     $queue = DrupalQueue::get('deploy_publish');
     foreach ($this->aggregator as $entity) {

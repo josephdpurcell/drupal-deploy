@@ -1,7 +1,15 @@
 <?php
+/**
+ * @file
+ * CTools export UI implementation for deploy endpoints.
+ */
 
+/**
+ * Deploy endpoint UI class that extends CTools Export UI.
+ */
 class deploy_ui_endpoint extends ctools_export_ui {
 
+  // @ignore rule:comment
   /**
    * Pseudo implementation of hook_menu_alter().
    *
@@ -107,6 +115,9 @@ class deploy_ui_endpoint extends ctools_export_ui {
     $item->service_plugin = $form_state['values']['service_plugin'];
   }
 
+  /**
+   * Form for editing authentication configuration.
+   */
   function edit_form_authenticator(&$form, &$form_state) {
     $item = $form_state['item'];
     if (!is_array($item->authenticator_config)) {
@@ -128,6 +139,9 @@ class deploy_ui_endpoint extends ctools_export_ui {
     }
   }
 
+  /**
+   * Authenticator form submit handler.
+   */
   function edit_form_authenticator_submit(&$form, &$form_state) {
     $item = $form_state['item'];
     if (!empty($form_state['values']['authenticator_config'])) {
@@ -138,6 +152,9 @@ class deploy_ui_endpoint extends ctools_export_ui {
     }
   }
 
+  /**
+   * Service edit form.
+   */
   function edit_form_service(&$form, &$form_state) {
     $item = $form_state['item'];
     if (!is_array($item->service_config)) {
@@ -157,6 +174,9 @@ class deploy_ui_endpoint extends ctools_export_ui {
     }
   }
 
+  /**
+   * Submit handler for service edit form.
+   */
   function edit_form_service_submit(&$form, &$form_state) {
     $item = $form_state['item'];
     if (!empty($form_state['values']['service_config'])) {

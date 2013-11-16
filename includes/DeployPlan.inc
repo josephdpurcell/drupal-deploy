@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Definition of a deployment plan and associated exceptions.
+ */
 
 /**
  * Exception raised by malformed deployment plans.
@@ -40,7 +44,7 @@ class DeployPlan {
    * @var string
    */
   public $description = '';
- 
+
   /**
    * Whether debug mode is enabled for this plan.
    *

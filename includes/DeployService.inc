@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Interface definition for deploy service.
+ */
 
 /**
  * Interface for all deploy service plugins.
@@ -21,7 +25,7 @@ interface DeployService {
    *
    * @param Traverable $iterator
    *   This will usually be an object of a subclass of DeployAggregatorBase
-   * @see DeployService::publish().
+   * @see DeployService::publish()
    */
   public function deploy(Traversable $iterator);
 
@@ -33,7 +37,7 @@ interface DeployService {
    *
    * @param Traverable $iterator
    *   This will usually be an object of a subclass of DeployAggregatorBase
-   * @see DeployService::deploy().
+   * @see DeployService::deploy()
    */
   public function publish(Traversable $iterator);
 

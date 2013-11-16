@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Deploy module functions.
+ */
 
 /**
  * Include core implementations and Deploy's own implementations.
@@ -244,7 +248,7 @@ function deploy_plan_save($data) {
   foreach ($data as $key => $value) {
     $plan->{$key} = $value;
   }
-  
+
   $returned = ctools_export_crud_save('deploy_plans', $plan);
   if (SAVED_NEW !== $returned && SAVED_UPDATED !== $returned) {
     throw new DeployPlanException('Failed to create plan.');

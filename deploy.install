@@ -1,7 +1,11 @@
 <?php
+/**
+ * @file
+ * Deploy module installation functions.
+ */
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  *
  * @todo
  *   Add indexes.
@@ -260,7 +264,7 @@ function deploy_schema() {
         'type' => 'text',
         'not null' => TRUE,
         'size' => 'big',
-        'description' => 'Complementary message, e.g. the exception in case of a failure.',
+        'description' => 'Complementary message, for example the exception in case of a failure.',
       ),
     ),
     'primary key' => array('lid'),
@@ -279,7 +283,7 @@ function deploy_schema() {
         'not null' => TRUE,
       ),
       'entity_type' => array(
-        'description' => 'The type of entity, e.g. "node", "user".',
+        'description' => 'The type of entity, for example "node", "user".',
         'type' => 'varchar',
         'length' => 50,
         'not null' => TRUE,

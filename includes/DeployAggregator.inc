@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Interface definition for deploy aggregators.
+ */
 
 /**
  * Interface for all deploy aggregators.

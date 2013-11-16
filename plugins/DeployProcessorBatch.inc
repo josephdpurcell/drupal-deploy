@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Batch API plugin for deploy Processor.
+ */
 
 /**
  * Processor class using the Batch API
@@ -12,6 +16,9 @@ class DeployProcessorBatch extends DeployProcessorMemory {
    */
   public $operations = array();
 
+  /**
+   * {@inheritdoc}
+   */
   protected function processOperations(Array $operations = array()) {
     if (!empty($operations)) {
       foreach ($this->aggregator as $entity) {
@@ -22,6 +29,9 @@ class DeployProcessorBatch extends DeployProcessorMemory {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function deploy($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
     deploy_log($deployment_key, DEPLOY_STATUS_PROCESSING);
     foreach ($this->aggregator as $entity) {
@@ -37,6 +47,9 @@ class DeployProcessorBatch extends DeployProcessorMemory {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function publish($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
     foreach ($this->aggregator as $entity) {
       $entity_info = entity_get_info($entity->__metadata['type']);
@@ -51,6 +64,9 @@ class DeployProcessorBatch extends DeployProcessorMemory {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function postProcess(Array $operations = array()) {
     $this->processOperations($operations);
     $batch = array(

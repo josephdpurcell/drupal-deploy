@@ -12,7 +12,7 @@
  *   The entity being deployed.
  *
  * @param $entity_type
- *   The entity type; e.g. 'node' or 'user'.
+ *   The entity type; for example 'node' or 'user'.
  */
 function hook_deploy_entity_alter(&$entity, $entity_type) {
 
@@ -30,7 +30,7 @@ function hook_deploy_entity_alter(&$entity, $entity_type) {
  *   The entity being deployed.
  *
  * @param $entity_type
- *   The entity type; e.g. 'node' or 'user'.
+ *   The entity type; for example 'node' or 'user'.
  *
  * @return
  *   An array of entities structure as follows:
@@ -67,7 +67,7 @@ function hook_deploy_entity_dependencies($entity, $entity_type) {
  *   The entity being deployed.
  *
  * @param $entity_type
- *   The entity type; e.g. 'node' or 'user'.
+ *   The entity type; for example 'node' or 'user'.
  */
 function hook_deploy_entity_dependencies_alter(&$dependencies, $entity, $entity_type) {
 
@@ -80,7 +80,7 @@ function hook_deploy_entity_dependencies_alter(&$dependencies, $entity, $entity_
  *   The entity being deployed.
  *
  * @param $entity_type
- *   The entity type; e.g. 'node' or 'user'.
+ *   The entity type; for example 'node' or 'user'.
  *
  * @return
  *   An array of belongings for this entity.
@@ -99,7 +99,7 @@ function hook_deploy_entity_belongings($entity, $entity_type) {
  *   The entity being deployed.
  *
  * @param $entity_type
- *   The entity type; e.g. 'node' or 'user'.
+ *   The entity type; for example 'node' or 'user'.
  */
 function hook_deploy_entity_belongings_alter(&$belongings, $entity, $entity_type) {
 
@@ -113,7 +113,7 @@ function hook_deploy_entity_belongings_alter(&$belongings, $entity, $entity_type
  * use the 'deploy' namespace.
  *
  * @param $entity_type
- *   The entity type; e.g. 'node' or 'user'.
+ *   The entity type; for example 'node' or 'user'.
  *
  * @param $entity
  *   The entity being deployed.
@@ -147,7 +147,7 @@ function hook_deploy_field_dependencies($entity_type, $entity, $field, $instance
  *   The array of dependencies for this field.
  *
  * @param $entity_type
- *   The entity type; e.g. 'node' or 'user'.
+ *   The entity type; for example 'node' or 'user'.
  *
  * @param $entity
  *   The entity being deployed.
@@ -176,7 +176,7 @@ function hook_deploy_field_dependency_alter(&$field_dependencies, $entity_type, 
  *   ie. 'hook_entity_presave' and 'hook_entity_insert'.
  *
  * @param $sender
- *   The object invoking the hook, e.g a deploy aggregator object.
+ *   The object invoking the hook, for examplea deploy aggregator object.
  *
  * @param $args
  *   An associative array containing information about the entity deployment that
@@ -184,7 +184,7 @@ function hook_deploy_field_dependency_alter(&$field_dependencies, $entity_type, 
  *   - 'eid'
  *     The id of the entity that was just deployed.
  *   - 'response'
- *     A response object, e.g. from a http request.
+ *     A response object, for example from a http request.
  *   - 'plan'
  *     The plan that this entity deployment was a part of.
  */

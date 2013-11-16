@@ -1,10 +1,17 @@
 <?php
+/**
+ * @file
+ * JSON REST client for deploying entities.
+ */
 
 /**
  * Class for deploying to a REST server using JSON
  */
 class DeployServiceRestJSON extends DeployServiceRest {
 
+  /**
+   * {@inheritdoc}
+   */
   public function deploy(Traversable $iterator) {
     foreach ($iterator as $entity) {
       $json_data = drupal_json_encode($entity);
@@ -23,6 +30,9 @@ class DeployServiceRestJSON extends DeployServiceRest {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function publish(Traversable $iterator) {
     foreach ($iterator as $entity) {
       $this->config['headers']['Content-Type'] = 'application/json';

@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_services_resources.
+ * Implements hook_services_resources().
  */
 function deploy_services_resources() {
   $resources = array('deploy' => array());
@@ -52,21 +52,21 @@ function deploy_services_resources() {
   );
 
   $resources['deploy']['update'] = array(
-    'callback' => 'deploy_services_update', 
+    'callback' => 'deploy_services_update',
     'file' => array('type' => 'inc', 'module' => 'deploy', 'name' => 'deploy.services'),
     'args' => array(
       array(
-        'name' => 'name', 
-        'optional' => FALSE, 
-        'source' => array('path' => 0), 
-        'description' => 'The name of the deployment plan.', 
+        'name' => 'name',
+        'optional' => FALSE,
+        'source' => array('path' => 0),
+        'description' => 'The name of the deployment plan.',
         'type' => 'int',
       ),
       array(
-        'name' => 'config', 
-        'optional' => FALSE, 
-        'source' => 'data', 
-        'description' => 'The configuration for the deployment plan.', 
+        'name' => 'config',
+        'optional' => FALSE,
+        'source' => 'data',
+        'description' => 'The configuration for the deployment plan.',
         'type' => 'array',
       ),
     ),

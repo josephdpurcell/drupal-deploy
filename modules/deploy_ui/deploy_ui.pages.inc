@@ -1,5 +1,9 @@
 <?php
- 
+/**
+ * @file
+ * Deploy UI page functions.
+ */
+
 /**
  * Page callback for the overview page.
  */

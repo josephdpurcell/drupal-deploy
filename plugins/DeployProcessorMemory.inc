@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * In memory plugin for deploy Processor.
+ */
 
 /**
  * Class for basic memory-based processing
@@ -19,6 +23,9 @@ class DeployProcessorMemory implements DeployProcessor {
    */
   public $config = array();
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct(DeployAggregator $aggregator, Array $config = array()) {
     $this->aggregator = $aggregator;
     $this->config += array(
@@ -27,6 +34,9 @@ class DeployProcessorMemory implements DeployProcessor {
     $this->config = array_merge($this->config, $config);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function processOperations(Array $operations = array()) {
     if (!empty($operations)) {
       foreach ($this->aggregator as $entity) {
@@ -37,23 +47,38 @@ class DeployProcessorMemory implements DeployProcessor {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function preProcess(Array $operations = array()) {
     $this->processOperations($operations);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function deploy($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
     $endpoint->deploy($deployment_key, $this->aggregator, $lock_name);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function publish($deployment_key, DeployEndpoint $endpoint, $lock_name = NULL) {
     $endpoint->publish($deployment_key, $this->aggregator, $lock_name);
     drupal_set_message(t('Plan %plan has been deployed and published to %endpoint.', array('%plan' => $this->aggregator->plan->title, '%endpoint' => $endpoint->title)));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function postProcess(Array $operations = array()) {
     $this->processOperations($operations);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function configForm(&$form_state) {
     // We have no settings for this processor.
     return array();

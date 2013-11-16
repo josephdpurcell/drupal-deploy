@@ -337,6 +337,9 @@ class DeployWebTestCase extends DrupalWebTestCase {
  */
 class DeploySimpleDeploymentTestCase extends DeployWebTestCase {
 
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Simple deployment setup',
@@ -361,6 +364,9 @@ class DeploySimpleDeploymentTestCase extends DeployWebTestCase {
  */
 class DeployQueuedDeploymentTestCase extends DeployWebTestCase {
 
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Queued deployment setup',
@@ -369,6 +375,9 @@ class DeployQueuedDeploymentTestCase extends DeployWebTestCase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   function testDeployment() {
     $this->editPlan('deploy_example_plan', array('processor_plugin' => 'DeployProcessorQueue'));
     $this->runScenario('deploy_example_plan');

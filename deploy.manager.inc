@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Deploy module functions for handling managed entities in plans.
+ */
 
 /**
  * Returns the items for a given plan.

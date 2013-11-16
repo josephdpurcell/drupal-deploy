@@ -1,8 +1,12 @@
 <?php
+/**
+ * @file
+ * Implementation of a REST based client for deploying entities.
+ */
 
 /**
  * Base class for REST-based service plugins.
- * 
+ *
  * This is not a full plugin, but an abstract class that plugins can extend.
  */
 class DeployServiceRest implements DeployService {

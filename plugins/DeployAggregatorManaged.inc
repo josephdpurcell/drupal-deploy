@@ -1,10 +1,18 @@
 <?php
+/**
+ * @file
+ * Managed entities Deploy aggregator plugin.
+ */
 
 /**
  * Managed deployment aggregator.
  */
 class DeployAggregatorManaged extends DeployAggregatorBase {
 
+  /**
+   * Configuration data.
+   * @var array
+   */
   public $config = array();
 
   /**
@@ -14,6 +22,9 @@ class DeployAggregatorManaged extends DeployAggregatorBase {
    */
   public $plan;
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct(DeployPlan $plan = NULL, Array $config = array()) {
     $this->config += array(
       'debug' => FALSE,
@@ -30,6 +41,9 @@ class DeployAggregatorManaged extends DeployAggregatorBase {
     return deploy_manager_get_entities($this->plan->name);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function configForm(&$form_state) {
     $form = array();
     $form['delete_post_deploy'] = array(

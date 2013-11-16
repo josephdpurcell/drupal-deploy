@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Base class for Deploy endpoint definitions.
+ */
 
 /**
  * Class representing a deployment endpoint.
@@ -56,6 +60,9 @@ class DeployEndpoint {
    */
   public $authenticator = NULL;
 
+  /**
+   * Loads the endpoint.
+   */
   public function load() {
     // Since the CTools Export API is declarative by nature, we can't realy on
     // contructor injection and deploy_endpoint_create() as the only factory.
@@ -89,7 +96,7 @@ class DeployEndpoint {
       $this->authenticator->deploy($iterator);
       deploy_log($deployment_key, DEPLOY_STATUS_DEPLOYED);
     }
-    catch(Exception $e) {
+    catch (Exception $e) {
       if (!empty($lock_name)) {
         lock_release($lock_name);
       }
@@ -119,7 +126,7 @@ class DeployEndpoint {
       $this->service->publish($iterator);
       deploy_log($deployment_key, DEPLOY_STATUS_PUBLISHED);
     }
-    catch(Exception $e) {
+    catch (Exception $e) {
       if (!empty($lock_name)) {
         lock_release($lock_name);
       }

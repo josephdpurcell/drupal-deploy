@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Deploy module functions for core entities.
+ */
 
 /**
  * @defgroup deploy_alter Deployment alterations
@@ -50,7 +54,7 @@ function field_deploy_entity_alter(&$entity, $entity_type) {
   }
 
   $dependencies = array();
-  list(,, $bundle_name) = entity_extract_ids($entity_type, $entity);
+  list(, , $bundle_name) = entity_extract_ids($entity_type, $entity);
   $instances = field_info_instances($entity_type, $bundle_name);
 
   foreach ($instances as $field_name => $instance) {
@@ -118,7 +122,7 @@ function deploy_node_operation_add_to_managed_plan($nids, $plan_name) {
   }
   $deploy_link = url("admin/structure/deploy/plans/list/$plan_name/deploy", array('query' => array('cancel_path' => 'admin/content')));
   $overview_link = url('admin/structure/deploy');
-  drupal_set_message(t('Nodes were added to <a href="!overview">@plan</a>. You might want to <a href="!deploy">deploy the plan</a>.', array('@plan' => $plan->title, '!overview' => $overview_link, '!deploy' => $deploy_link)));
+  drupal_set_message(t('Nodes were added to <a href="@overview">@plan</a>. You might want to <a href="@deploy">deploy the plan</a>.', array('@plan' => $plan->title, '@overview' => $overview_link, '@deploy' => $deploy_link)));
 }
 
 /**
@@ -132,7 +136,7 @@ function deploy_node_operation_delete_from_managed_plan($nids, $plan_name) {
   }
   $deploy_link = url("admin/structure/deploy/plans/list/$plan_name/deploy", array('query' => array('cancel_path' => 'admin/content')));
   $overview_link = url('admin/structure/deploy');
-  drupal_set_message(t('Nodes were deleted from <a href="!overview">@plan</a>. You might want to <a href="!deploy">deploy the plan</a>.', array('@plan' => $plan->title, '!overview' => $overview_link, '!deploy' => $deploy_link)));
+  drupal_set_message(t('Nodes were deleted from <a href="@overview">@plan</a>. You might want to <a href="@deploy">deploy the plan</a>.', array('@plan' => $plan->title, '@overview' => $overview_link, '@deploy' => $deploy_link)));
 }
 
 /**
@@ -150,7 +154,7 @@ function deploy_form_node_admin_content_alter(&$form, $form_state) {
   foreach ($form['admin']['options']['operation']['#options'] as $key => $value) {
     list($module) = explode(':', $key);
     if ($module == 'deploy') {
-      list(,$op) = explode(':', $key);
+      list(, $op) = explode(':', $key);
       unset($options[$key]);
       if ($op == 'add') {
         unset($options[$key]);
