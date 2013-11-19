@@ -344,6 +344,11 @@ class DeployWebTestCase extends DrupalWebTestCase {
 
     // TODO: Update more entities in the dependency chain of the node.
 
+    // Since we have a new revision ID we have to add the node again.
+    if ($this->manage_add_to_plan) {
+      deploy_manager_add_to_plan($plan_name, 'node', $node_stage);
+    }
+
     // Now deploy the node again.
     $this->deployPlan($plan_name);
 
