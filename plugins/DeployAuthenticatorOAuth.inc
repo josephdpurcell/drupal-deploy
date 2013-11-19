@@ -10,6 +10,13 @@
 class DeployAuthenticatorOAuth implements DeployAuthenticator {
 
   /**
+   * Configuration options.
+   *
+   * @var array
+   */
+  public $config = array();
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(DeployService $service, Array $config = array()) {
