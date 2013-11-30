@@ -1,0 +1,10 @@
+name = Deployment services
+description = Manages deployment services
+package = Deployment
+core = 7.x
+
+dependencies[] = deploy
+dependencies[] = diff
+dependencies[] = services
+
+files[] = deploy_services.services.inc
