@@ -1,16 +1,17 @@
 <?php
 /**
+ * @file
  * Deploy UI for managing deployment plans.
  */
+// @ignore style_class_names:file
 
 /**
  * CTools Export UI class for deployment plans.
-*/
+ */
 class deploy_ui_plan extends ctools_export_ui {
 
-  // @ignore rule:comment
   /**
-   * Pseudo implementation of hook_menu_alter().
+   * Implementats CTools psuedo hook_menu_alter().
    *
    * @todo
    *   Can we do this in $plugin instead?

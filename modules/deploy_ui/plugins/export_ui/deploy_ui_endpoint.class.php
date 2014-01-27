@@ -3,15 +3,15 @@
  * @file
  * CTools export UI implementation for deploy endpoints.
  */
+// @ignore style_class_names:file
 
 /**
  * Deploy endpoint UI class that extends CTools Export UI.
  */
 class deploy_ui_endpoint extends ctools_export_ui {
 
-  // @ignore rule:comment
   /**
-   * Pseudo implementation of hook_menu_alter().
+   * Implements CTools pseudo hook_menu_alter().
    *
    * @todo
    *   Can we do this in $plugin instead?

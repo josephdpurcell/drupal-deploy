@@ -17,6 +17,7 @@ interface DeployService {
    */
   public function __construct(Array $config = array());
 
+  // @ignore comment_comment_see:comment
   /**
    * Deploy all entities in the $iterator. This method should only move entities
    * over to the endpoint and create unpublished revisions (if supported). The
@@ -29,6 +30,7 @@ interface DeployService {
    */
   public function deploy(Traversable $iterator);
 
+  // @ignore comment_comment_see:comment
   /**
    * Publish all entities in the $iterator. This method should only publish
    * entities on the endpoint (if supported). The 'deploy' method is
