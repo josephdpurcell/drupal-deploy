@@ -172,6 +172,27 @@ function deploy_plan_load_all($args = array()) {
 }
 
 /**
+ * Loader callback for all enabled deployment plans.
+ */
+function deploy_plan_load_all_enabled($args = array()) {
+  $type = !empty($args) ? 'conditions' : 'all';
+  ctools_include('export');
+  $enabled_plans = array();
+  $all_plans = ctools_export_load_object('deploy_plans', $type, $args);
+  if (isset($all_plans)) {
+    // Load each plan's configuration into itself.
+    foreach ($all_plans as $plan) {
+      if (!empty($plan->disabled)) {
+        continue;
+      }
+      $plan->load();
+      $enabled_plans[$plan->name] = $plan;
+    }
+    return $enabled_plans;
+  }
+}
+
+/**
  * Options callback for the deploy_plan data type.
  */
 function deploy_plan_get_options($args = array()) {

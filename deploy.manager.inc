@@ -71,7 +71,7 @@ function deploy_manager_plan_get_options($args = array()) {
   );
   $args = array_merge($default_args, $args);
 
-  $plans = deploy_plan_load_all($args);
+  $plans = deploy_plan_load_all_enabled($args);
   $options = array();
   foreach ($plans as $plan_name => $info) {
     $options[$plan_name] = $info->title;

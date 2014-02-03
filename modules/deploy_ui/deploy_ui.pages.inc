@@ -8,7 +8,7 @@
  * Page callback for the overview page.
  */
 function deploy_ui_overview_page() {
-  $plans = deploy_plan_load_all();
+  $plans = deploy_plan_load_all_enabled();
   $blocks = array();
 
   // Iterate over all plans.
