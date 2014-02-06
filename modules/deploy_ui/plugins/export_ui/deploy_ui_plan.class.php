@@ -87,7 +87,7 @@ class deploy_ui_plan extends ctools_export_ui {
       '#default_value' => $item->fetch_only,
     );
 
-    $form['fieldset'] = array(
+    $form['deployment_process'] = array(
       '#type' => 'fieldset',
       '#title' => t('Deployment process'),
       '#description' => t('Configure how the deployment process should behave.'),
@@ -108,7 +108,7 @@ class deploy_ui_plan extends ctools_export_ui {
       );
     }
 
-    $form['fieldset']['processor_plugin'] = array(
+    $form['deployment_process']['processor_plugin'] = array(
       '#prefix' => '<label>' . t('Processor') . '</label>',
       '#type' => 'tableselect',
       '#required' => FALSE,
@@ -133,7 +133,7 @@ class deploy_ui_plan extends ctools_export_ui {
     if (!is_array($item->endpoints)) {
       $item->endpoints = unserialize($item->endpoints);
     }
-    $form['fieldset']['endpoints'] = array(
+    $form['deployment_process']['endpoints'] = array(
       '#prefix' => '<label>' . t('Endpoints') . '</label>',
       '#type' => 'tableselect',
       '#required' => FALSE,
@@ -145,6 +145,23 @@ class deploy_ui_plan extends ctools_export_ui {
       ),
       '#options' => $options,
       '#default_value' => (array)$item->endpoints,
+    );
+
+    // Dependency plugin.
+    $form['dependency_iterator'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Dependency plugin'),
+      '#description' => t('The iterator to handle the dependencies of the deployment plan'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+
+    $form['dependency_iterator']['dependency_plugin'] = array(
+      '#type' => 'select',
+      '#title' => t('Plugin'),
+      '#options' => entity_dependency_get_all_ctools_plugins(),
+      '#default_value' => $item->dependency_plugin,
+      '#required' => TRUE,
     );
   }
 
@@ -176,6 +193,9 @@ class deploy_ui_plan extends ctools_export_ui {
     else {
       $item->endpoints = array();
     }
+
+    // Dependency Iterator.
+    $item->dependency_plugin = $form_state['values']['dependency_plugin'];
   }
 
   /**

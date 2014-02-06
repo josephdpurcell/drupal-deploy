@@ -106,6 +106,12 @@ class DeployPlan {
   public $endpoints = array();
 
   /**
+   * The plugin that this plan will use to define the dependencies
+   * @var string
+   */
+  public $dependency_plugin = NULL;
+
+  /**
    * Load the plan with its aggregator and processor.
    *
    * Since the CTools Export API is declarative by nature, we can't rely on

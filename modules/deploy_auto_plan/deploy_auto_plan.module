@@ -127,3 +127,28 @@ function _deploy_auto_plan_plans_list() {
 
   return $options;
 }
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function deploy_auto_plan_ctools_plugin_api($module, $api) {
+  if ($module == 'entity_dependency' && $api == 'iterator') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_entity_dependency_iterator().
+ */
+function deploy_auto_plan_entity_dependency_iterator() {
+  $plugins = array();
+
+  $plugins['no_dependency'] = array(
+    'title' => t('No Dependency Iterator'),
+    'description' => t('This iterator assumes depedencies are already includd in the plan.'),
+    'handler' => 'NoDependencyIterator',
+    'file' => 'plugins/iterator/deploy_auto_plan.NoDependencyIterator.class.php',
+  );
+
+  return $plugins;
+}

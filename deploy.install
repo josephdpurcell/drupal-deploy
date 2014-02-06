@@ -103,6 +103,13 @@ function deploy_schema() {
         'not null' => TRUE,
         'serialize' => TRUE,
       ),
+      'dependency_plugin' => array(
+        'description' => 'Dependency plugin used for this plan.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
     ),
     'primary key' => array('pid'),
     'indexes' => array(
@@ -338,4 +345,19 @@ function deploy_update_7001(&$sandbox) {
 
   // Now we add the new index so MySQL doesn't whinge.
   db_add_index('deploy_manager_entities', 'timstamp', array('timestamp'));
+}
+
+/**
+ * Add new fields to the 'deploy_plans' table.
+ */
+function deploy_update_7001() {
+  if (!db_field_exists('deploy_plans', 'dependency_plugin')) {
+    db_add_field('deploy_plans', 'dependency_plugin', array(
+      'description' => 'Dependency plugin used for this plan.',
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => TRUE,
+      'default' => '',
+    ));
+  }
 }
