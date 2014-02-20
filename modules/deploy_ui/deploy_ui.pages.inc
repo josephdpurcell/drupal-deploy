@@ -21,12 +21,11 @@ function deploy_ui_overview_page() {
       // Get the entity info and all entities of this type.
       $entity_info = entity_get_info($entity_key['type']);
 
-      $entity = entity_load_single($entity_key['type'], $entity_key['id']);
-      if (empty($entity_info['entity keys']['revision'])) {
-        $entity = entity_load_single($entity_key['type'], $entity_key['id']);
+      if (!empty($entity_info['entity keys']['revision']) && !empty($entity_key['revision_id'])) {
+        $entity = entity_revision_load($entity_key['type'], $entity_key['revision_id']);
       }
       else {
-        $entity = entity_revision_load($entity_key['type'], $entity_key['revision_id']);
+        $entity = entity_load_single($entity_key['type'], $entity_key['id']);
       }
 
       $title = "{$entity_key['type']}:{$entity_key['id']}";
@@ -35,7 +34,7 @@ function deploy_ui_overview_page() {
         $title = $label;
       }
 
-      if ($entity_info['entity keys']['revision']) {
+      if ($entity_info['entity keys']['revision'] && !empty($entity_key['revision_id'])) {
         $title = t('@title (rev:@rev_id)', array('@title' => $title, '@rev_id' => $entity_key['revision_id']));
       }
 
