@@ -350,7 +350,7 @@ function deploy_update_7001(&$sandbox) {
 /**
  * Add new fields to the 'deploy_plans' table.
  */
-function deploy_update_7001() {
+function deploy_update_7002() {
   if (!db_field_exists('deploy_plans', 'dependency_plugin')) {
     db_add_field('deploy_plans', 'dependency_plugin', array(
       'description' => 'Dependency plugin used for this plan.',
