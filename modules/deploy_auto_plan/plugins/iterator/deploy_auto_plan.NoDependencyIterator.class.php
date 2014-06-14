@@ -7,7 +7,7 @@
 /**
  * Iterator class for when there are no dependencies to iterate through.
  */
-class NoDependencyIterator extends EntityDependencyIterator {
+class NoDependencyIterator extends DeployIterator {
 
   /**
    * {@inheritdoc}
