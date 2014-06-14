@@ -150,6 +150,7 @@ function deploy_plan_create($schema, $item) {
 function deploy_plan_load($name) {
   $plans = deploy_plan_load_all();
   if (isset($plans[$name])) {
+     drupal_alter("deploy_plan_load", $plans[$name]);
     return $plans[$name];
   }
   return FALSE;

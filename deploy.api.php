@@ -191,3 +191,13 @@ function hook_deploy_field_dependency_alter(&$field_dependencies, $entity_type, 
 function hook_deploy_item_deployed($sender, $args) {
 
 }
+
+/**
+ * Allow module to alter a deploy plan when it is loaded.
+ *
+ * @param $plan
+ *   The deployment plan to be altered.
+ */
+function hook_deploy_plan_load_alter(&$plan) {
+
+}
