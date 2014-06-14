@@ -412,13 +412,7 @@ class DeployQueuedDeploymentTestCase extends DeployWebTestCase {
    * {@inheritdoc}
    */
   function testDeployment() {
-    $this->editPlan(
-      'deploy_example_plan',
-      array(
-        'processor_plugin' => 'DeployProcessorQueue',
-        'dependency_plugin' => 'default_iterator'
-      )
-    );
+    $this->editPlan('deploy_example_plan', array('processor_plugin' => 'DeployProcessorQueue'));
     $this->runScenario('deploy_example_plan');
   }
 }

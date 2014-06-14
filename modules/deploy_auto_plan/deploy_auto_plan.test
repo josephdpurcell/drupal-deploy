@@ -40,3 +40,25 @@ class DeployAutoPlanTestCase extends DeployWebTestCase {
     $this->runScenario('deploy_example_plan');
   }
 }
+
+class DeployAutoPlanNoDependencyPluginTestCase extends DeployAutoPlanTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Auto deployment setup without dependencies',
+      'description' => 'Test a full deployment between two sites, based on the auto deploy module with the \'No Depenedency Iterator\' plugin.',
+      'group' => 'Deployment'
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  function testDeployment() {
+    $this->editPlan('deploy_example_plan', array('dependency_plugin' => 'no_dependency'));
+    $this->runScenario('deploy_example_plan');
+  }
+}
