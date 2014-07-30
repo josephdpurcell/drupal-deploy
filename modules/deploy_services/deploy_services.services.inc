@@ -312,10 +312,6 @@ function deploy_services_diff_entity($type, $id, $new_revision, $old_revision = 
       $id_key => $new_entity->{$id_key},
     );
 
-    if ($revision_key) {
-      $entity_values[$revision_key] = $new_entity->{$revision_key};
-    }
-
     if ($bundle_key) {
       $entity_values[$bundle_key] = $new_entity->{$bundle_key};
     }
