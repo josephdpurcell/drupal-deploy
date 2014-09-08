@@ -280,6 +280,22 @@ function deploy_plan_save($data) {
 }
 
 /**
+ * Implements hook_entity_dependency_iterator().
+ */
+function deploy_entity_dependency_iterator() {
+  $plugins = array();
+
+  $plugins['deploy_iterator'] = array(
+    'title' => t('Deploy Iterator'),
+    'description' => t('Default iterator for Deploy to return UUID entities and invoke Deploy-specific hooks.'),
+    'handler' => 'DeployIterator',
+    'file' => 'includes/DeployIterator.inc',
+  );
+
+  return $plugins;
+}
+
+/**
  * Constructs a deployment iterator, which is the core of the dependency
  * framework.
  */
