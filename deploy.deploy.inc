@@ -78,7 +78,7 @@ function deploy_deploy_authenticators() {
   return array(
     'DeployAuthenticatorSession' => array(
       'name' => 'Session authentication',
-      'description' => 'Performs session authentication on the endpoint. Works well when the endpoint happends to be a Drupal site using Services module and session authentication.',
+      'description' => 'Performs session authentication on the endpoint. Works well when the endpoint happens to be a Drupal site using Services module and session authentication.',
       'handler' => array(
         'class' => 'DeployAuthenticatorSession',
         'file' => 'DeployAuthenticatorSession.inc',
