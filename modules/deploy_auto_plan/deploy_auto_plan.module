@@ -18,6 +18,37 @@ function deploy_auto_plan_permission() {
 }
 
 /**
+ * Helper function to set a session value
+ *
+ * @param string
+ *   The plan name.
+ */
+function deploy_auto_plan_set_session($value) {
+  $_SESSION['deploy_auto_plan_user_plan'] = $value;
+}
+
+/**
+ * Helper function to get a session value
+ *
+ * @return string|FALSE
+ *   The plan name or FALSE when not exist in session
+ */
+function deploy_auto_plan_get_session() {
+  if(isset($_SESSION['deploy_auto_plan_user_plan'])){
+    return $_SESSION['deploy_auto_plan_user_plan'];
+  }
+
+  return FALSE;
+}
+
+/**
+ * Helper function to destory a session value
+ */
+function deploy_auto_plan_del_session() {
+  unset($_SESSION['deploy_auto_plan_user_plan']);
+}
+
+/**
  * Implements hook_menu().
  */
 function deploy_auto_plan_menu() {
@@ -96,18 +127,30 @@ function deploy_auto_plan_settings($form, $form_state) {
  *   The type of entity being updated (i.e. node, user, comment).
  */
 function _deploy_auto_plan_entity_save($entity, $type) {
-  $plan_name = variable_get('deploy_auto_plan_name', NULL);
-  if (!$plan_name) {
-    return;
-  }
+  $plan_name = deploy_auto_plan_get_plan();
 
   $info = entity_get_info($type);
-  if (empty($info['entity keys']['uuid'])) {
+  if (!$plan_name || empty($info['entity keys']['uuid'])) {
     // we only care about entities with UUIDs.
     return;
   }
 
   deploy_manager_add_to_plan($plan_name, $type, $entity);
+}
+
+/**
+ * Helper function to get a plan name
+ *
+ * @return string
+ *   The plan name.
+ */
+function deploy_auto_plan_get_plan() {
+  $user_plan_name = deploy_auto_plan_get_session();
+  if ($user_plan_name) {
+    return $user_plan_name;
+  }
+
+  return variable_get('deploy_auto_plan_name', NULL);
 }
 
  /**
