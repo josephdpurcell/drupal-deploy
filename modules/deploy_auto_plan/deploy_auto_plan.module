@@ -135,6 +135,14 @@ function _deploy_auto_plan_entity_save($entity, $type) {
     return;
   }
 
+  // Allow other modules to alter whether or not the entity should be added.
+  $status = TRUE;
+  drupal_alter('deploy_auto_plan_status', $status, $type, $entity);
+  if (!$status) {
+    // If status is FALSE then don't add the entity to the plan.
+    return;
+  }
+
   deploy_manager_add_to_plan($plan_name, $type, $entity);
 }
 
