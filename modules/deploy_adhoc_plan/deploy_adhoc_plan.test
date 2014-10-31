@@ -41,3 +41,39 @@ class DeployAdhocPlanTestCase extends DeployWebTestCase {
     $this->runScenario('deploy_example_plan');
   }
 }
+
+class DeployAdhocPlanCreationTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Ad hoc plan creation',
+      'description' => 'Test ad hoc plan creation.',
+      'group' => 'Deployment'
+    );
+  }
+
+  function setUp() {
+    parent::setUp('ctools', 'features', 'deploy_example', 'deploy_adhoc_plan');
+    variable_set('deploy_adhoc_plan_name', 'deploy_example_plan');
+    $user = $this->drupalCreateUser(array('create deploy plan adhoc'));
+    $this->drupalLogin($user);
+  }
+
+  function testPlanCreation() {
+    $adhoc_plan_name = 'foo';
+    $this->drupalGet('<front>', array('query' => array('deploy_adhoc_plan' => $adhoc_plan_name)));
+
+    $template_plan = deploy_plan_load(variable_get('deploy_adhoc_plan_name'));
+    $adhoc_plan = deploy_plan_load($adhoc_plan_name);
+
+    $this->assertTrue((
+      $template_plan->export_type == EXPORT_IN_CODE &&
+      !empty($adhoc_plan->pid) && $adhoc_plan->export_type == EXPORT_IN_DATABASE
+    ), 'Adhoc plan was successfully cloned.');
+
+    $this->assertEqual(deploy_auto_plan_get_session(), $adhoc_plan_name, 'Auto plan session was initialized.');
+  }
+}

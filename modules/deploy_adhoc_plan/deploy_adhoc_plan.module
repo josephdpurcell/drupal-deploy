@@ -98,6 +98,8 @@ function deploy_adhoc_plan_create($adhoc) {
   $default = variable_get('deploy_adhoc_plan_name');
   if ($default) {
     $plan = deploy_plan_load($default);
+    unset($plan->pid);
+    $plan->export_type = NULL;
     $plan->name = $adhoc;
     $plan->title = $adhoc;
     $plan->description = t('Ad hoc deployment plan');

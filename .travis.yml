@@ -53,7 +53,7 @@ install:
 
 before_script:
   # Enable required modules and ignore any output to not break the test.
-  - drush --yes pm-enable simpletest deploy
+  - drush --yes pm-enable simpletest deploy deploy_auto_plan deploy_adhoc_plan
 
 script:
   # Run the tests and make sure we exit with the right status.
