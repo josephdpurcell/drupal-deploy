@@ -58,12 +58,12 @@ class DeployAdhocPlanCreationTestCase extends DrupalWebTestCase {
   function setUp() {
     parent::setUp('ctools', 'features', 'deploy_example', 'deploy_adhoc_plan');
     variable_set('deploy_adhoc_plan_name', 'deploy_example_plan');
-    $user = $this->drupalCreateUser(array('create deploy plan adhoc'));
-    $this->drupalLogin($user);
+    $this->adhocUser = $this->drupalCreateUser(array('create deploy plan adhoc'));
   }
 
   function testPlanCreation() {
     $adhoc_plan_name = 'foo';
+    $this->drupalLogin($this->adhocUser);
     $this->drupalGet('<front>', array('query' => array('deploy_adhoc_plan' => $adhoc_plan_name)));
 
     $template_plan = deploy_plan_load(variable_get('deploy_adhoc_plan_name'));
@@ -75,5 +75,17 @@ class DeployAdhocPlanCreationTestCase extends DrupalWebTestCase {
     ), 'Adhoc plan was successfully cloned.');
 
     $this->assertEqual(deploy_auto_plan_get_session(), $adhoc_plan_name, 'Auto plan session was initialized.');
+
+    // This node should be added to the adhoc plan.
+    $title = $this->randomString();
+    $this->drupalCreateNode(array(
+      'type' => 'article',
+      'title' => $title,
+      'uid' => $this->adhocUser->uid,
+    ));
+
+    $entities = deploy_manager_get_entities($adhoc_plan_name);
+    $node = node_load($entities[0]['id']);
+    $this->assertEqual($title, $node->title, 'Node was added to ad hoc plan.');
   }
 }

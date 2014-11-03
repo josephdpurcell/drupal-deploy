@@ -24,6 +24,16 @@ function deploy_auto_plan_permission() {
  *   The plan name.
  */
 function deploy_auto_plan_set_session($value) {
+  // Because the Drupal 7 testing framework is not the greatest this world have
+  // seen we need to provide an alternative "session storage" in order to test
+  // this. The regular sessions are messed up for some reason.
+  // This is very hacky and will not work for all test cases, but it does the
+  // job for now.
+  $test_info = &$GLOBALS['drupal_test_info'];
+  if ($test_info) {
+    variable_set('deploy_auto_plan_user_plan__testing', $value);
+    return;
+  }
   $_SESSION['deploy_auto_plan_user_plan'] = $value;
 }
 
@@ -34,6 +44,12 @@ function deploy_auto_plan_set_session($value) {
  *   The plan name or FALSE when not exist in session
  */
 function deploy_auto_plan_get_session() {
+  // Don't ask why, or see explanation in deploy_auto_plan_set_session() if you
+  // really want to know why (but you don't, trust me).
+  $test_info = &$GLOBALS['drupal_test_info'];
+  if ($test_info) {
+    return variable_get('deploy_auto_plan_user_plan__testing', FALSE);
+  }
   if(isset($_SESSION['deploy_auto_plan_user_plan'])){
     return $_SESSION['deploy_auto_plan_user_plan'];
   }
