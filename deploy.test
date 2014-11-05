@@ -301,7 +301,7 @@ class DeployWebTestCase extends DrupalWebTestCase {
     }
 
     // Test that the node was added to the plan with the right identifiers.
-    $count = db_query('SELECT COUNT(revision_id) FROM {deploy_manager_entities} WHERE entity_id = :nid AND revision_id = :vid', array(':nid' => $nid_stage, ':vid' => $vid_stage))->fetchField();
+    $count = db_query('SELECT COUNT(revision_id) FROM {deploy_manager_entities} WHERE plan_name = :plan_name AND entity_id = :nid AND revision_id = :vid', array(':plan_name' => $plan_name, ':nid' => $nid_stage, ':vid' => $vid_stage))->fetchField();
     $this->assertEqual($count, 1, 'The entity was added to the deployment plan');
 
     // This will deploy the node only. But with dependencies (like the author

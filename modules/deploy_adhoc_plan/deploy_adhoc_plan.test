@@ -29,7 +29,6 @@ class DeployAdhocPlanTestCase extends DeployWebTestCase {
    */
   function setUpSiteSpecifics($key) {
     if ($key == 'deploy_origin') {
-      variable_set('deploy_auto_plan_name', 'deploy_example_plan');
       variable_set('deploy_adhoc_plan_name', 'deploy_example_plan');
     }
   }
@@ -38,32 +37,10 @@ class DeployAdhocPlanTestCase extends DeployWebTestCase {
    * {@inheritdoc}
    */
   function testDeployment() {
-    $this->runScenario('deploy_example_plan');
-  }
-}
+    $adhoc_plan_name = $this->randomName();
 
-class DeployAdhocPlanCreationTestCase extends DrupalWebTestCase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Ad hoc plan creation',
-      'description' => 'Test ad hoc plan creation.',
-      'group' => 'Deployment'
-    );
-  }
-
-  function setUp() {
-    parent::setUp('ctools', 'features', 'deploy_example', 'deploy_adhoc_plan');
-    variable_set('deploy_adhoc_plan_name', 'deploy_example_plan');
-    $this->adhocUser = $this->drupalCreateUser(array('create deploy plan adhoc'));
-  }
-
-  function testPlanCreation() {
-    $adhoc_plan_name = 'foo';
-    $this->drupalLogin($this->adhocUser);
+    $user = $this->drupalCreateUser(array('create deploy plan adhoc'));
+    $this->drupalLogin($user);
     $this->drupalGet('<front>', array('query' => array('deploy_adhoc_plan' => $adhoc_plan_name)));
 
     $template_plan = deploy_plan_load(variable_get('deploy_adhoc_plan_name'));
@@ -76,16 +53,6 @@ class DeployAdhocPlanCreationTestCase extends DrupalWebTestCase {
 
     $this->assertEqual(deploy_auto_plan_get_session(), $adhoc_plan_name, 'Auto plan session was initialized.');
 
-    // This node should be added to the adhoc plan.
-    $title = $this->randomString();
-    $this->drupalCreateNode(array(
-      'type' => 'article',
-      'title' => $title,
-      'uid' => $this->adhocUser->uid,
-    ));
-
-    $entities = deploy_manager_get_entities($adhoc_plan_name);
-    $node = node_load($entities[0]['id']);
-    $this->assertEqual($title, $node->title, 'Node was added to ad hoc plan.');
+    $this->runScenario($adhoc_plan_name);
   }
 }
