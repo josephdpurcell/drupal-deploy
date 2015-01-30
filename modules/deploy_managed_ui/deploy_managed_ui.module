@@ -73,7 +73,7 @@ function deploy_managed_ui_form_elements(&$form, $submit_handler, $vertical_tabs
   );
 
   $form['deploy_managed_ui']['text'] = array(
-    '#markup' => t('Select the plans to include these chanages in.'),
+    '#markup' => t('Select the plans to include these changes in.'),
   );
 
   $form['deploy_managed_ui']['plans'] = array(
