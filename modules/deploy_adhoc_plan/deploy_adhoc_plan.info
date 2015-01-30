@@ -1,8 +1,7 @@
 name = Ad Hoc Deployment Plans
 description = Create ad hoc deployment plans associated with user sessions.
+package = Deployment
 core = 7.x
-package = Deploy
-project = deploy_adhoc_plan
 
 configure = admin/config/content/deploy-adhoc-plan
 
