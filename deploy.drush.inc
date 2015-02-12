@@ -66,6 +66,20 @@ function deploy_drush_command() {
     'aliases' => array('create-plan', 'dcp'),
   );
 
+  $commands['deploy-delete-plan'] = array(
+    'description' => 'Delete a new deployment plan.',
+    'drupal dependencies' => array('deploy'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+    'arguments' => array(
+      'plan_name' => 'The name of the deployment plan to delete.'
+    ),
+    'required-arguments' => TRUE,
+    'examples' => array(
+      'drush deploy-delete-plan plan_name' => 'Deletes plan called "plan_name".',
+    ),
+    'aliases' => array('delete-plan', 'ddp'),
+  );
+
   return $commands;
 }
 
@@ -158,3 +172,40 @@ function drush_deploy_create_plan($name) {
   drush_print_pipe($plan->pid);
 }
 
+function drush_deploy_delete_plan($name) {
+
+  $plan = deploy_plan_load($name);
+  if (FALSE === $plan) {
+    // We don't care if the plan doesn't exist. The user just wants it removed.
+    drush_print(dt("Plan '@name' doesn't exist.", array('@name' => $name)));
+    return DRUSH_SUCCESS;
+  }
+
+  // Cast to ensure proper bitwise evaluation.
+  $plan->export_type = (int) $plan->export_type;
+
+  if (EXPORT_IN_DATABASE !== ($plan->export_type & EXPORT_IN_DATABASE)) {
+    return drush_set_error(dt("Plan '@name' only exists in code. This plan can't be deleted.", array('@name' => $name)));
+  }
+
+  $confirm_message = dt("Are you sure you want to delete plan named '@name'?", array('@name' => $name));
+  $exported = FALSE;
+
+  if (EXPORT_IN_CODE === ($plan->export_type & EXPORT_IN_CODE)) {
+    $exported = TRUE;
+    $confirm_message = dt("Plan '@name' is exported to code. Do you want to revert this plan to the exported configuration?", array('@name' => $name));
+  }
+
+  if (!drush_confirm($confirm_message)) {
+    drush_user_abort();
+  }
+
+  ctools_export_crud_delete('deploy_plans', $name);
+
+  if ($exported) {
+    drush_print(dt("Reverted plan '@name'.", array('@name' => $name)));
+  }
+  else {
+    drush_print(dt("Deleted plan '@name'.", array('@name' => $name)));
+  }
+}
