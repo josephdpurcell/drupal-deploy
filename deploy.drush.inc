@@ -172,6 +172,9 @@ function drush_deploy_create_plan($name) {
   drush_print_pipe($plan->pid);
 }
 
+/**
+ * Command callback for deleting a deployment plan.
+ */
 function drush_deploy_delete_plan($name) {
 
   $plan = deploy_plan_load($name);
