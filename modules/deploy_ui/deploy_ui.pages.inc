@@ -38,9 +38,16 @@ function deploy_ui_overview_page() {
         $title = t('@title (rev:@rev_id)', array('@title' => $title, '@rev_id' => $entity_key['revision_id']));
       }
 
-      $uri = entity_uri($entity_key['type'], $entity);
-      if ($uri) {
-        $title = l($title, $uri['path'], $uri['options']);
+      // Some entities fail fatally with entity_uri() and
+      // entity_extract_ids(). So handle this gracefully.
+      try {
+        $uri = entity_uri($entity_key['type'], $entity);
+        if ($uri) {
+          $title = l($title, $uri['path'], $uri['options']);
+        }
+      }
+      catch (Exception $e) {
+        watchdog_exception('deploy_ui', $e);
       }
       // Construct a usable array for the theme function.
       $info[] = array(
