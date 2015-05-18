@@ -38,7 +38,8 @@ install:
 
 before_script:
   # Checkout a directory structure with all dependencies.
-  - git clone --depth 1 --branch 8.0.x http://git.drupal.org/project/drupal.git $TRAVIS_BUILD_DIR/../drupal
+  - cd $TRAVIS_BUILD_DIR/..
+  - drush --yes dl drupal-8 --drupal-project-rename=drupal
   - git clone --branch 8.x-1.x https://github.com/dickolsson/drupal-key_value.git $TRAVIS_BUILD_DIR/../drupal/modules/key_value
   - git clone --branch 8.x-1.x https://github.com/dickolsson/drupal-multiversion.git $TRAVIS_BUILD_DIR/../drupal/modules/multiversion
   - git clone --branch 8.x-1.x https://github.com/dickolsson/drupal-relaxed.git $TRAVIS_BUILD_DIR/../drupal/modules/relaxed
@@ -54,5 +55,5 @@ before_script:
 
 script:
   # Run the tests and make sure we exit with the right status.
-  - php scripts/run-tests.sh --verbose --color --php `which php` --url http://127.0.0.1 --xml /tmp "deploy"
+  - php core/scripts/run-tests.sh --verbose --color --php `which php` --url http://127.0.0.1 --xml /tmp "deploy"
   - if [[ `grep -e 'type="\(failure\|exception\)"\|Fatal error' /tmp/*TestCase.xml` ]]; then exit 1; fi
