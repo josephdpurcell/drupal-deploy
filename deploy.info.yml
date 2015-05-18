@@ -1,0 +1,9 @@
+name: Deploy
+type: module
+description: 'Content staging tools.'
+# version: VERSION
+core: 8.x
+dependencies:
+  - multiversion
+  - replication
+  - relaxed

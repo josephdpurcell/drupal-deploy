@@ -1,0 +1,4 @@
+administer deploy:
+  title: 'Administer deploy.'
+  description: 'Administration tools for deploy.'
+  restrict access: true
