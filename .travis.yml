@@ -2,8 +2,8 @@ language: php
 
 php:
   - 5.4
-  - 5.5
-  - 5.6
+#  - 5.5
+#  - 5.6
 
 mysql:
   database: drupal
@@ -50,7 +50,7 @@ before_script:
   - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
 
   # Enable required modules and ignore any output to not break the test.
-  - drush --yes pm-enable deploy || true
+  - drush --yes pm-enable serialization key_value replication multiversion rest basic_auth relaxed deploy || true
 
 script:
   # Run the tests and make sure we exit with the right status.
