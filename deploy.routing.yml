@@ -1,7 +1,7 @@
 deploy.content:
   path: '/admin/structure/deploy'
   defaults:
-    _controller: '\Drupal\deploy\Controller\deployController::admin'
+    _controller: '\Drupal\deploy\Controller\DeployController::admin'
     _title: 'Deploy'
   requirements:
     _permission: 'administer deploy'

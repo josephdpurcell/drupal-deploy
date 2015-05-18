@@ -1,14 +1,19 @@
 <?php
+
 /**
  * @file
- * Contains \Drupal\deploy\Controller\deployController.
+ * Contains \Drupal\deploy\Controller\DeployController.
  */
+
 namespace Drupal\deploy\Controller;
-class deployController {
+
+class DeployController {
+
   public function admin() {
     return array(
         '#type' => 'markup',
         '#markup' => t('Insert deploy admin here.'),
     );
   }
+
 }
