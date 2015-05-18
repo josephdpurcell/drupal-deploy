@@ -5,5 +5,4 @@ description: 'Content staging tools.'
 core: 8.x
 dependencies:
   - multiversion
-  - replication
   - relaxed
