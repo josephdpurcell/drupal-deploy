@@ -327,6 +327,7 @@ function deploy_services_diff_entity($type, $id, $new_revision, $old_revision = 
   $diff = array();
   $info = array(
     'label' => entity_label($type, $new_entity),
+    'old_label' => entity_label($type, $old_entity),
     'fields' => array(),
     'url' => url($uri['path'], $uri['options']),
   );
