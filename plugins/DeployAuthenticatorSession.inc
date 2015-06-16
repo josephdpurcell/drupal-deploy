@@ -33,6 +33,17 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
    * {@inheritdoc}
    */
   public function deploy(Traversable $iterator) {
+
+    $verify_ssl = variable_get('deploy_verify_ssl', TRUE);
+    $context_options = array(
+      'ssl' => array(
+        'verify_peer' => $verify_ssl,
+        'verify_peer_name' => $verify_ssl,
+        'allow_self_signed' => !$verify_ssl,
+      ),
+    );
+    $context = stream_context_create($context_options);
+
     // Only authenticate if we've got a username and password. This allows for
     // deployment as an anonymous user. There are usecases for that.
     if (!empty($this->config['username'])) {
@@ -48,6 +59,7 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
           'username' => $this->config['username'],
           'password' => $this->config['password'],
         )),
+        'context' => $context,
       );
 
       if ($this->config['debug']) {
@@ -89,7 +101,13 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
 
         $token_url = $parts['scheme'] . '://' . ($user ? $user . ':' . $pass . '@' : '') . $parts['host'] . $port . '/services/session/token';
 
-        $token_response = drupal_http_request($token_url, array('method' => 'GET', 'headers' => $this->service->config['headers']));
+        $options = array(
+          'method' => 'GET',
+          'headers' => $this->service->config['headers'],
+          'context' => $context,
+        );
+
+        $token_response = drupal_http_request($token_url, $options);
         if (isset($token_response->error) || !in_array($token_response->code, array(200, 304))) {
           throw new DeployAuthenticationException(t('Authentication error: @code @error', array('@code' => $token_response->code, '@error' => t('Failed to retrieve CSRF token.'))));
         }
@@ -120,6 +138,7 @@ class DeployAuthenticatorSession implements DeployAuthenticator {
           'Cookie' => $response->headers['set-cookie'],
           'X-CSRF-Token' => trim($token_response->data),
         ),
+        'context' => $context,
       );
       $response = drupal_http_request($logout_url, $options);
 

@@ -36,6 +36,7 @@ class DeployServiceRest implements DeployService {
       'debug' => FALSE,
       'url' => '',
       'headers' => array(),
+      'context' => $this->fetchContext(),
     );
     $this->config = array_merge($this->config, $config);
   }
@@ -59,6 +60,7 @@ class DeployServiceRest implements DeployService {
       'method' => $method,
       'headers' => $this->config['headers'],
       'data' => $data,
+      'context' => $this->config['context'],
     );
 
     if ($this->config['debug']) {
@@ -92,4 +94,26 @@ class DeployServiceRest implements DeployService {
     );
   }
 
+  /**
+   * Fetches the context for the HTTP request.
+   *
+   * @see stream_context_create()
+   *
+   * @return resource
+   *   The stream context resource.
+   */
+  protected function fetchContext() {
+
+    $verify_ssl = variable_get('deploy_verify_ssl', TRUE);
+    $context_options = array(
+      'ssl' => array(
+        'verify_peer' => $verify_ssl,
+        'verify_peer_name' => $verify_ssl,
+        'allow_self_signed' => !$verify_ssl,
+      ),
+    );
+    $context = stream_context_create($context_options);
+
+    return $context;
+  }
 }
