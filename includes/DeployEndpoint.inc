@@ -125,12 +125,14 @@ class DeployEndpoint {
       // Consider going through the authenticator here, as in self::deploy().
       $this->service->publish($iterator);
       deploy_log($deployment_key, DEPLOY_STATUS_PUBLISHED);
+      module_invoke_all('deploy_plan_publish', DEPLOY_STATUS_PUBLISHED);
     }
     catch (Exception $e) {
       if (!empty($lock_name)) {
         lock_release($lock_name);
       }
       deploy_log($deployment_key, DEPLOY_STATUS_FAILED, $e);
+      module_invoke_all('deploy_plan_publish', DEPLOY_STATUS_FAILED);
       throw $e;
     }
   }
