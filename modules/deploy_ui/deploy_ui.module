@@ -22,6 +22,16 @@ function deploy_ui_menu() {
     'weight' => -50,
   );
 
+  $items['admin/structure/deploy/%deploy_plan/empty'] = array(
+    'title' => 'Empty',
+    'description' => 'Remove all content from the plan',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('deploy_ui_empty_plan_form', 3),
+    'access arguments' => array('administer deployments'),
+    'file' => 'deploy_ui.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
   return $items;
 }
 

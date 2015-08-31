@@ -123,13 +123,19 @@ function theme_deploy_ui_overview($variables) {
       $output .= $block['plan_description'];
       $output .= '</div>';
       if (!$block['fetch_only']) {
-        $actions = array(array(
-          'title' => t('Deploy'),
-          'href' => 'admin/structure/deploy/plans/list/' . $block['plan_name'] . '/deploy',
-          'query' => array(
-            'cancel_path' => $_GET['q'],
-          )
-        ));
+        $actions = array(
+          array(
+            'title' => t('Deploy'),
+            'href' => 'admin/structure/deploy/plans/list/' . $block['plan_name'] . '/deploy',
+            'query' => array(
+              'cancel_path' => $_GET['q'],
+            ),
+          ),
+          array(
+            'title' => t('Empty'),
+            'href' => 'admin/structure/deploy/' . $block['plan_name'] . '/empty',
+          ),
+        );
         $output .= theme('links', array('links' => $actions, 'attributes' => array('class' => 'action-links')));
       }
       else {
@@ -144,4 +150,49 @@ function theme_deploy_ui_overview($variables) {
   }
   $output .= '</div>';
   return $output;
+}
+
+/**
+ * Form constructor for the empty plan page.
+ */
+function deploy_ui_empty_plan_form($form, &$form_state, $plan) {
+  $form = array();
+
+  $form['deploy_plan'] = array(
+    '#type' => 'value',
+    '#value' => $plan,
+  );
+
+  return confirm_form(
+    $form,
+    t('Are you sure you want to empty the !name plan?', array(
+      '!name' => $plan->name,
+      )
+    ),
+    'admin/structure/deploy',
+    t('Emptying the plan will remove all items from the plan.'),
+    t('Empty'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Submit handler for empty plan form.
+ */
+function deploy_ui_empty_plan_form_submit($form, &$form_state) {
+  $plan = $form_state['values']['deploy_plan'];
+
+  // Get the entity keys from the aggregator.
+  $entity_keys = $plan->getEntities();
+
+  foreach ($entity_keys as $entity_key) {
+    $entity = entity_load_single($entity_key['type'], $entity_key['id']);
+    deploy_manager_delete_from_plan($plan->name, $entity_key['type'], $entity);
+  }
+
+  drupal_set_message(
+    t('All items were removed from the !plan plan.', array('!plan' => $plan->title))
+  );
+
+  $form_state['redirect'] = 'admin/structure/deploy';
 }
