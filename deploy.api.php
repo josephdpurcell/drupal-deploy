@@ -52,3 +52,13 @@ function hook_deploy_operation_info() {
 function hook_deploy_plan_load_alter(&$plan) {
 
 }
+
+/**
+ * Allow module to react to publishing a deploy plan.
+ *
+ * @param $status
+ *   The boolean result of publishing the plan.
+ */
+function hook_deploy_plan_publish($status) {
+
+}
