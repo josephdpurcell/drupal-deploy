@@ -52,3 +52,19 @@ function hook_deploy_operation_info() {
 function hook_deploy_plan_load_alter(&$plan) {
 
 }
+
+/**
+ * Allow module to react to publishing a deploy plan.
+ *
+ * @param $status
+ *   The boolean result of publishing the plan.
+ */
+function hook_deploy_plan_publish($status) {
+  // Set a message based on the deployment result.
+  if ($status) {
+    drupal_set_message(t('Deployment was successful.'));
+  }
+  else {
+    drupal_set_message(t('Deployment failed.'), 'error');
+  }
+}
