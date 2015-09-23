@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * UI module to deploy content entities.
+ */
+
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_toolbar().
+ */
+function deploy_toolbar(&$items) {
+  $items = array();
+
+  $items['deploy'] = array(
+    '#type' => 'toolbar_item',
+     'tab' => array(
+       '#type' => 'link',
+       '#title' => t('Deploy'),
+       '#url' => Url::fromRoute('deploy.content'),
+       '#attributes' => array(
+         'title' => t('Deploy the content'),
+         'class' => array('toolbar-icon', 'use-ajax'),
+         'data-accepts' => 'application/vnd.drupal-modal',
+         'data-dialog-options' => '{"width": "80%"}',
+       ),
+     ),
+     '#attached' => array(
+       'library' => array(
+         array('core/system', 'core/drupal.ajax'),
+       ),
+     ),
+    '#weight' => 200,
+  );
+
+  return $items;
+}
