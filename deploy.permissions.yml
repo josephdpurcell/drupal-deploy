@@ -2,3 +2,7 @@ administer deploy:
   title: 'Administer deploy.'
   description: 'Administration tools for deploy.'
   restrict access: true
+push deployment:
+  title: 'Push deployment.'
+  description: 'Push a content deployment.'
+  restrict access: true

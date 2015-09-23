@@ -18,12 +18,12 @@ function deploy_toolbar(&$items) {
      'tab' => array(
        '#type' => 'link',
        '#title' => t('Deploy'),
-       '#url' => Url::fromRoute('deploy.content'),
+       '#url' => Url::fromRoute('deploy.push'),
        '#attributes' => array(
          'title' => t('Deploy the content'),
          'class' => array('toolbar-icon', 'use-ajax'),
          'data-accepts' => 'application/vnd.drupal-modal',
-         'data-dialog-options' => '{"width": "80%"}',
+         'data-dialog-type' => 'modal',
        ),
      ),
      '#attached' => array(
