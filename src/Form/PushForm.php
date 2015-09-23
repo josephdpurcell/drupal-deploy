@@ -42,6 +42,9 @@ class PushForm extends FormBase {
     $form['cancel'] = [
       '#type' => 'button', 
       '#value' => t('Cancel'),
+      '#attributes' => array(
+        'class' => array('dialog-cancel'),
+      ),
     ];
     return $form;
   }
