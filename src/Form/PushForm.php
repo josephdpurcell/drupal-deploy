@@ -4,22 +4,57 @@ namespace Drupal\deploy\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Doctrine\CouchDB\CouchDBClient;
+use Doctrine\CouchDB\HTTP\HTTPException;
+use Doctrine\CouchDB\HTTP\Response;
+use Relaxed\Replicator\ReplicationTask;
+use Relaxed\Replicator\Replication;
 
 class PushForm extends FormBase {
+
+  /**
+   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
+   */
+  protected $workspaceManager;
+
+  /**
+   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   */
+  function __construct(WorkspaceManagerInterface $workspace_manager) {
+    $this->workspaceManager = $workspace_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+    $container->get('workspace.manager')
+    );
+  }
+
   public function getFormId() {
     // Unique ID of the form.
     return 'deploy_form';
   }
 
   public function buildForm(array $form, FormStateInterface $form_state) {
+    global $base_url;
+    
+    $workspace_id = $this->workspaceManager->getActiveWorkspace()->id();
+    
     // Create a $form API array.
     $form['domain'] = [
       '#type' => 'textfield',
       '#title' => t('Domain'),
+      '#default_value' => $base_url,
     ];
     $form['workspace'] = [
       '#type' => 'textfield',
       '#title' => t('Workspace'),
+      '#default_value' => $workspace_id,
     ];
     $form['tag'] = [
       '#type' => 'textfield',
