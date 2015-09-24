@@ -11,6 +11,7 @@ use Doctrine\CouchDB\HTTP\HTTPException;
 use Doctrine\CouchDB\HTTP\Response;
 use Relaxed\Replicator\ReplicationTask;
 use Relaxed\Replicator\Replication;
+use Drupal\deploy\Deploy;
 
 class PushForm extends FormBase {
 
@@ -20,10 +21,16 @@ class PushForm extends FormBase {
   protected $workspaceManager;
 
   /**
+   * @var \Drupal\deploy\Deploy
+   */
+  protected $deploy;
+
+  /**
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    */
-  function __construct(WorkspaceManagerInterface $workspace_manager) {
+  function __construct(WorkspaceManagerInterface $workspace_manager, DeployInterface $deploy) {
     $this->workspaceManager = $workspace_manager;
+    $this->deploy = $deploy;
   }
 
   /**
@@ -31,7 +38,8 @@ class PushForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-    $container->get('workspace.manager')
+    $container->get('workspace.manager'),
+    $container->get('deploy.deploy')
     );
   }
 

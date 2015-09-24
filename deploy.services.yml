@@ -1,0 +1,3 @@
+services:
+  deploy.deploy:
+    class: Drupal\deploy\Deploy
