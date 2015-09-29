@@ -6,12 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Doctrine\CouchDB\CouchDBClient;
-use Doctrine\CouchDB\HTTP\HTTPException;
-use Doctrine\CouchDB\HTTP\Response;
-use Relaxed\Replicator\ReplicationTask;
-use Relaxed\Replicator\Replication;
-use Drupal\deploy\Deploy;
+use Drupal\deploy\DeployInterface;
 
 class PushForm extends FormBase {
 
@@ -97,6 +92,6 @@ class PushForm extends FormBase {
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Handle submitted form data.
+    $this->deploy->push($form_state->getValue('domain'), $form_state->getValue('workspace'));
   }
 }

@@ -1,3 +1,4 @@
 services:
   deploy.deploy:
     class: Drupal\deploy\Deploy
+    arguments: ['@workspace.manager']
