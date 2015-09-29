@@ -11,7 +11,6 @@ use Drupal\Tests\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drupal\deploy\Controller\DeployController
- *
  * @group deploy
  */
 class DeployTest extends UnitTestCase {

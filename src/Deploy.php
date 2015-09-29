@@ -29,11 +29,11 @@ class Deploy implements DeployInterface {
    */
   public function push($target_domain, $target_workspace) {
     global $base_url;
-
+    $base_url_parts = parse_url($base_url);
+    $target_domain_parts = parse_url($target_domain);
     $source_workspace = $this->workspaceManager->getActiveWorkspace()->id();
-    $source = CouchDBClient::create(array('host' => $base_url, 'dbname' => 'relaxed/' . $source_workspace, 'port' => 80));
-    \Drupal::logger('deploy')->notice(print_r($source,TRUE));
-    $target = CouchDBClient::create(array('host' => $target_domain, 'dbname' => 'relaxed/' . $target_workspace, 'port' => 80));
+    $source = CouchDBClient::create(array('host' => $base_url_parts['host'], 'dbname' => $source_workspace, 'port' => 80));
+    $target = CouchDBClient::create(array('host' => $target_domain_parts['host'], 'dbname' => $target_workspace, 'port' => 80));
     $task = new ReplicationTask();
     $task->setCreateTarget(true);
     $replication = new Replication($source, $target, $task);
