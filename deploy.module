@@ -11,28 +11,31 @@ use Drupal\Core\Url;
  * Implements hook_toolbar().
  */
 function deploy_toolbar(&$items) {
-  $items = array();
+  $items = [];
 
-  $items['deploy'] = array(
+  $items['deploy'] = [
     '#type' => 'toolbar_item',
-     'tab' => array(
+     'tab' => [
        '#type' => 'link',
        '#title' => t('Deploy'),
        '#url' => Url::fromRoute('deploy.push'),
-       '#attributes' => array(
+       '#attributes' => [
          'title' => t('Deploy the content'),
-         'class' => array('toolbar-icon', 'use-ajax'),
+         'class' => ['toolbar-icon', 'use-ajax', 'toolbar-icon-deploy'],
          'data-accepts' => 'application/vnd.drupal-modal',
          'data-dialog-type' => 'modal',
-       ),
-     ),
-     '#attached' => array(
-       'library' => array(
-         array('core/system', 'core/drupal.ajax'),
-       ),
-     ),
-    '#weight' => 200,
-  );
+       ],
+     ],
+    '#wrapper_attributes' => [
+      'class' => ['deploy-toolbar-tab'],
+    ],
+     '#attached' => [
+       'library' => [
+         'system/drupal.ajax',
+         'deploy/drupal.deploy.toolbar',
+       ],
+     ],
+  ];
 
   return $items;
 }
