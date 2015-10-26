@@ -1,0 +1,5 @@
+{
+  "name": "drupal/deploy",
+  "description": "Content staging tools.",
+  "type": "drupal-module"
+}
