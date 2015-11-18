@@ -40,7 +40,7 @@ class Deploy implements DeployInterface {
     $source = CouchDBClient::create([
         'host' => $base_url_parts['host'],
         'path' => 'relaxed',
-        'port' => 80,
+        'port' => $target_domain_parts['port'],
         'user' => $target_username,
         'password' => $target_password,
         'dbname' => $source_workspace,
@@ -50,7 +50,7 @@ class Deploy implements DeployInterface {
     $target = CouchDBClient::create([
         'host' => $target_domain_parts['host'],
         'path' => 'relaxed',
-        'port' => 80,
+        'port' => $target_domain_parts['port'],
         'user' => $target_username,
         'password' => $target_password,
         'dbname' => $target_workspace,

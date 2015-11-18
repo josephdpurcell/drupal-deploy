@@ -33,7 +33,7 @@ class DeployTest extends KernelTestBase {
    * Should always return true.
    */
   public function testDeploy() {
-    $response = \Drupal::service('deploy.deploy')->push('http://drupal2.dev', 'admin', 'admin', 'default');
+    $response = \Drupal::service('deploy.deploy')->push('http://localhost:8081', 'admin', 'admin', 'default');
     $this->assertTrue($response, "Migration complete");
   }
 
