@@ -27,18 +27,44 @@ class Deploy implements DeployInterface {
    * @return array
    * @throws \Doctrine\CouchDB\HTTP\HTTPException
    */
-  public function push($target_domain, $target_workspace) {
+  public function push($target_domain, $target_username, $target_password, $target_workspace) {
+    // Get url for current site
     global $base_url;
+    // Parse the base url
     $base_url_parts = parse_url($base_url);
+    // Parse the target domain
     $target_domain_parts = parse_url($target_domain);
+    // Use current active workspace as the source
     $source_workspace = $this->workspaceManager->getActiveWorkspace()->id();
-    $source = CouchDBClient::create(array('host' => $base_url_parts['host'], 'dbname' => $source_workspace, 'port' => 80));
-    $target = CouchDBClient::create(array('host' => $target_domain_parts['host'], 'dbname' => $target_workspace, 'port' => 80));
+    // Create the source client
+    $source = CouchDBClient::create([
+        'host' => $base_url_parts['host'],
+        'path' => 'relaxed',
+        'port' => 80,
+        'user' => $target_username,
+        'password' => $target_password,
+        'dbname' => $source_workspace,
+        'timeout' => 10
+    ]);
+    // Create the target client
+    $target = CouchDBClient::create([
+        'host' => $target_domain_parts['host'],
+        'path' => 'relaxed',
+        'port' => 80,
+        'user' => $target_username,
+        'password' => $target_password,
+        'dbname' => $target_workspace,
+        'timeout' => 10
+    ]);
+    // Create the replication task
     $task = new ReplicationTask();
-    $task->setCreateTarget(true);
+    // Create the replication
     $replication = new Replication($source, $target, $task);
+    // Generate and set a replication ID
     $replication->task->setRepId($replication->generateReplicationId());
+    // Start the replication
     $replicationResult = $replication->start();
+    // Return the response
     return $replicationResult;
   }
 

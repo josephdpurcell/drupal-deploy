@@ -9,14 +9,6 @@
 .no-svg .toolbar-bar .toolbar-icon-deploy:before {
     background-image: url("/core/misc/icons/bebebe/push-up.png");
 }
-.toolbar-bar .toolbar-icon-deploy:active:before,
-.toolbar-bar .toolbar-icon-deploy.active:before {
-    background-image: url("/core/misc/icons/ffffff/push-up.svg");
-}
-.no-svg .toolbar-bar .toolbar-icon-deploy:active:before,
-.no-svg .toolbar-bar .toolbar-icon-deploy.active:before {
-    background-image: url("/core/misc/icons/ffffff/push-up.png");
-}
 
 .toolbar .toolbar-bar .deploy-toolbar-tab.toolbar-tab {
     float: right;

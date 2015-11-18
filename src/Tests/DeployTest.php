@@ -7,25 +7,34 @@
 
 namespace Drupal\deploy\Tests;
 
-use Drupal\Tests\UnitTestCase;
+use Drupal\KernelTests\KernelTestBase;
 
 /**
  * @group deploy
  */
-class DeployTest extends UnitTestCase {
+class DeployTest extends KernelTestBase {
+
+  protected $strictConfigSchema = FALSE;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static $modules = ['serialization', 'system', 'rest', 'key_value', 'multiversion', 'relaxed', 'deploy'];
 
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
+    $this->installConfig(['multiversion', 'relaxed', 'deploy']);
   }
 
   /**
    * Should always return true.
    */
-  public function testAdmin() {
-    $this->assertEquals(1, 1, "test");
+  public function testDeploy() {
+    $response = \Drupal::service('deploy.deploy')->push('http://drupal2.dev', 'admin', 'admin', 'default');
+    $this->assertTrue($response, "Migration complete");
   }
 
 }
