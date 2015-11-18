@@ -2,4 +2,9 @@
   "name": "drupal/deploy",
   "description": "Content staging tools.",
   "type": "drupal-module"
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "relaxedws/replicator": "dev-master"
+  }
 }
