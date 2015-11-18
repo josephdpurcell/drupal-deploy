@@ -5,23 +5,27 @@
  * Contains \Drupal\Tests\deploy\Unit\DeployTest;
  */
 
-namespace Drupal\Tests\deploy\Unit;
+namespace Drupal\deploy\Tests;
 
 use Drupal\Tests\UnitTestCase;
 
 /**
- * @coversDefaultClass \Drupal\deploy\Controller\DeployController
  * @group deploy
  */
 class DeployTest extends UnitTestCase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+  }
+
+  /**
    * Should always return true.
-   *
-   * @covers ::admin()
    */
   public function testAdmin() {
-    $this->assertTrue(true);
+    $this->assertEquals(1, 1, "test");
   }
 
 }
