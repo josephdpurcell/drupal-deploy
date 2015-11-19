@@ -1,7 +1,7 @@
 {
   "name": "drupal/deploy",
   "description": "Content staging tools.",
-  "type": "drupal-module"
+  "type": "drupal-module",
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
