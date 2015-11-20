@@ -21,41 +21,54 @@ class Deploy implements DeployInterface {
     $this->workspaceManager = $workspace_manager;
   }
 
-  /**
-   * @param $target_domain
-   * @param $target_workspace
-   * @return array
-   * @throws \Doctrine\CouchDB\HTTP\HTTPException
-   */
-  public function push($target_domain, $target_username, $target_password, $target_workspace) {
-    // Get url for current site
-    global $base_url;
-    // Parse the base url
-    $base_url_parts = parse_url($base_url);
-    // Parse the target domain
-    $target_domain_parts = parse_url($target_domain);
-    // Use current active workspace as the source
-    $source_workspace = $this->workspaceManager->getActiveWorkspace()->id();
+  public function createSource($source_domain, $source_username, $source_password) {
+    // Parse the source domain
+    $source_domain_parts = parse_url($source_domain);
+
+    // Split the database name from the path
+    $path = explode('/', $source_domain_parts['path']);
+    $dbname = array_pop($path);
+    $path = trim(implode('/', $path), '/');
+
     // Create the source client
     $source = CouchDBClient::create([
-        'host' => $base_url_parts['host'],
-        'path' => 'relaxed',
-        'port' => $target_domain_parts['port'],
-        'user' => $target_username,
-        'password' => $target_password,
-        'dbname' => $source_workspace,
-        'timeout' => 10
+      'host' => $source_domain_parts['host'],
+      'path' => $path,
+      'port' => !empty($source_domain_parts['port']) ? $source_domain_parts['port'] : 80,
+      'user' => $source_username,
+      'password' => $source_password,
+      'dbname' => $dbname,
+      'timeout' => 10
     ]);
-    // Create the target client
+
+    return $source;
+  }
+
+  public function createTarget($target_domain, $target_username, $target_password) {
+    // Parse the source domain
+    $target_domain_parts = parse_url($target_domain);
+
+    // Split the database name from the path
+    $path = explode('/', $target_domain_parts['path']);
+    $dbname = array_pop($path);
+    $path = trim(implode('/', $path), '/');
+
+    // Create the source client
     $target = CouchDBClient::create([
-        'host' => $target_domain_parts['host'],
-        'path' => 'relaxed',
-        'port' => $target_domain_parts['port'],
-        'user' => $target_username,
-        'password' => $target_password,
-        'dbname' => $target_workspace,
-        'timeout' => 10
+      'host' => $target_domain_parts['host'],
+      'path' => $path,
+      'port' => $target_domain_parts['port'],
+      'user' => $target_username,
+      'password' => $target_password,
+      'dbname' => $dbname,
+      'timeout' => 10
     ]);
+
+    return $target;
+  }
+
+  public function push(CouchDBClient $source, CouchDBClient $target) {
+
     // Create the replication task
     $task = new ReplicationTask();
     // Create the replication

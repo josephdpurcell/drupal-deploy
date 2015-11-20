@@ -64,44 +64,38 @@ class PushForm extends FormBase {
         '#title' => t('Target')
     );
 
-    $form['source']['domain'] = [
+    $form['source']['source_domain'] = [
       '#type' => 'textfield',
-      '#title' => t('Domain'),
-      '#default_value' => $base_url,
+      '#title' => t('Full url'),
+      '#description' => t('E.g. http(s)://{domain}/{path}/{database}'),
+      '#placeholder' => $base_url . '/relaxed/' . $workspace_id,
+      '#default_value' => $base_url . '/relaxed/' . $workspace_id,
     ];
-    $form['source']['username'] = [
+    $form['source']['source_username'] = [
         '#type' => 'textfield',
         '#title' => t('username'),
         '#default_value' => $this->user->getAccountName(),
     ];
-    $form['source']['password'] = [
+    $form['source']['source_password'] = [
         '#type' => 'password',
         '#title' => t('Password'),
-    ];
-    $form['source']['workspace'] = [
-      '#type' => 'textfield',
-      '#title' => t('Workspace'),
-      '#default_value' => $workspace_id,
     ];
 
-    $form['target']['domain'] = [
+    $form['target']['target_domain'] = [
         '#type' => 'textfield',
-        '#title' => t('Domain'),
-        '#default_value' => $base_url,
+        '#title' => t('Full url'),
+        '#description' => t('E.g. http(s)://{domain}/{path}/{database}'),
+        '#placeholder' => $base_url . '/relaxed/' . $workspace_id,
+        '#default_value' => $base_url . '/relaxed/' . $workspace_id,
     ];
-    $form['target']['username'] = [
+    $form['target']['target_username'] = [
         '#type' => 'textfield',
         '#title' => t('username'),
         '#default_value' => $this->user->getAccountName(),
     ];
-    $form['target']['password'] = [
+    $form['target']['target_password'] = [
         '#type' => 'password',
         '#title' => t('Password'),
-    ];
-    $form['target']['workspace'] = [
-        '#type' => 'textfield',
-        '#title' => t('Workspace'),
-        '#default_value' => $workspace_id,
     ];
 
     $form['push'] = [
@@ -132,14 +126,18 @@ class PushForm extends FormBase {
     // Validate submitted form data.
   }
 
-  public function submitForm(array &$form, FormStateInterface $form_state)
-  {
-    $result = $this->deploy->push(
-        $form_state->getValue('domain'),
-        $form_state->getValue('username'),
-        $form_state->getValue('password'),
-        $form_state->getValue('workspace')
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $source = $this->deploy->createSource(
+      $form_state->getValue('source_domain'),
+      $form_state->getValue('source_username'),
+      $form_state->getValue('source_password')
     );
+    $target = $this->deploy->createTarget(
+      $form_state->getValue('target_domain'),
+      $form_state->getValue('target_username'),
+      $form_state->getValue('target_password')
+    );
+    $result = $this->deploy->push($source, $target);
     $this->logger('Deploy')->info(print_r($result, true));
     $response = false;
     if ($result) {
