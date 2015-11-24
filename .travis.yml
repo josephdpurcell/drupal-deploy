@@ -31,11 +31,11 @@ before_install:
   - php ~/drush.phar --root=$HOME/www --yes site-install --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal0 standard
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8081 site-install --account-pass=admin --sites-subdir=8081.localhost --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal1 standard
   - composer --working-dir=$HOME/www require relaxedws/replicator:dev-master
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en deploy
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8081 en deploy
 
 install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/deploy
+  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en deploy
+  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8081 en deploy
 
 script:
   - cd ~/www && php ./core/scripts/run-tests.sh --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 "deploy" | tee /tmp/test.log ; export STATUS_SCRIPT=${PIPESTATUS[0]}
