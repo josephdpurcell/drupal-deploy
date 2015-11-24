@@ -62,8 +62,8 @@ class DeployTest extends KernelTestBase {
    * Test deploying from Drupal to Drupal.
    */
   public function testDeployDrupal() {
-    $source = $this->deploy->createSource('http://localhost:8080/relaxed/default');
-    $target = $this->deploy->createTarget('http://localhost:8081/relaxed/default');
+    $source = $this->deploy->createSource('http://admin:admin@localhost:8080/relaxed/default');
+    $target = $this->deploy->createTarget('http://admin:admin@localhost:8081/relaxed/default');
 
     $result = $this->deploy->push($source, $target);
 
