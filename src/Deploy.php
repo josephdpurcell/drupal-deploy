@@ -21,7 +21,7 @@ class Deploy implements DeployInterface {
     $this->workspaceManager = $workspace_manager;
   }
 
-  public function createSource($source_domain, $source_username, $source_password) {
+  public function createSource($source_domain, $source_username = null, $source_password = null) {
     // Parse the source domain
     $source_domain_parts = parse_url($source_domain);
 
@@ -44,7 +44,7 @@ class Deploy implements DeployInterface {
     return $source;
   }
 
-  public function createTarget($target_domain, $target_username, $target_password) {
+  public function createTarget($target_domain, $target_username = null, $target_password = null) {
     // Parse the source domain
     $target_domain_parts = parse_url($target_domain);
 
