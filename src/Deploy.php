@@ -57,7 +57,7 @@ class Deploy implements DeployInterface {
     $target = CouchDBClient::create([
       'host' => $target_domain_parts['host'],
       'path' => $path,
-      'port' => $target_domain_parts['port'],
+      'port' => !empty($target_domain_parts['port']) ? $target_domain_parts['port'] : 80,
       'user' => $target_username,
       'password' => $target_password,
       'dbname' => $dbname,
@@ -69,14 +69,20 @@ class Deploy implements DeployInterface {
 
   public function push(CouchDBClient $source, CouchDBClient $target) {
 
-    // Create the replication task
-    $task = new ReplicationTask();
-    // Create the replication
-    $replication = new Replication($source, $target, $task);
-    // Generate and set a replication ID
-    $replication->task->setRepId($replication->generateReplicationId());
-    // Start the replication
-    $replicationResult = $replication->start();
+    try {
+      // Create the replication task
+      $task = new ReplicationTask();
+      // Create the replication
+      $replication = new Replication($source, $target, $task);
+      // Generate and set a replication ID
+      $replication->task->setRepId($replication->generateReplicationId());
+      // Start the replication
+      $replicationResult = $replication->start();
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('Deploy')->info($e->getMessage() . ': ' . $e->getTraceAsString());
+      return ['error' => $e->getMessage()];
+    }
     // Return the response
     return $replicationResult;
   }
