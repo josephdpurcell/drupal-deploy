@@ -21,9 +21,9 @@ function deploy_toolbar(&$items) {
        '#url' => Url::fromRoute('deploy.push'),
        '#attributes' => [
          'title' => t('Deploy the content'),
-         'class' => ['toolbar-icon', 'use-ajax', 'toolbar-icon-deploy'],
-         'data-accepts' => 'application/vnd.drupal-modal',
-         'data-dialog-type' => 'modal',
+         'class' => ['toolbar-icon', /*'use-ajax',*/ 'toolbar-icon-deploy'],
+         //'data-accepts' => 'application/vnd.drupal-modal',
+         //'data-dialog-type' => 'modal',
        ],
      ],
     '#wrapper_attributes' => [
@@ -31,7 +31,7 @@ function deploy_toolbar(&$items) {
     ],
      '#attached' => [
        'library' => [
-         'system/drupal.ajax',
+         //'system/drupal.ajax',
          'deploy/drupal.deploy.toolbar',
        ],
      ],
