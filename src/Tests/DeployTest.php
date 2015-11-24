@@ -8,6 +8,7 @@
 namespace Drupal\deploy\Tests;
 
 use Drupal\KernelTests\KernelTestBase;
+use Doctrine\CouchDB\CouchDBClient;
 
 /**
  * @group deploy
@@ -21,20 +22,27 @@ class DeployTest extends KernelTestBase {
    */
   public static $modules = ['serialization', 'system', 'rest', 'key_value', 'multiversion', 'relaxed', 'deploy'];
 
+  protected $deploy;
+
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
     $this->installConfig(['multiversion', 'relaxed', 'deploy']);
+    $this->deploy = \Drupal::service('deploy.deploy');
+
   }
 
   /**
    * Should always return true.
    */
-  public function testDeploy() {
-    $response = \Drupal::service('deploy.deploy')->push('http://localhost:8081', 'admin', 'admin', 'default');
-    $this->assertTrue($response, "Migration complete");
+  public function testDeployCouchDB() {
+    $source = $this->deploy->createSource('http://localhost:5984/source');
+    $target = $this->deploy->createTarget('http://localhost:5984/target');
+    $result = $this->deploy->push($source, $target);
+
+    $this->assertTrue(!isset($result['error']), 'Successful migration.');
   }
 
 }
