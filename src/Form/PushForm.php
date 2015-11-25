@@ -83,11 +83,11 @@ class PushForm extends FormBase {
     global $base_url;
     
     $workspace_id = $this->workspaceManager->getActiveWorkspace()->id();
-    
+
     $endpoint_definitions = $this->manager->getDefinitions();
     $endpoints = [];
     foreach ($endpoint_definitions as $endpoint_definition) {
-      $endpoints[] = $this->manager->createInstance($endpoint_definition['id'])
+      $endpoints[] = (string) $this->manager->createInstance($endpoint_definition['id']);
     }
 
     $form['message'] = [
