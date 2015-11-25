@@ -5,6 +5,7 @@ namespace Drupal\deploy\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\deploy\Plugin\EndpointManager;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\deploy\DeployInterface;
@@ -29,6 +30,13 @@ class PushForm extends FormBase {
    */
   protected $deploy;
 
+
+  /**
+   * @var EndpointManager
+   */
+  protected $manager;
+
+
   /**
    * @var
    */
@@ -37,9 +45,10 @@ class PushForm extends FormBase {
   /**
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    */
-  function __construct(WorkspaceManagerInterface $workspace_manager, DeployInterface $deploy, RendererInterface $renderer, $user) {
+  function __construct(WorkspaceManagerInterface $workspace_manager, DeployInterface $deploy, EndpointManager $manager, RendererInterface $renderer, $user) {
     $this->workspaceManager = $workspace_manager;
     $this->deploy = $deploy;
+    $this->manager = $manager;
     $this->renderer = $renderer;
     $this->user = $user;
   }
@@ -51,6 +60,7 @@ class PushForm extends FormBase {
     return new static(
     $container->get('workspace.manager'),
     $container->get('deploy.deploy'),
+    $container->get('plugin.manager.endpoint.processor'),
     $container->get('renderer'),
     $container->get('current_user')
     );
@@ -73,6 +83,12 @@ class PushForm extends FormBase {
     global $base_url;
     
     $workspace_id = $this->workspaceManager->getActiveWorkspace()->id();
+    
+    $endpoint_definitions = $this->manager->getDefinitions();
+    $endpoints = [];
+    foreach ($endpoint_definitions as $endpoint_definition) {
+      $endpoints[] = $this->manager->createInstance($endpoint_definition['id'])
+    }
 
     $form['message'] = [
       '#markup' => '<div id="deploy-messages"></div>'

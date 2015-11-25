@@ -1,4 +1,7 @@
 services:
+  plugin.manager.endpoint.processor:
+    class: Drupal\deploy\Plugin\EndpointManager
+    parent: default_plugin_manager
   deploy.deploy:
     class: Drupal\deploy\Deploy
     arguments: ['@workspace.manager']
