@@ -4,6 +4,10 @@ namespace Drupal\deploy;
 
 use Doctrine\CouchDB\CouchDBClient;
 
+/**
+ * Interface DeployInterface
+ * @package Drupal\deploy
+ */
 interface DeployInterface {
 
   /**

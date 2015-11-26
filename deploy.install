@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @file
+ * Install, update and uninstall functions for the deploy module.
+ */
+
+/**
+ * Implements  hook_requirements().
+ *
+ * @param $phase
+ * @return array
+ */
 function deploy_requirements($phase) {
     $replicationtask_exists = class_exists('Relaxed\Replicator\ReplicationTask');
     $replication_exists = class_exists('Relaxed\Replicator\Replication');

@@ -7,6 +7,10 @@ use Relaxed\Replicator\Replication;
 use Doctrine\CouchDB\CouchDBClient;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
+/**
+ * Class Deploy
+ * @package Drupal\deploy
+ */
 class Deploy implements DeployInterface {
 
   /**
@@ -21,6 +25,12 @@ class Deploy implements DeployInterface {
     $this->workspaceManager = $workspace_manager;
   }
 
+  /**
+   * @param $source_domain
+   * @param null $source_username
+   * @param null $source_password
+   * @return CouchDBClient
+     */
   public function createSource($source_domain, $source_username = null, $source_password = null) {
     // Parse the source domain
     $source_domain_parts = parse_url($source_domain);
@@ -44,6 +54,12 @@ class Deploy implements DeployInterface {
     return $source;
   }
 
+  /**
+   * @param $target_domain
+   * @param null $target_username
+   * @param null $target_password
+   * @return CouchDBClient
+     */
   public function createTarget($target_domain, $target_username = null, $target_password = null) {
     // Parse the source domain
     $target_domain_parts = parse_url($target_domain);
@@ -67,6 +83,11 @@ class Deploy implements DeployInterface {
     return $target;
   }
 
+  /**
+   * @param CouchDBClient $source
+   * @param CouchDBClient $target
+   * @return array
+     */
   public function push(CouchDBClient $source, CouchDBClient $target) {
 
     try {

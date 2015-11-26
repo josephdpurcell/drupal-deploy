@@ -13,6 +13,10 @@ use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\CssCommand;
 
+/**
+ * Class PushForm
+ * @package Drupal\deploy\Form
+ */
 class PushForm extends FormBase {
 
   /**
@@ -25,6 +29,9 @@ class PushForm extends FormBase {
    */
   protected $deploy;
 
+  /**
+   * @var
+   */
   protected $user;
 
   /**
@@ -49,11 +56,19 @@ class PushForm extends FormBase {
     );
   }
 
+  /**
+   * @return string
+   */
   public function getFormId() {
     // Unique ID of the form.
     return 'deploy_form';
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return array
+     */
   public function buildForm(array $form, FormStateInterface $form_state) {
     global $base_url;
     
@@ -146,6 +161,11 @@ class PushForm extends FormBase {
     return $form;
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return AjaxResponse
+     */
   public function validateSourceDomainAjax(array &$form, FormStateInterface $form_state) {
     $css = $this->urlCss($form_state->getValue('source_domain'));
     $response = new AjaxResponse();
@@ -155,6 +175,11 @@ class PushForm extends FormBase {
     return $response;
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return AjaxResponse
+     */
   public function validateTargetDomainAjax(array &$form, FormStateInterface $form_state) {
     $css = $this->urlCss($form_state->getValue('target_domain'));
     $response = new AjaxResponse();
@@ -164,6 +189,10 @@ class PushForm extends FormBase {
     return $response;
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+     */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     if (!$this->validateUrl($form_state->getValue('source_domain'))) {
       $form_state->setErrorByName('source_domain', $this->t('Invalid source url.'));
@@ -174,6 +203,11 @@ class PushForm extends FormBase {
     }
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return AjaxResponse
+     */
   public function submitFormAjax(array &$form, FormStateInterface $form_state) {
     $result = $this->doDeployment($form_state);
     $response = new AjaxResponse();
@@ -189,6 +223,10 @@ class PushForm extends FormBase {
     return $response;
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+     */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $result = $this->doDeployment($form_state);
     if (!isset($result['error'])) {
@@ -199,6 +237,10 @@ class PushForm extends FormBase {
     }
   }
 
+  /**
+   * @param $domain
+   * @return array
+     */
   protected function urlCss($domain) {
     $valid_domain = $this->validateUrl($domain);
     if ($valid_domain) {
@@ -210,10 +252,18 @@ class PushForm extends FormBase {
     }
   }
 
+  /**
+   * @param $domain
+   * @return bool
+     */
   protected function validateUrl($domain) {
     return (bool) filter_var($domain, FILTER_VALIDATE_URL);
   }
 
+  /**
+   * @param FormStateInterface $form_state
+   * @return array
+     */
   protected function doDeployment(FormStateInterface $form_state) {
     $source = $this->deploy->createSource(
         $form_state->getValue('source_domain'),
