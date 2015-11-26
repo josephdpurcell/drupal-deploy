@@ -1,14 +1,7 @@
-deploy.admin:
-  path: '/admin/structure/deploy'
-  defaults:
-    _controller: '\Drupal\deploy\Controller\DeployController::admin'
-    _title: 'Deploy'
-  requirements:
-    _permission: 'administer deploy'
 deploy.push:
   path: '/admin/structure/deploy/push'
   defaults:
     _title: 'Push deployment'
     _form: '\Drupal\deploy\Form\PushForm'
   requirements:
-    _permission: 'Push deployment'
+    _permission: 'perform content replication'
