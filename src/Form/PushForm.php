@@ -11,6 +11,7 @@ use Drupal\deploy\DeployInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\CssCommand;
 
 class PushForm extends FormBase {
 
@@ -78,6 +79,14 @@ class PushForm extends FormBase {
       '#description' => t('E.g. http(s)://{domain}/{path}/{database}'),
       '#placeholder' => $base_url . '/relaxed/' . $workspace_id,
       '#default_value' => $base_url . '/relaxed/' . $workspace_id,
+      '#ajax' => [
+        'callback' => [$this, 'validateSourceDomainAjax'],
+        'event' => 'change',
+        'progress' => [
+          'type' => 'throbber',
+          'message' => t('Verifying url...'),
+        ],
+      ],
     ];
     $form['source']['source_username'] = [
         '#type' => 'textfield',
@@ -95,6 +104,14 @@ class PushForm extends FormBase {
         '#description' => t('E.g. http(s)://{domain}/{path}/{database}'),
         '#placeholder' => $base_url . '/relaxed/' . $workspace_id,
         '#default_value' => $base_url . '/relaxed/' . $workspace_id,
+        '#ajax' => [
+            'callback' => [$this, 'validateTargetDomainAjax'],
+            'event' => 'change',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => t('Verifying url...'),
+            ],
+        ],
     ];
     $form['target']['target_username'] = [
         '#type' => 'textfield',
@@ -111,7 +128,7 @@ class PushForm extends FormBase {
       '#value' => t('Push'), 
       '#button_type' => 'primary',
       '#ajax' => [
-        'callback' => '::submitForm',
+        'callback' => [$this, 'submitFormAjax'],
         'event' => 'click',
         'progress' => [
           'type' => 'throbber',
@@ -129,24 +146,36 @@ class PushForm extends FormBase {
     return $form;
   }
 
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    // Validate submitted form data.
+  public function validateSourceDomainAjax(array &$form, FormStateInterface $form_state) {
+    $css = $this->urlCss($form_state->getValue('source_domain'));
+    $response = new AjaxResponse();
+    $status_messages = ['#type' => 'status_messages'];
+    $response->addCommand(new HtmlCommand('#deploy-messages', $this->renderer->renderRoot($status_messages)));
+    $response->addCommand(new CssCommand('#edit-source-domain', $css));
+    return $response;
   }
 
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $source = $this->deploy->createSource(
-      $form_state->getValue('source_domain'),
-      $form_state->getValue('source_username'),
-      $form_state->getValue('source_password')
-    );
+  public function validateTargetDomainAjax(array &$form, FormStateInterface $form_state) {
+    $css = $this->urlCss($form_state->getValue('target_domain'));
+    $response = new AjaxResponse();
+    $status_messages = ['#type' => 'status_messages'];
+    $response->addCommand(new HtmlCommand('#deploy-messages', $this->renderer->renderRoot($status_messages)));
+    $response->addCommand(new CssCommand('#edit-target-domain', $css));
+    return $response;
+  }
 
-    $target = $this->deploy->createTarget(
-      $form_state->getValue('target_domain'),
-      $form_state->getValue('target_username'),
-      $form_state->getValue('target_password')
-    );
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    if (!$this->validateUrl($form_state->getValue('source_domain'))) {
+      $form_state->setErrorByName('source_domain', $this->t('Invalid source url.'));
+    }
 
-    $result = $this->deploy->push($source, $target);
+    if (!$this->validateUrl($form_state->getValue('target_domain'))) {
+      $form_state->setErrorByName('target_domain', $this->t('Invalid target url.'));
+    }
+  }
+
+  public function submitFormAjax(array &$form, FormStateInterface $form_state) {
+    $result = $this->doDeployment($form_state);
     $response = new AjaxResponse();
     if (!isset($result['error'])) {
       $response->addCommand(new CloseModalDialogCommand());
@@ -158,5 +187,46 @@ class PushForm extends FormBase {
     $status_messages = ['#type' => 'status_messages'];
     $response->addCommand(new HtmlCommand('#deploy-messages', $this->renderer->renderRoot($status_messages)));
     return $response;
+  }
+
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $result = $this->doDeployment($form_state);
+    if (!isset($result['error'])) {
+      drupal_set_message('Successful deployment.');
+    }
+    else {
+      drupal_set_message($result['error'], 'error');
+    }
+  }
+
+  protected function urlCss($domain) {
+    $valid_domain = $this->validateUrl($domain);
+    if ($valid_domain) {
+      return ['border' => '1px solid #00DD00', 'background-color' => '#EEFFEE'];
+    }
+    else {
+      drupal_set_message("Invalid url.", 'error');
+      return ['border' => '1px solid #DD0000', 'background-color' => '#FFEEEE'];
+    }
+  }
+
+  protected function validateUrl($domain) {
+    return (bool) filter_var($domain, FILTER_VALIDATE_URL);
+  }
+
+  protected function doDeployment(FormStateInterface $form_state) {
+    $source = $this->deploy->createSource(
+        $form_state->getValue('source_domain'),
+        $form_state->getValue('source_username'),
+        $form_state->getValue('source_password')
+    );
+
+    $target = $this->deploy->createTarget(
+        $form_state->getValue('target_domain'),
+        $form_state->getValue('target_username'),
+        $form_state->getValue('target_password')
+    );
+
+    return $this->deploy->push($source, $target);
   }
 }
