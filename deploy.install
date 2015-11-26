@@ -1,0 +1,27 @@
+<?php
+
+function deploy_requirements($phase) {
+    $replicationtask_exists = class_exists('Relaxed\Replicator\ReplicationTask');
+    $replication_exists = class_exists('Relaxed\Replicator\Replication');
+    $couchdbclient_exists = class_exists('Doctrine\CouchDB\CouchDBClient');
+
+    $requirements = array();
+    if (!$replicationtask_exists || !$replication_exists) {
+        $requirements['replicator'] = [
+            'title' => t('relaxedws/replicator'),
+            'value' => t('Not found'),
+            'severity' => REQUIREMENT_ERROR,
+            'description' => t('The Deploy module could not be installed because the <a href=":replicator_url">relaxedws/replicator</a> library is not available.', [':replicator_url' => 'https://packagist.org/packages/relaxedws/replicator'])
+        ];
+    }
+
+    if (!$couchdbclient_exists) {
+        $requirements['couchdb'] = [
+            'title' => t('doctrine/couchdb'),
+            'value' => t('Not found'),
+            'severity' => REQUIREMENT_ERROR,
+            'description' => t('The Deploy module could not be installed because the <a href=":replicator_url">doctrine/couchdb</a> library is not available.', [':couchdb_url' => 'https://packagist.org/packages/doctrine/couchdb'])
+        ];
+    }
+    return $requirements;
+}
