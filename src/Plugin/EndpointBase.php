@@ -8,12 +8,68 @@
 namespace Drupal\deploy\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
-use Psr\Http\Message\UriInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Base class for Endpoint plugins.
  */
 abstract class EndpointBase extends PluginBase implements EndpointInterface {
+
+    /**
+     * @inheritDoc
+     */
+    public function getConfiguration()
+    {
+        // TODO: Implement getConfiguration() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setConfiguration(array $configuration)
+    {
+        // TODO: Implement setConfiguration() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function defaultConfiguration()
+    {
+        // TODO: Implement defaultConfiguration() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function calculateDependencies()
+    {
+        // TODO: Implement calculateDependencies() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildConfigurationForm(array $form, FormStateInterface $form_state)
+    {
+        // TODO: Implement buildConfigurationForm() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateConfigurationForm(array &$form, FormStateInterface $form_state)
+    {
+        // TODO: Implement validateConfigurationForm() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function submitConfigurationForm(array &$form, FormStateInterface $form_state)
+    {
+        // TODO: Implement submitConfigurationForm() method.
+    }
 
     /**
      * @inheritDoc

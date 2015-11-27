@@ -30,6 +30,7 @@ class WorkspaceDeriver implements DeriverInterface {
         foreach ($workspaces as $workspace) {
           $workspace_id = $workspace->id();
           $derivatives[$workspace_id] = [
+           'label' => ucfirst($workspace_id) . ' workspace',
            'id' => 'workspace:' . $workspace_id,
            'dbname' => $workspace_id
           ] + $base_plugin_definition;

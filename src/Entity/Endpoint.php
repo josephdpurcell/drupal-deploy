@@ -9,6 +9,7 @@ namespace Drupal\deploy\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\deploy\EndpointInterface;
+use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 
 /**
  * Defines the Endpoint entity.
@@ -19,7 +20,7 @@ use Drupal\deploy\EndpointInterface;
  *   handlers = {
  *     "list_builder" = "Drupal\deploy\EndpointListBuilder",
  *     "form" = {
- *       "add" = "Drupal\deploy\Form\EndpointForm",
+ *       "add" = "Drupal\deploy\Form\EndpointAddForm",
  *       "edit" = "Drupal\deploy\Form\EndpointForm",
  *       "delete" = "Drupal\deploy\Form\EndpointDeleteForm"
  *     }
@@ -39,7 +40,7 @@ use Drupal\deploy\EndpointInterface;
  *   }
  * )
  */
-class Endpoint extends ConfigEntityBase implements EndpointInterface {
+class Endpoint extends ConfigEntityBase implements EndpointInterface, EntityWithPluginCollectionInterface {
   /**
    * The Endpoint ID.
    *
@@ -54,4 +55,11 @@ class Endpoint extends ConfigEntityBase implements EndpointInterface {
    */
   protected $label;
 
+  /**
+   * @inheritDoc
+   */
+  public function getPluginCollections()
+  {
+    // TODO: Implement getPluginCollections() method.
+  }
 }

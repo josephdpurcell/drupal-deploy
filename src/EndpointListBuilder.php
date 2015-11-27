@@ -27,10 +27,19 @@ class EndpointListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    $row['label'] = $this->getLabel($entity);
+    $row['label'] = $entity->label();
     $row['id'] = $entity->id();
     // You probably want a few more properties here...
     return $row + parent::buildRow($entity);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
+    $build['table'] = parent::render();
+    $build['form'] = \Drupal::formBuilder()->getForm('Drupal\deploy\Form\EndpointSetupForm');
+    return $build;
   }
 
 }

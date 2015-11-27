@@ -18,7 +18,7 @@ entity.endpoint.collection:
     _admin_route: TRUE
 
 entity.endpoint.add_form:
-  path: '/admin/structure/endpoint/add'
+  path: '/admin/structure/endpoint/add/{plugin_id}'
   defaults:
     _entity_form: 'endpoint.add'
     _title: 'Add Endpoint'
