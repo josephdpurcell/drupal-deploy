@@ -144,7 +144,8 @@ class PushForm extends FormBase {
       '#button_type' => 'primary',
       '#ajax' => [
         'callback' => [$this, 'submitFormAjax'],
-        'event' => 'click',
+        'event' => 'mousedown',
+        'prevent' => 'click',
         'progress' => [
           'type' => 'throbber',
           'message' => 'Pushing deployment',
