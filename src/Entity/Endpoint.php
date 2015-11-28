@@ -32,6 +32,14 @@ use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
  *     "label" = "label",
  *     "uuid" = "uuid"
  *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "uuid",
+ *     "authentication",
+ *     "plugin",
+ *     "settings",
+ *   },
  *   links = {
  *     "canonical" = "/admin/structure/endpoint/{endpoint}",
  *     "edit-form" = "/admin/structure/endpoint/{endpoint}/edit",
