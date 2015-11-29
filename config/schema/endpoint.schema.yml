@@ -11,9 +11,6 @@ deploy.endpoint.*:
     uuid:
       type: string
       label: 'UUID'
-    authentication:
-      type: string
-      label: 'Authentication'
     plugin:
       type: string
       label: 'Plugin'

@@ -10,6 +10,7 @@ namespace Drupal\deploy\Entity;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\deploy\EndpointInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
+use Drupal\deploy\EndpointPluginCollection;
 
 /**
  * Defines the Endpoint entity.
@@ -64,10 +65,53 @@ class Endpoint extends ConfigEntityBase implements EndpointInterface, EntityWith
   protected $label;
 
   /**
+   * @var
+   */
+  protected $uuid;
+
+  /**
+   * @var
+   */
+  protected $plugin;
+
+  /**
+   * @var array
+   */
+  protected $settings = [];
+
+  /**
+   * @var
+   */
+  protected $pluginCollection;
+
+  /**
+   * Encapsulates the creation of the endpoint's LazyPluginCollection.
+   *
+   * @return \Drupal\Component\Plugin\LazyPluginCollection
+   *   The endpoint's plugin collection.
+   */
+  protected function getPluginCollection() {
+    if (!$this->pluginCollection) {
+      $this->pluginCollection = new EndpointPluginCollection(\Drupal::service('plugin.manager.block'), $this->plugin, $this->get('settings'));
+    }
+    return $this->pluginCollection;
+  }
+
+  /**
    * @inheritDoc
    */
   public function getPluginCollections()
   {
-    // TODO: Implement getPluginCollections() method.
+    return [
+      'settings' => $this->getPluginCollection()
+      ];
+  }
+
+  /**
+   * @param $plugin_id
+   */
+  public function setPlugin($plugin_id) {
+    $this->plugin = $plugin_id;
+    $this->getPluginCollection()->addInstanceId($plugin_id);
   }
 }

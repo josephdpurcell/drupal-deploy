@@ -60,6 +60,7 @@ class EndpointAddForm extends EndpointForm {
         foreach ($this->manager->getDefinitions() as $id => $definition) {
             $key = Crypt::hashBase64($id);
             if ($key === $plugin_id) {
+                $this->entity->setPlugin($id);
                 $this->entity->set('label', $definition['label']);
                 break;
             }
