@@ -33,7 +33,10 @@ abstract class EndpointBase extends PluginBase implements EndpointInterface, Plu
    * @inheritDoc
    */
   public function defaultConfiguration() {
-    return [];
+    return [
+      'username' => '',
+      'password' => '',
+    ];
   }
 
   /**
@@ -49,11 +52,14 @@ abstract class EndpointBase extends PluginBase implements EndpointInterface, Plu
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form['username'] = [
       '#type' => 'textfield',
-      '#title' => t('username'),
+      '#title' => t('Username'),
+      '#required' => TRUE,
+      '#default_value' => $this->configuration['username'],
     ];
     $form['password'] = [
       '#type' => 'password',
       '#title' => t('Password'),
+      '#required' => TRUE,
     ];
 
     return $form;
@@ -76,7 +82,7 @@ abstract class EndpointBase extends PluginBase implements EndpointInterface, Plu
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration['username'] = $form_state->getValue('username');
-    $this->configuration['password'] = $form_state->getValue('password');
+    $this->configuration['password'] = base64_encode($form_state->getValue('password'));
   }
 
 }
