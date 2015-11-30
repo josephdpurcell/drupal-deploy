@@ -30,6 +30,7 @@ class PushForm extends FormBase {
    */
   protected $renderer;
 
+  protected $endpoints;
 
   /**
    * @param DeployInterface $deploy
@@ -38,6 +39,7 @@ class PushForm extends FormBase {
   function __construct(DeployInterface $deploy, RendererInterface $renderer) {
     $this->deploy = $deploy;
     $this->renderer = $renderer;
+    $this->endpoints = Endpoint::loadMultiple();
   }
 
   /**
@@ -65,13 +67,12 @@ class PushForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $endpoint_entities = Endpoint::loadMultiple();
-    if (empty($endpoint_entities)) {
+    if (empty($this->endpoints)) {
       drupal_set_message('Please setup an endpoint before deploying.', 'warning');
       return $this->redirect('entity.endpoint.collection');
     }
     $endpoints = [];
-    foreach ($endpoint_entities as $endpoint_entity) {
+    foreach ($this->endpoints as $endpoint_entity) {
       $endpoints[$endpoint_entity->id()] = $endpoint_entity->label();
     }
 
@@ -118,43 +119,9 @@ class PushForm extends FormBase {
   /**
    * @param array $form
    * @param FormStateInterface $form_state
-   * @return AjaxResponse
-   */
-  public function validateSourceDomainAjax(array &$form, FormStateInterface $form_state) {
-    $css = $this->urlCss($form_state->getValue('source_domain'));
-    $response = new AjaxResponse();
-    $status_messages = ['#type' => 'status_messages'];
-    $response->addCommand(new HtmlCommand('#deploy-messages', $this->renderer->renderRoot($status_messages)));
-    $response->addCommand(new CssCommand('#edit-source-domain', $css));
-    return $response;
-  }
-
-  /**
-   * @param array $form
-   * @param FormStateInterface $form_state
-   * @return AjaxResponse
-   */
-  public function validateTargetDomainAjax(array &$form, FormStateInterface $form_state) {
-    $css = $this->urlCss($form_state->getValue('target_domain'));
-    $response = new AjaxResponse();
-    $status_messages = ['#type' => 'status_messages'];
-    $response->addCommand(new HtmlCommand('#deploy-messages', $this->renderer->renderRoot($status_messages)));
-    $response->addCommand(new CssCommand('#edit-target-domain', $css));
-    return $response;
-  }
-
-  /**
-   * @param array $form
-   * @param FormStateInterface $form_state
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    if (!$this->validateUrl($form_state->getValue('source_domain'))) {
-      $form_state->setErrorByName('source_domain', $this->t('Invalid source url.'));
-    }
 
-    if (!$this->validateUrl($form_state->getValue('target_domain'))) {
-      $form_state->setErrorByName('target_domain', $this->t('Invalid target url.'));
-    }
   }
 
   /**
@@ -192,35 +159,12 @@ class PushForm extends FormBase {
   }
 
   /**
-   * @param $domain
-   * @return array
-   */
-  protected function urlCss($domain) {
-    $valid_domain = $this->validateUrl($domain);
-    if ($valid_domain) {
-      return ['border' => '1px solid #00DD00', 'background-color' => '#EEFFEE'];
-    }
-    else {
-      drupal_set_message("Invalid url.", 'error');
-      return ['border' => '1px solid #DD0000', 'background-color' => '#FFEEEE'];
-    }
-  }
-
-  /**
-   * @param $domain
-   * @return bool
-   */
-  protected function validateUrl($domain) {
-    return (bool) filter_var($domain, FILTER_VALIDATE_URL);
-  }
-
-  /**
    * @param FormStateInterface $form_state
    * @return array
    */
   protected function doDeployment(FormStateInterface $form_state) {
-    $source = Endpoint::load($form_state->getValue('source'));
-    $target = Endpoint::load($form_state->getValue('target'));
+    $source = $this->endpoints[$form_state->getValue('source')];
+    $target = $this->endpoints[$form_state->getValue('target')];
     $source = $this->deploy->createSource(
         $source->getPlugin(),
         $source->getPlugin()->getConfiguration()
