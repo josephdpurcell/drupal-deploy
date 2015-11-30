@@ -37,9 +37,8 @@ use Drupal\deploy\EndpointPluginCollection;
  *     "id",
  *     "label",
  *     "uuid",
- *     "authentication",
  *     "plugin",
- *     "settings",
+ *     "configuration",
  *   },
  *   links = {
  *     "canonical" = "/admin/structure/endpoint/{endpoint}",
@@ -77,7 +76,7 @@ class Endpoint extends ConfigEntityBase implements EndpointInterface, EntityWith
   /**
    * @var array
    */
-  protected $settings = [];
+  protected $configuration = [];
 
   /**
    * @var
@@ -92,7 +91,7 @@ class Endpoint extends ConfigEntityBase implements EndpointInterface, EntityWith
    */
   protected function getPluginCollection() {
     if (!$this->pluginCollection) {
-      $this->pluginCollection = new EndpointPluginCollection(\Drupal::service('plugin.manager.endpoint.processor'), $this->plugin, $this->get('settings'));
+      $this->pluginCollection = new EndpointPluginCollection(\Drupal::service('plugin.manager.endpoint.processor'), $this->plugin, $this->configuration);
     }
     return $this->pluginCollection;
   }
@@ -102,9 +101,7 @@ class Endpoint extends ConfigEntityBase implements EndpointInterface, EntityWith
    */
   public function getPluginCollections()
   {
-    return [
-      'settings' => $this->getPluginCollection()
-      ];
+    return ['configuration' => $this->getPluginCollection()];
   }
 
   /**

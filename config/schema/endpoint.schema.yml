@@ -15,7 +15,7 @@ deploy.endpoint.*:
       type: string
       label: 'Plugin'
     settings:
-      type: deploy.endpoint.settings.[%parent.plugin]
+      type: deploy.endpoint.configuration.[%parent.plugin]
 
-deploy.endpoint.settings.*:
-  type: endpoint_settings
+deploy.endpoint.configuration.*:
+  type: endpoint_configuration
