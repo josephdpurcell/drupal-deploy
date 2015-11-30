@@ -73,6 +73,28 @@ class EndpointForm extends EntityForm {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+
+    if ($this->plugin instanceof PluginFormInterface) {
+      $this->plugin->validateConfigurationForm($form, $form_state);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    parent::submitForm($form, $form_state);
+
+    if ($this->plugin instanceof PluginFormInterface) {
+      $this->plugin->submitConfigurationForm($form, $form_state);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function save(array $form, FormStateInterface $form_state) {
     $endpoint = $this->entity;
     $status = $endpoint->save();
