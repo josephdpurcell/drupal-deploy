@@ -92,7 +92,7 @@ class Endpoint extends ConfigEntityBase implements EndpointInterface, EntityWith
    */
   protected function getPluginCollection() {
     if (!$this->pluginCollection) {
-      $this->pluginCollection = new EndpointPluginCollection(\Drupal::service('plugin.manager.block'), $this->plugin, $this->get('settings'));
+      $this->pluginCollection = new EndpointPluginCollection(\Drupal::service('plugin.manager.endpoint.processor'), $this->plugin, $this->get('settings'));
     }
     return $this->pluginCollection;
   }
@@ -113,5 +113,9 @@ class Endpoint extends ConfigEntityBase implements EndpointInterface, EntityWith
   public function setPlugin($plugin_id) {
     $this->plugin = $plugin_id;
     $this->getPluginCollection()->addInstanceId($plugin_id);
+  }
+
+  public function getPlugin() {
+    return $this->getPluginCollection()->get($this->plugin);
   }
 }

@@ -34,8 +34,6 @@ class EndpointAddForm extends EndpointForm {
      *   The action plugin manager.
      */
     public function __construct(EntityStorageInterface $storage, EndpointManager $manager) {
-        //parent::__construct($storage);
-
         $this->manager = $manager;
     }
 

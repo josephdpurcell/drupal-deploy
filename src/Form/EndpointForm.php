@@ -7,9 +7,9 @@
 
 namespace Drupal\deploy\Form;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\PluginFormInterface;
 
 /**
  * Class EndpointForm.
@@ -17,6 +17,22 @@ use Drupal\Core\Form\FormStateInterface;
  * @package Drupal\deploy\Form
  */
 class EndpointForm extends EntityForm {
+
+  /**
+   * The action plugin being configured.
+   *
+   * @var \Drupal\deploy\Plugin\EndpointInterface
+   */
+  protected $plugin;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $this->plugin = $this->entity->getPlugin();
+    return parent::buildForm($form, $form_state);
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -42,7 +58,14 @@ class EndpointForm extends EntityForm {
       '#disabled' => !$endpoint->isNew(),
     );
 
-    /* You will need additional form elements for your custom properties. */
+    $form['plugin'] = array(
+        '#type' => 'value',
+        '#value' => $this->entity->get('plugin'),
+    );
+
+    if ($this->plugin instanceof PluginFormInterface) {
+      $form += $this->plugin->buildConfigurationForm($form, $form_state);
+    }
 
     return $form;
   }

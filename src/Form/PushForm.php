@@ -66,6 +66,10 @@ class PushForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $endpoint_entities = Endpoint::loadMultiple();
+    if (empty($endpoint_entities)) {
+      drupal_set_message('Please setup an endpoint before deploying.', 'warning');
+      return $this->redirect('entity.endpoint.collection');
+    }
     $endpoints = [];
     foreach ($endpoint_entities as $endpoint_entity) {
       $endpoints[$endpoint_entity->id()] = $endpoint_entity->label();
