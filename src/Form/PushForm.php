@@ -219,16 +219,16 @@ class PushForm extends FormBase {
    * @return array
    */
   protected function doDeployment(FormStateInterface $form_state) {
+    $source = Endpoint::load($form_state->getValue('source'));
+    $target = Endpoint::load($form_state->getValue('target'));
     $source = $this->deploy->createSource(
-        $form_state->getValue('source_domain'),
-        $form_state->getValue('source_username'),
-        $form_state->getValue('source_password')
+        $source->getPlugin(),
+        $source->getPlugin()->getConfiguration()
     );
 
     $target = $this->deploy->createTarget(
-        $form_state->getValue('target_domain'),
-        $form_state->getValue('target_username'),
-        $form_state->getValue('target_password')
+      $target->getPlugin(),
+      $target->getPlugin()->getConfiguration()
     );
 
     return $this->deploy->push($source, $target);

@@ -27,11 +27,10 @@ class Deploy implements DeployInterface {
 
   /**
    * @param $source_domain
-   * @param null $source_username
-   * @param null $source_password
+   * @param array $configuration
    * @return CouchDBClient
      */
-  public function createSource($source_domain, $source_username = null, $source_password = null) {
+  public function createSource($source_domain, array $configuration = []) {
     // Parse the source domain
     $source_domain_parts = parse_url($source_domain);
 
@@ -56,11 +55,10 @@ class Deploy implements DeployInterface {
 
   /**
    * @param $target_domain
-   * @param null $target_username
-   * @param null $target_password
+   * @param array $configuration
    * @return CouchDBClient
      */
-  public function createTarget($target_domain, $target_username = null, $target_password = null) {
+  public function createTarget($target_domain, array $configuration = []) {
     // Parse the source domain
     $target_domain_parts = parse_url($target_domain);
 
