@@ -1,14 +1,14 @@
 deploy.push:
-  path: '/admin/structure/deploy/push'
+  path: '/admin/structure/deploy'
   defaults:
-    _title: 'Push deployment'
+    _title: 'Deployment'
     _form: '\Drupal\deploy\Form\PushForm'
   requirements:
     _permission: 'perform content replication'
 
 # Endpoint routing definition
 entity.endpoint.collection:
-  path: '/admin/structure/endpoint'
+  path: '/admin/structure/deploy/endpoint'
   defaults:
     _entity_list: 'endpoint'
     _title: 'Endpoint'
@@ -18,7 +18,7 @@ entity.endpoint.collection:
     _admin_route: TRUE
 
 entity.endpoint.add_form:
-  path: '/admin/structure/endpoint/add/{plugin_id}'
+  path: '/admin/structure/deploy/endpoint/add/{plugin_id}'
   defaults:
     _entity_form: 'endpoint.add'
     _title: 'Add Endpoint'
@@ -28,7 +28,7 @@ entity.endpoint.add_form:
     _admin_route: TRUE
 
 entity.endpoint.edit_form:
-  path: '/admin/structure/endpoint/{endpoint}'
+  path: '/admin/structure/deploy/endpoint/{endpoint}'
   defaults:
     _entity_form: 'endpoint.edit'
     _title: 'Edit Endpoint'
@@ -38,7 +38,7 @@ entity.endpoint.edit_form:
     _admin_route: TRUE
 
 entity.endpoint.delete_form:
-  path: '/admin/structure/endpoint/{endpoint}/delete'
+  path: '/admin/structure/deploy/endpoint/{endpoint}/delete'
   defaults:
     _entity_form: 'endpoint.delete'
     _title: 'Delete Endpoint'
