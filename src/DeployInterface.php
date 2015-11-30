@@ -13,12 +13,12 @@ interface DeployInterface {
   /**
    * @return \Doctrine\CouchDB\CouchDBClient
    */
-  public function createSource($source_domain, $source_username, $source_password);
+  public function createSource($source_domain, array $configuration);
 
   /**
    * @return \Doctrine\CouchDB\CouchDBClient
    */
-  public function createTarget($target_domain, $target_username, $target_password);
+  public function createTarget($target_domain, array $configuration);
 
   /**
    * @param \Doctrine\CouchDB\CouchDBClient $source
