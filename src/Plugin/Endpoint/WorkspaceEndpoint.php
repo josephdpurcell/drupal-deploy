@@ -19,19 +19,20 @@ use Drupal\Core\Form\FormStateInterface;
  */
 Class WorkspaceEndpoint extends EndpointBase {
 
-    /**
-     * @inheritDoc
-     */
-    public function __toString() {
-        global $base_url;
-        $plugin_definition = $this->getPluginDefinition();
-        return $base_url . '/relaxed/' . urlencode($plugin_definition['dbname']);
+  /**
+   *
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    global $base_url;
+    $api_root = trim(\Drupal::config('relaxed.settings')->get('api_root'), '/');
+    $workspace_id = $this->getPluginDefinition()['dbname'];
+    $uri = $base_url . '/' . $api_root . '/' . $workspace_id;
+    $this->applyParts(parse_url($uri));
+    $this->userInfo = isset($this->configuration['username']) ? $this->configuration['username'] : '';
+    if (isset($this->configuration['password'])) {
+      $this->userInfo .= ':' . base64_decode($this->configuration['password']);
     }
+  }
 
-    public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-        $form += parent::buildConfigurationForm($form, $form_state);
-        $form['test'] = ['#markup' => 'Test'];
-
-        return $form;
-    }
 }

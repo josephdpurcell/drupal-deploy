@@ -8,11 +8,12 @@
 namespace Drupal\deploy\Plugin;
 
 use Drupal\Component\Plugin\ConfigurablePluginInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Defines an interface for Endpoint plugins.
  */
-interface EndpointInterface extends ConfigurablePluginInterface  {
+interface EndpointInterface extends ConfigurablePluginInterface, UriInterface  {
 
   // Add get/set methods for your plugin type here.
 
