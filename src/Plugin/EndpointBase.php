@@ -23,7 +23,7 @@ Class EndpointBase extends PluginBase implements EndpointInterface, PluginFormIn
   /** @var string Uri host. */
   protected $host = '';
   /** @var int|null Uri port. */
-  protected $port;
+  protected $port = 80;
   /** @var string Uri path. */
   protected $path = '';
   /** @var string Uri query string. */
@@ -212,7 +212,7 @@ Class EndpointBase extends PluginBase implements EndpointInterface, PluginFormIn
     $this->host = isset($parts['host']) ? $parts['host'] : '';
     $this->port = !empty($parts['port'])
       ? $parts['port']
-      : null;
+      : 80;
     $this->path = isset($parts['path'])
       ? $parts['path']
       : '';

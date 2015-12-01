@@ -13,6 +13,7 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
  * Provides an interface for defining Endpoint entities.
  */
 interface EndpointInterface extends ConfigEntityInterface {
-  // Add get/set methods for your configuration properties here.
+  public function setPlugin($plugin_id);
 
+  public function getPlugin();
 }

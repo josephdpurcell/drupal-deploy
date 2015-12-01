@@ -26,55 +26,25 @@ class Deploy implements DeployInterface {
   }
 
   /**
-   * @param $source_domain
-   * @param array $configuration
-   * @return CouchDBClient
-     */
-  public function createSource($source_domain, array $configuration = []) {
-    // Parse the source domain
-    $source_domain_parts = parse_url($source_domain);
-
-    // Split the database name from the path
-    $path = explode('/', $source_domain_parts['path']);
-    $dbname = array_pop($path);
-    $path = trim(implode('/', $path), '/');
-
+   * {@inheritdoc}
+   */
+  public function createSource(EndpointInterface $source) {
     // Create the source client
-    $source = CouchDBClient::create([
-      'host' => $source_domain_parts['host'],
-      'path' => $path,
-      'port' => !empty($source_domain_parts['port']) ? $source_domain_parts['port'] : 80,
-      'user' => $source_username,
-      'password' => $source_password,
-      'dbname' => $dbname,
+    $source_client = CouchDBClient::create([
+      'url' => $source->getPlugin(),
       'timeout' => 10
     ]);
 
-    return $source;
+    return $source_client;
   }
 
   /**
-   * @param $target_domain
-   * @param array $configuration
-   * @return CouchDBClient
-     */
-  public function createTarget($target_domain, array $configuration = []) {
-    // Parse the source domain
-    $target_domain_parts = parse_url($target_domain);
-
-    // Split the database name from the path
-    $path = explode('/', $target_domain_parts['path']);
-    $dbname = array_pop($path);
-    $path = trim(implode('/', $path), '/');
-
+   * {@inheritdoc}
+   */
+  public function createTarget(EndpointInterface $target) {
     // Create the source client
     $target = CouchDBClient::create([
-      'host' => $target_domain_parts['host'],
-      'path' => $path,
-      'port' => !empty($target_domain_parts['port']) ? $target_domain_parts['port'] : 80,
-      'user' => $target_username,
-      'password' => $target_password,
-      'dbname' => $dbname,
+      'url' => $target->getPlugin(),
       'timeout' => 10
     ]);
 
@@ -82,10 +52,8 @@ class Deploy implements DeployInterface {
   }
 
   /**
-   * @param CouchDBClient $source
-   * @param CouchDBClient $target
-   * @return array
-     */
+   * {@inheritdoc}
+   */
   public function push(CouchDBClient $source, CouchDBClient $target) {
 
     try {

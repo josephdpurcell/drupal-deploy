@@ -163,18 +163,15 @@ class PushForm extends FormBase {
    * @return array
    */
   protected function doDeployment(FormStateInterface $form_state) {
+    // Get the source and target Endpoint entities based on the id.
     $source = $this->endpoints[$form_state->getValue('source')];
     $target = $this->endpoints[$form_state->getValue('target')];
-    $source = $this->deploy->createSource(
-        $source->getPlugin(),
-        $source->getPlugin()->getConfiguration()
-    );
 
-    $target = $this->deploy->createTarget(
-      $target->getPlugin(),
-      $target->getPlugin()->getConfiguration()
-    );
+    // Send the source and target entities to the Deploy service.
+    $source = $this->deploy->createSource($source);
+    $target = $this->deploy->createTarget($target);
 
+    // Run a push deployment
     return $this->deploy->push($source, $target);
   }
 }
