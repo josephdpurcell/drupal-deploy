@@ -20,7 +20,9 @@ use Drupal\Core\Form\FormStateInterface;
 Class WorkspaceEndpoint extends EndpointBase {
 
   /**
-   *
+   * @param array $configuration
+   * @param string $plugin_id
+   * @param mixed $plugin_definition
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);

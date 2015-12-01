@@ -282,10 +282,10 @@ Class EndpointBase extends PluginBase implements EndpointInterface, PluginFormIn
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
     if (empty($form_state->getValue('username'))) {
-      $form_state->setErrorByName('username', $this->t('Username not set.'));
+      $form_state->setErrorByName('username', t('Username not set.'));
     }
     if (empty($form_state->getValue('password'))) {
-      $form_state->setErrorByName('password', $this->t('Password not set.'));
+      $form_state->setErrorByName('password', t('Password not set.'));
     }
   }
 
