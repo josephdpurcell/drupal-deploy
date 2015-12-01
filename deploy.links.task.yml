@@ -3,10 +3,3 @@ deploy.push:
   route_name: deploy.push
   description: 'Replicate content between source and target endpoints.'
   base_route: deploy.push
-
-# Endpoint menu items definition
-entity.endpoint.collection:
-  title: 'Endpoint'
-  route_name: entity.endpoint.collection
-  description: 'List Endpoint'
-  base_route: deploy.push
