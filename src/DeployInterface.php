@@ -3,6 +3,7 @@
 namespace Drupal\deploy;
 
 use Doctrine\CouchDB\CouchDBClient;
+use Drupal\relaxed\Entity\EndpointInterface;
 
 /**
  * Interface DeployInterface

@@ -6,6 +6,7 @@ use Relaxed\Replicator\ReplicationTask;
 use Relaxed\Replicator\Replication;
 use Doctrine\CouchDB\CouchDBClient;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Drupal\relaxed\Entity\EndpointInterface;
 
 /**
  * Class Deploy

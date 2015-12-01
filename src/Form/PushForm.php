@@ -5,14 +5,12 @@ namespace Drupal\deploy\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\deploy\Plugin\EndpointManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\deploy\DeployInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Ajax\CssCommand;
-use Drupal\deploy\Entity\Endpoint;
+use Drupal\relaxed\Entity\Endpoint;
 
 /**
  * Class PushForm
