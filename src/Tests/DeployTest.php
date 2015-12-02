@@ -47,23 +47,23 @@ class DeployTest extends WebTestBase {
    * Test deploying from Drupal to Drupal.
    */
   public function testDeployDrupal() {
-    $new_user = User::create(['name' => 'foo']);
-    $new_user->setPassword('bar');
+    $new_user = User::create(['name' => 'replicator']);
+    $new_user->setPassword('replicator');
     $new_user->save();
-    $password = $new_user->getPassword();
+
     Workspace::create(['id' => 'test'])->save();
     $source_endpoint = Endpoint::create([
       'id' => 'workspace_default',
       'label' => 'Workspace Default',
       'plugin' => 'workspace:default',
-      'configuration' => ['username' => 'foo', 'password' => base64_encode('bar')]
+      'configuration' => ['username' => 'replicator', 'password' => base64_encode('replicator')]
     ]);
     $source_endpoint->save();
     $target_endpoint = Endpoint::create([
       'id' => 'workspace_test',
       'label' => 'Workspace Test',
       'plugin' => 'workspace:test',
-      'configuration' => ['username' => 'foo', 'password' => base64_encode('bar')]
+      'configuration' => ['username' => 'replicator', 'password' => base64_encode('replicator')]
     ]);
     $target_endpoint->save();
     $source = $this->deploy->createSource($source_endpoint);
