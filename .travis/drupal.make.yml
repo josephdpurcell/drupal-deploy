@@ -6,4 +6,9 @@ projects:
   drupal: 8.0.x
   key_value: 1.x
   multiversion: 1.x
-  relaxed: 1.x
+  relaxed:
+    type: module
+    download:
+      type: git
+      branch: 8.x-1.x
+      url: https://github.com/relaxedws/drupal-relaxed.git

@@ -2,4 +2,4 @@ deploy.push:
   title: Deployment
   route_name: deploy.push
   description: 'Replicate content between source and target endpoints.'
-  parent: system.admin_structure
+  base_route: deploy.push
