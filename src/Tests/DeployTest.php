@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\Tests\deploy\Unit\DeployTest;
+ * Contains \Drupal\deploy\Tests\DeployTest;
  */
 
 namespace Drupal\deploy\Tests;
@@ -18,6 +18,9 @@ use Drupal\relaxed\Entity\Endpoint;
  */
 class DeployTest extends WebTestBase {
 
+  /**
+   * @var bool
+   */
   protected $strictConfigSchema = FALSE;
 
   /**
@@ -32,6 +35,9 @@ class DeployTest extends WebTestBase {
     'deploy'
   );
 
+  /**
+   * @var \Drupal\deploy\Deploy
+   */
   protected $deploy;
 
   /**
