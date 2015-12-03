@@ -33,8 +33,9 @@ before_install:
 install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/deploy
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en deploy
+  - mv $HOME/www/core/modules/system/tests/modules/entity_test $HOME/www/modules/entity_test
   - mv $HOME/www/modules/relaxed/tests/modules/relaxed_test $HOME/www/modules/relaxed_test
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en relaxed_test
+  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en entity_test relaxed_test
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 php-eval '\Drupal\multiversion\Entity\Workspace::create(["id" => "test"])->save();'
 
 script:
