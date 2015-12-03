@@ -27,18 +27,14 @@ before_install:
   - nginx -c $TRAVIS_BUILD_DIR/.travis/nginx.conf
   - wget -P ~/ https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar && chmod +x ~/drush.phar
   - php ~/drush.phar make $TRAVIS_BUILD_DIR/.travis/drupal.make.yml $HOME/www
-  - php ~/drush.phar --root=$HOME/www --yes site-install --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal0 standard
+  - php ~/drush.phar --root=$HOME/www --yes site-install --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal0 testing
   - composer --working-dir=$HOME/www require relaxedws/replicator:dev-master
 
 install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/deploy
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en deploy
-  # Create a new role, add 'perform content replication' permission to this role
-  # and create a user with this role.
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 role-create 'Replicator'
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 role-add-perm 'Replicator' 'perform content replication'
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 user-create replicator --mail="replicator@example.com" --password="replicator"
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 user-add-role 'Replicator' replicator
+  - mv $HOME/www/modules/relaxed/tests/modules/relaxed_test $HOME/www/modules/relaxed_test
+  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en relaxed_test
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 php-eval '\Drupal\multiversion\Entity\Workspace::create(["id" => "test"])->save();'
 
 script:
