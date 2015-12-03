@@ -28,6 +28,7 @@ class DeployTest extends WebTestBase {
    */
   public static $modules = array(
     'entity_test',
+    'file',
     'multiversion',
     'rest',
     'relaxed',
