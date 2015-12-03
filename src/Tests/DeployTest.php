@@ -9,7 +9,6 @@ namespace Drupal\deploy\Tests;
 
 use Doctrine\CouchDB\CouchDBClient;
 use Drupal\simpletest\WebTestBase;
-use Drupal\user\Entity\User;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\relaxed\Entity\Endpoint;
 
@@ -22,7 +21,7 @@ class DeployTest extends WebTestBase {
   protected $strictConfigSchema = FALSE;
 
   /**
-   * {@inheritdo
+   * {@inheritdoc}
    */
   public static $modules = array(
     'entity_test',
@@ -47,10 +46,6 @@ class DeployTest extends WebTestBase {
    * Test deploying from Drupal to Drupal.
    */
   public function testDeployDrupal() {
-    $new_user = User::create(['name' => 'replicator']);
-    $new_user->setPassword('replicator');
-    $new_user->save();
-
     Workspace::create(['id' => 'test'])->save();
     $source_endpoint = Endpoint::create([
       'id' => 'workspace_default',

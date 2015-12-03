@@ -28,6 +28,9 @@ class PushForm extends FormBase {
    */
   protected $renderer;
 
+  /**
+   * @var array
+   */
   protected $endpoints;
 
   /**
@@ -45,8 +48,8 @@ class PushForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-        $container->get('deploy.deploy'),
-        $container->get('renderer')
+      $container->get('deploy.deploy'),
+      $container->get('renderer')
     );
   }
 
@@ -75,41 +78,41 @@ class PushForm extends FormBase {
     }
 
     $form['message'] = [
-        '#markup' => '<div id="deploy-messages"></div>'
+      '#markup' => '<div id="deploy-messages"></div>'
     ];
 
     $form['source'] = [
-        '#type' => 'select',
-        '#title' => t('Source'),
-        '#options' => $endpoints
+      '#type' => 'select',
+      '#title' => t('Source'),
+      '#options' => $endpoints
     ];
 
     $form['target'] = [
-        '#type' => 'select',
-        '#title' => t('Target'),
-        '#options' => $endpoints
+      '#type' => 'select',
+      '#title' => t('Target'),
+      '#options' => $endpoints
     ];
 
     $form['push'] = [
-        '#type' => 'submit',
-        '#value' => t('Push'),
-        '#button_type' => 'primary',
-        '#ajax' => [
-            'callback' => [$this, 'submitFormAjax'],
-            'event' => 'mousedown',
-            'prevent' => 'click',
-            'progress' => [
-                'type' => 'throbber',
-                'message' => 'Pushing deployment',
-            ],
+      '#type' => 'submit',
+      '#value' => t('Push'),
+      '#button_type' => 'primary',
+      '#ajax' => [
+        'callback' => [$this, 'submitFormAjax'],
+        'event' => 'mousedown',
+        'prevent' => 'click',
+        'progress' => [
+          'type' => 'throbber',
+          'message' => 'Pushing deployment',
         ],
+      ],
     ];
     $form['cancel'] = [
-        '#type' => 'button',
-        '#value' => t('Cancel'),
-        '#attributes' => [
-            'class' => ['dialog-cancel'],
-        ],
+      '#type' => 'button',
+      '#value' => t('Cancel'),
+      '#attributes' => [
+        'class' => ['dialog-cancel'],
+      ],
     ];
     return $form;
   }

@@ -12,12 +12,13 @@ use Drupal\relaxed\Entity\EndpointInterface;
 interface DeployInterface {
 
   /**
+   * @param \Drupal\relaxed\Entity\EndpointInterface $source
    * @return \Doctrine\CouchDB\CouchDBClient
    */
   public function createSource(EndpointInterface $source);
 
   /**
-   * @param EndpointInterface $target
+   * @param \Drupal\relaxed\Entity\EndpointInterface $target
    * @return \Doctrine\CouchDB\CouchDBClient
    */
   public function createTarget(EndpointInterface $target);
