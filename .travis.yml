@@ -32,7 +32,7 @@ before_install:
 
 install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/deploy
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en
+  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en deploy
   # Create a new role, add 'perform content replication' permission to this role
   # and create a user with this role.
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 role-create 'Replicator'
