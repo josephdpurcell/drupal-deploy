@@ -39,6 +39,7 @@ install:
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 role-add-perm 'Replicator' 'perform content replication'
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 user-create replicator --mail="replicator@example.com" --password="replicator"
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 user-add-role 'Replicator' replicator
+  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 php-eval '\Drupal\multiversion\Entity\Workspace::create(["id" => "test"])->save();'
 
 script:
   - cd ~/www && php ./core/scripts/run-tests.sh --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 --module deploy | tee /tmp/test.log ; export STATUS_SCRIPT=${PIPESTATUS[0]}
