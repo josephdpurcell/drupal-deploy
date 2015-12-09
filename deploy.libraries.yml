@@ -3,4 +3,3 @@ drupal.deploy.toolbar:
   css:
     theme:
       css/deploy.toolbar.css: {}
-

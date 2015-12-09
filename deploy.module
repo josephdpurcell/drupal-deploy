@@ -10,7 +10,7 @@ use Drupal\Core\Url;
 /**
  * Implements hook_toolbar().
  */
-function deploy_toolbar(&$items) {
+function deploy_toolbar() {
   $items = [];
 
   $items['deploy'] = [
