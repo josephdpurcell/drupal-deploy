@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\deploy\Form\PushForm.
+ */
+
 namespace Drupal\deploy\Form;
 
 use Drupal\Core\Form\FormBase;
@@ -14,6 +19,7 @@ use Drupal\relaxed\Entity\Endpoint;
 
 /**
  * Class PushForm
+ *
  * @package Drupal\deploy\Form
  */
 class PushForm extends FormBase {
@@ -67,6 +73,21 @@ class PushForm extends FormBase {
    * @return array
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $replicationtask_exists = class_exists('Relaxed\Replicator\ReplicationTask');
+    $replication_exists = class_exists('Relaxed\Replicator\Replication');
+    $couchdbclient_exists = class_exists('Doctrine\CouchDB\CouchDBClient');
+    // Check if all dependencies are available.
+    if (!$replicationtask_exists || !$replication_exists || !$couchdbclient_exists) {
+      drupal_set_message(
+        $this->t('One or more dependencies required by <a href=":deploy">Deploy</a> module are missing. Check the <a href=":status">status report</a> for more information.',
+        [
+          ':status' => $this->url('system.status'),
+          ':deploy' => 'https://drupal.org/project/deploy',
+        ]),
+        'error'
+      );
+      return [];
+    }
 
     if (empty($this->endpoints)) {
       drupal_set_message('Please setup an endpoint before deploying.', 'warning');
@@ -172,7 +193,8 @@ class PushForm extends FormBase {
     $source = $this->deploy->createSource($source);
     $target = $this->deploy->createTarget($target);
 
-    // Run a push deployment
+    // Run a push deployment.
     return $this->deploy->push($source, $target);
   }
+
 }

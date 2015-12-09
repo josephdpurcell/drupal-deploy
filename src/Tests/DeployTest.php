@@ -2,16 +2,14 @@
 
 /**
  * @file
- * Contains \Drupal\deploy\Tests\DeployTest;
+ * Contains \Drupal\deploy\Tests\DeployTest.
  */
 
 namespace Drupal\deploy\Tests;
 
-use Doctrine\CouchDB\CouchDBClient;
 use Drupal\simpletest\WebTestBase;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\relaxed\Entity\Endpoint;
-
 
 /**
  * @group deploy
@@ -26,7 +24,7 @@ class DeployTest extends WebTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = array(
+  public static $modules = [
     'entity_test',
     'file',
     'multiversion',
@@ -34,7 +32,7 @@ class DeployTest extends WebTestBase {
     'relaxed',
     'relaxed_test',
     'deploy'
-  );
+  ];
 
   /**
    * @var \Drupal\deploy\Deploy
@@ -72,7 +70,6 @@ class DeployTest extends WebTestBase {
     $target = $this->deploy->createTarget($target_endpoint);
 
     $result = $this->deploy->push($source, $target);
-
     $this->assertTrue(!isset($result['error']), 'Successful deployment.');
   }
 

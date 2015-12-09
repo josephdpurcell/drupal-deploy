@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\deploy\DeployInterface.
+ */
+
 namespace Drupal\deploy;
 
 use Doctrine\CouchDB\CouchDBClient;

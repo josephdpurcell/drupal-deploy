@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\deploy\Deploy.
+ */
+
 namespace Drupal\deploy;
 
 use Relaxed\Replicator\ReplicationTask;
@@ -10,6 +15,7 @@ use Drupal\relaxed\Entity\EndpointInterface;
 
 /**
  * Class Deploy
+ *
  * @package Drupal\deploy
  */
 class Deploy implements DeployInterface {
@@ -30,7 +36,7 @@ class Deploy implements DeployInterface {
    * {@inheritdoc}
    */
   public function createSource(EndpointInterface $source) {
-    // Create the source client
+    // Create the source client.
     $source_client = CouchDBClient::create([
       'url' => $source->getPlugin(),
       'timeout' => 10
@@ -43,7 +49,7 @@ class Deploy implements DeployInterface {
    * {@inheritdoc}
    */
   public function createTarget(EndpointInterface $target) {
-    // Create the source client
+    // Create the source client.
     $target = CouchDBClient::create([
       'url' => $target->getPlugin(),
       'timeout' => 10
@@ -58,20 +64,20 @@ class Deploy implements DeployInterface {
   public function push(CouchDBClient $source, CouchDBClient $target) {
 
     try {
-      // Create the replication task
+      // Create the replication task.
       $task = new ReplicationTask();
-      // Create the replication
+      // Create the replication.
       $replication = new Replication($source, $target, $task);
-      // Generate and set a replication ID
+      // Generate and set a replication ID.
       $replication->task->setRepId($replication->generateReplicationId());
-      // Start the replication
+      // Start the replication.
       $replicationResult = $replication->start();
     }
     catch (\Exception $e) {
       \Drupal::logger('Deploy')->info($e->getMessage() . ': ' . $e->getTraceAsString());
       return ['error' => $e->getMessage()];
     }
-    // Return the response
+    // Return the response.
     return $replicationResult;
   }
 

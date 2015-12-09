@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\Tests\deploy\Unit\DeployUnitTest;
+ * Contains \Drupal\Tests\deploy\Unit\DeployUnitTest.
  */
 
 namespace Drupal\Tests\deploy\Unit;
@@ -10,8 +10,6 @@ namespace Drupal\Tests\deploy\Unit;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\relaxed\Entity\Endpoint;
-
-
 
 /**
  * @group deploy
@@ -26,7 +24,7 @@ class DeployUnitTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = array(
+  public static $modules = [
     'serialization',
     'key_value',
     'entity_test',
@@ -36,7 +34,7 @@ class DeployUnitTest extends KernelTestBase {
     'relaxed',
     'relaxed_test',
     'deploy'
-  );
+  ];
 
   /**
    * @var \Drupal\deploy\Deploy
