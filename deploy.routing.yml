@@ -4,4 +4,4 @@ deploy.push:
     _title: 'Deployment'
     _form: '\Drupal\deploy\Form\PushForm'
   requirements:
-    _permission: 'perform content replication'
+    _permission: 'perform push replication'
