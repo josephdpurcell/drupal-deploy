@@ -8,7 +8,6 @@
 namespace Drupal\deploy\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\multiversion\Entity\Workspace;
 use Drupal\relaxed\Entity\Endpoint;
 
 /**
@@ -25,13 +24,12 @@ class DeployTest extends WebTestBase {
    * {@inheritdoc}
    */
   public static $modules = [
-    'entity_test',
     'file',
     'multiversion',
     'rest',
     'relaxed',
-    'relaxed_test',
-    'deploy'
+    'deploy',
+    'deploy_test'
   ];
 
   /**
@@ -51,7 +49,6 @@ class DeployTest extends WebTestBase {
    * Test deploying from Drupal to Drupal.
    */
   public function testDeployDrupal() {
-    Workspace::create(['id' => 'test'])->save();
     $source_endpoint = Endpoint::create([
       'id' => 'workspace_default',
       'label' => 'Workspace Default',
