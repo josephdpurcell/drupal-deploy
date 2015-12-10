@@ -27,12 +27,10 @@ class DeployUnitTest extends KernelTestBase {
   public static $modules = [
     'serialization',
     'key_value',
-    'entity_test',
     'file',
     'multiversion',
     'rest',
     'relaxed',
-    'relaxed_test',
     'deploy'
   ];
 
