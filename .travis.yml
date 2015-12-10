@@ -35,8 +35,8 @@ install:
   - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en deploy
   - mv $HOME/www/core/modules/system/tests/modules/entity_test $HOME/www/modules/entity_test
   - mv $HOME/www/modules/relaxed/tests/modules/relaxed_test $HOME/www/modules/relaxed_test
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en entity_test relaxed_test
-  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 php-eval '\Drupal\multiversion\Entity\Workspace::create(["id" => "test"])->save();'
+  - mv $HOME/www/modules/deploy/tests/modules/deploy_test $HOME/www/modules/deploy_test
+  - php ~/drush.phar --root=$HOME/www --yes --uri=http://localhost:8080 en entity_test relaxed_test deploy_test
 
 script:
   - cd ~/www && php ./core/scripts/run-tests.sh --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 --module deploy | tee /tmp/test.log ; export STATUS_SCRIPT=${PIPESTATUS[0]}
