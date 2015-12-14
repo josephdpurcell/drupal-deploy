@@ -62,7 +62,7 @@ class DeployUnitTest extends KernelTestBase {
       'configuration' => ['username' => 'replicator', 'password' => base64_encode('replicator')]
     ]);
 
-    $source = $this->deploy->createSource($endpoint);
+    $source = $this->deploy->createSource($endpoint->getPlugin());
     $this->assertTrue($source instanceof \Doctrine\CouchDB\CouchDBClient, 'Source is CouchDB Client.');
   }
 
@@ -77,7 +77,7 @@ class DeployUnitTest extends KernelTestBase {
       'configuration' => ['username' => 'replicator', 'password' => base64_encode('replicator')]
     ]);
 
-    $source = $this->deploy->createTarget($endpoint);
+    $source = $this->deploy->createTarget($endpoint->getPlugin());
     $this->assertTrue($source instanceof \Doctrine\CouchDB\CouchDBClient, 'Source is CouchDB Client.');
   }
 
