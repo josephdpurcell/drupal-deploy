@@ -8,7 +8,7 @@
 namespace Drupal\deploy;
 
 use Doctrine\CouchDB\CouchDBClient;
-use Drupal\relaxed\Entity\EndpointInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Interface DeployInterface
@@ -17,16 +17,16 @@ use Drupal\relaxed\Entity\EndpointInterface;
 interface DeployInterface {
 
   /**
-   * @param \Drupal\relaxed\Entity\EndpointInterface $source
+   * @param \Psr\Http\Message\UriInterface $source
    * @return \Doctrine\CouchDB\CouchDBClient
    */
-  public function createSource(EndpointInterface $source);
+  public function createSource(UriInterface $source);
 
   /**
-   * @param \Drupal\relaxed\Entity\EndpointInterface $target
+   * @param \Psr\Http\Message\UriInterface $target
    * @return \Doctrine\CouchDB\CouchDBClient
    */
-  public function createTarget(EndpointInterface $target);
+  public function createTarget(UriInterface $target);
 
   /**
    * @param \Doctrine\CouchDB\CouchDBClient $source

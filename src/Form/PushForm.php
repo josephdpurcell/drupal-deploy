@@ -190,8 +190,8 @@ class PushForm extends FormBase {
     $target = $this->endpoints[$form_state->getValue('target')];
 
     // Send the source and target entities to the Deploy service.
-    $source = $this->deploy->createSource($source);
-    $target = $this->deploy->createTarget($target);
+    $source = $this->deploy->createSource($source->getPlugin());
+    $target = $this->deploy->createTarget($target->getPlugin());
 
     // Run a push deployment.
     return $this->deploy->push($source, $target);
