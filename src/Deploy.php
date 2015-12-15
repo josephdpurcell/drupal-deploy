@@ -7,11 +7,12 @@
 
 namespace Drupal\deploy;
 
-use Relaxed\Replicator\ReplicationTask;
-use Relaxed\Replicator\Replication;
 use Doctrine\CouchDB\CouchDBClient;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Drupal\relaxed\Entity\EndpointInterface;
+use Psr\Http\Message\UriInterface;
+use Relaxed\Replicator\ReplicationTask;
+use Relaxed\Replicator\Replication;
 
 /**
  * Class Deploy
@@ -35,10 +36,10 @@ class Deploy implements DeployInterface {
   /**
    * {@inheritdoc}
    */
-  public function createSource(EndpointInterface $source) {
+  public function createSource(UriInterface $source) {
     // Create the source client.
     $source_client = CouchDBClient::create([
-      'url' => $source->getPlugin(),
+      'url' => (string) $source,
       'timeout' => 10
     ]);
 
@@ -48,10 +49,10 @@ class Deploy implements DeployInterface {
   /**
    * {@inheritdoc}
    */
-  public function createTarget(EndpointInterface $target) {
+  public function createTarget(UriInterface $target) {
     // Create the source client.
     $target = CouchDBClient::create([
-      'url' => $target->getPlugin(),
+      'url' => (string) $target,
       'timeout' => 10
     ]);
 

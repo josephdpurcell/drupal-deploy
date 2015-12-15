@@ -63,8 +63,8 @@ class DeployTest extends WebTestBase {
       'configuration' => ['username' => 'replicator', 'password' => base64_encode('replicator')]
     ]);
     $target_endpoint->save();
-    $source = $this->deploy->createSource($source_endpoint);
-    $target = $this->deploy->createTarget($target_endpoint);
+    $source = $this->deploy->createSource($source_endpoint->getPlugin());
+    $target = $this->deploy->createTarget($target_endpoint->getPlugin());
 
     $result = $this->deploy->push($source, $target);
     $this->assertTrue(!isset($result['error']), 'Successful deployment.');
