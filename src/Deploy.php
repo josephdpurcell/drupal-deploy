@@ -27,6 +27,11 @@ class Deploy implements DeployInterface {
   protected $workspaceManager;
 
   /**
+   * @var array
+   */
+  protected $docIds = [];
+
+  /**
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    */
   public function __construct(WorkspaceManagerInterface $workspace_manager) {
@@ -60,6 +65,13 @@ class Deploy implements DeployInterface {
   }
 
   /**
+   * @param array $docIds
+   */
+  protected function setDocIds(array $docIds) {
+    $this->docIds = $docIds;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function push(CouchDBClient $source, CouchDBClient $target) {
@@ -71,6 +83,10 @@ class Deploy implements DeployInterface {
       $replication = new Replication($source, $target, $task);
       // Generate and set a replication ID.
       $replication->task->setRepId($replication->generateReplicationId());
+      // Filter by document IDs if set.
+      if (!empty($this->docIds)) {
+        $replication->task->setDocIds($this->docIds);
+      }
       // Start the replication.
       $replicationResult = $replication->start();
     }
