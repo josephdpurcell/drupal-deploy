@@ -111,6 +111,25 @@ function deploy_manager_add_to_plan($plan_name, $entity_type, $entity) {
 }
 
 /**
+ * Delete a revision from a managed deployment plan.
+ *
+ * @param $plan_name
+ *   The machine name of the plan to remove from.
+ * @param $entity_type
+ *   The entity type to remove.
+ * @param $entity
+ *   The entity whose revision will be removed from the plan.
+ */
+function deploy_manager_delete_revision_from_plan($plan_name, $entity_type, $entity) {
+  list($entity_id, $revision_id) = entity_extract_ids($entity_type, $entity);
+  db_delete('deploy_manager_entities')
+    ->condition('entity_type', $entity_type)
+    ->condition('revision_id', $revision_id)
+    ->condition('plan_name', $plan_name)
+    ->execute();
+}
+
+/**
  * Delete an entity from a managed deployment plan.
  *
  * @param $plan_name
@@ -145,5 +164,15 @@ function deploy_entity_delete($entity, $entity_type) {
   $plans = deploy_manager_plan_load_all();
   foreach ($plans as $plan) {
     deploy_manager_delete_from_plan($plan->name, $entity_type, $entity);
+  }
+}
+
+/**
+ * Implements hook_node_revision_delete().
+ */
+function deploy_node_revision_delete($node) {
+  $plans = deploy_manager_plan_load_all();
+  foreach ($plans as $plan) {
+    deploy_manager_delete_revision_from_plan($plan->name, 'node', $node);
   }
 }
