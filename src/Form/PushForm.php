@@ -10,6 +10,7 @@ namespace Drupal\deploy\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\deploy\DeployInterface;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -81,7 +82,7 @@ class PushForm extends FormBase {
       drupal_set_message(
         $this->t('One or more dependencies required by <a href=":deploy">Deploy</a> module are missing. Check the <a href=":status">status report</a> for more information.',
         [
-          ':status' => $this->url('system.status'),
+          ':status' => Url::fromRoute('system.status')->toString(),
           ':deploy' => 'https://drupal.org/project/deploy',
         ]),
         'error'
