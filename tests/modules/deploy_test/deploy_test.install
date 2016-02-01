@@ -17,5 +17,5 @@ function deploy_test_install() {
   ])->save();
 
   // Create a new workspace, it will be used as target or source in tests.
-  Workspace::create(['machine_name' => 'test', 'label' => 'test'])->save();
+  Workspace::create(['machine_name' => 'test', 'label' => 'test', 'type' => 'basic'])->save();
 }

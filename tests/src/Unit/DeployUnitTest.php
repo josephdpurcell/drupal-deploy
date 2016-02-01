@@ -28,6 +28,7 @@ class DeployUnitTest extends KernelTestBase {
     'serialization',
     'key_value',
     'file',
+    'user',
     'multiversion',
     'rest',
     'relaxed',
@@ -46,7 +47,7 @@ class DeployUnitTest extends KernelTestBase {
     parent::setUp();
     $this->installEntitySchema('workspace');
     $this->installConfig(['multiversion', 'relaxed']);
-    $workspace = Workspace::create(['machine_name' => 'default', 'label' => 'default']);
+    $workspace = Workspace::create(['machine_name' => 'default', 'label' => 'default', 'type' => 'basic']);
     $workspace->save();
     $this->deploy = \Drupal::service('deploy.deploy');
   }
