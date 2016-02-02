@@ -29,7 +29,8 @@ class DeployTest extends WebTestBase {
     'rest',
     'relaxed',
     'deploy',
-    'deploy_test'
+    'deploy_test',
+    'user'
   ];
 
   /**
