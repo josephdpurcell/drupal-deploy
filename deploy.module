@@ -18,7 +18,7 @@ function deploy_toolbar() {
      'tab' => [
        '#type' => 'link',
        '#title' => t('Deploy'),
-       '#url' => Url::fromRoute('deploy.push'),
+       '#url' => Url::fromRoute('entity.replication.add_form'),
        '#attributes' => [
          'title' => t('Deploy the content'),
          'class' => ['toolbar-icon', /*'use-ajax',*/ 'toolbar-icon-deploy'],
