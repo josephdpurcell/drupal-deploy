@@ -33,7 +33,7 @@ function deploy_requirements($phase) {
         'title' => t('doctrine/couchdb'),
         'value' => t('Not found'),
         'severity' => REQUIREMENT_ERROR,
-        'description' => t('The <a href=":replicator_url">doctrine/couchdb</a> library is not available. This library is required by Deploy module.', [':couchdb_url' => 'https://packagist.org/packages/doctrine/couchdb'])
+        'description' => t('The <a href=":couchdb_url">doctrine/couchdb</a> library is not available. This library is required by Deploy module.', [':couchdb_url' => 'https://packagist.org/packages/doctrine/couchdb'])
       ];
     }
   }
