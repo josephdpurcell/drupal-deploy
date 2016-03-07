@@ -1,7 +1,20 @@
-deploy.push:
-  path: '/admin/structure/deploy'
+# Replication routing definition
+entity.replication.collection:
+  path: '/admin/structure/deployment'
   defaults:
-    _title: 'Deployment'
-    _form: '\Drupal\deploy\Form\PushForm'
+    _entity_list: 'replication'
+    _title: 'Deployments'
   requirements:
-    _permission: 'perform push replication'
+    _permission: 'administer deployments'
+  options:
+    _admin_route: TRUE
+
+entity.replication.add_form:
+  path: '/admin/structure/deployment/add'
+  defaults:
+    _entity_form: replication.add
+    _title: 'Start new deployment'
+  requirements:
+    _permission: 'administer deployments'
+  options:
+    _admin_route: TRUE

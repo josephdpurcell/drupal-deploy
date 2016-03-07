@@ -4,10 +4,7 @@
  */
 
 .toolbar-bar .toolbar-icon-deploy:before {
-    background-image: url("/core/misc/icons/bebebe/push-up.svg");
-}
-.no-svg .toolbar-bar .toolbar-icon-deploy:before {
-    background-image: url("/core/misc/icons/bebebe/push-up.png");
+    background-image: url("../icons/bebebe/deploy.svg");
 }
 
 .toolbar .toolbar-bar .deploy-toolbar-tab.toolbar-tab {
