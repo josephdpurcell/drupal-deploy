@@ -21,9 +21,7 @@ function deploy_toolbar() {
        '#url' => Url::fromRoute('entity.replication.add_form'),
        '#attributes' => [
          'title' => t('Deploy the content'),
-         'class' => ['toolbar-icon', /*'use-ajax',*/ 'toolbar-icon-deploy'],
-         //'data-accepts' => 'application/vnd.drupal-modal',
-         //'data-dialog-type' => 'modal',
+         'class' => ['toolbar-icon', 'toolbar-icon-deploy'],
        ],
      ],
     '#wrapper_attributes' => [
@@ -31,7 +29,6 @@ function deploy_toolbar() {
     ],
      '#attached' => [
        'library' => [
-         //'system/drupal.ajax',
          'deploy/drupal.deploy.toolbar',
        ],
      ],
