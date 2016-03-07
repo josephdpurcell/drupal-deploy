@@ -1,5 +1,6 @@
-deploy.push:
-  title: Deployment
-  route_name: deploy.push
-  description: 'Replicate content between source and target endpoints.'
+# Replication menu items definition
+entity.replication.collection:
+  title: 'Deployments'
+  route_name: entity.replication.collection
+  description: 'List deployments'
   parent: system.admin_structure
