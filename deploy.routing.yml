@@ -5,7 +5,7 @@ entity.replication.collection:
     _entity_list: 'replication'
     _title: 'Deployments'
   requirements:
-    _permission: 'view replication entities'
+    _permission: 'administer deployments'
   options:
     _admin_route: TRUE
 
@@ -15,6 +15,6 @@ entity.replication.add_form:
     _entity_form: replication.add
     _title: 'Start new deployment'
   requirements:
-    _permission: 'add replication entities'
+    _permission: 'administer deployments'
   options:
     _admin_route: TRUE
