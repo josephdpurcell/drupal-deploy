@@ -58,5 +58,6 @@ function deploy_entity_type_alter(array &$entity_types) {
     $replication->setLinkTemplate('edit-form', '/admin/structure/deployment/{replication}/edit');
     $replication->setLinkTemplate('delete-form', '/admin/structure/deployment/{replication}/delete');
     $replication->set('field_ui_base_route', 'entity.replication.collection');
+    $replication->set('admin_permission', 'administer workspaces');
   }
 }
