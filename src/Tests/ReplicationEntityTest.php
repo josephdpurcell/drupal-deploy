@@ -35,8 +35,8 @@ class ReplicationEntityTest extends WebTestBase {
     $this->drupalGet('admin/structure/deployment/add');
     $deployment = [
       'name[0][value]' => 'Test Deployment',
-      'source' => 'workspace:1',
-      'target' => 'workspace:2',
+      'source' => '1',
+      'target' => '2',
     ];
     $this->drupalPostForm('admin/structure/deployment/add', $deployment, t('Review'));
 
