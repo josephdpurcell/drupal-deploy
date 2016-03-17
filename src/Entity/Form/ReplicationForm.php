@@ -58,7 +58,8 @@ class ReplicationForm extends ContentEntityForm {
   protected function getDefaultSource() {
     /** @var \Drupal\multiversion\Entity\Workspace $workspace; **/
     $workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
-    return 'workspace:' . $workspace->id();
+    $workspace_pointers = \Drupal::service('entity_type.manager')->getStorage('workspace_pointer')->loadByProperties(['workspace_pointer' => $workspace->id()]);
+    return reset($workspace_pointers)->id();
   }
 
   protected function getDefaultTarget() {
@@ -69,6 +70,7 @@ class ReplicationForm extends ContentEntityForm {
     if (!$upstream) {
       return null;
     }
-    return 'workspace:' . $upstream->id();
+    $workspace_pointers = \Drupal::service('entity_type.manager')->getStorage('workspace_pointer')->loadByProperties(['workspace_pointer' => $upstream->id()]);
+    return reset($workspace_pointers)->id();
   }
 }

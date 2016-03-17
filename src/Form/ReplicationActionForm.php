@@ -40,9 +40,10 @@ class ReplicationActionForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $entity = $this->getEntity($form_state);
-    $source = \Drupal::service('workspace.pointer')->get($entity->get('source')->value);
-    $target = \Drupal::service('workspace.pointer')->get($entity->get('target')->value);
-    $response = \Drupal::service('workspace.replicator_manager')->replicate($source, $target);
+    $response = \Drupal::service('workspace.replicator_manager')->replicate(
+        $entity->get('source')->entity,
+        $entity->get('target')->entity
+      );
     if (!isset($response['error'])) {
       $entity->set('replicated', REQUEST_TIME)->save();
       drupal_set_message('Successful deployment.');
