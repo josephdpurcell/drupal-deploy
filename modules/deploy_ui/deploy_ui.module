@@ -6,30 +6,24 @@
 function deploy_ui_menu() {
   $items = array();
 
-  $items['admin/structure/deploy'] = array(
-    'title' => 'Deployment',
-    'description' => 'Manage deployment plans, endpoints etc.',
-    'page callback' => 'deploy_ui_overview_page',
-    'access arguments' => array('administer deployments'),
-    'file' => 'deploy_ui.pages.inc',
-    'type' => MENU_NORMAL_ITEM,
-  );
-
-  $items['admin/structure/deploy/overview'] = array(
-    'title' => 'Overview',
-    'description' => 'Administrative overview over deployments',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -50,
-  );
-
-  $items['admin/structure/deploy/%deploy_plan/empty'] = array(
+  $items['admin/structure/deploy/plans/list/%ctools_export_ui/empty'] = array(
     'title' => 'Empty',
     'description' => 'Remove all content from the plan',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('deploy_ui_empty_plan_form', 3),
+    'page arguments' => array('deploy_ui_empty_plan_form', 5),
     'access arguments' => array('administer deployments'),
     'file' => 'deploy_ui.pages.inc',
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_LOCAL_ACTION,
+  );
+
+  $items['admin/structure/deploy/plans/list/%ctools_export_ui/flatten'] = array(
+    'title' => 'Flatten',
+    'description' => 'Remove duplicate content from the plan',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('deploy_ui_flatten_plan_form', 5),
+    'access arguments' => array('administer deployments'),
+    'file' => 'deploy_ui.pages.inc',
+    'type' => MENU_LOCAL_ACTION,
   );
 
   return $items;
@@ -40,9 +34,10 @@ function deploy_ui_menu() {
  */
 function deploy_ui_theme() {
   return array(
-    'deploy_ui_overview' => array(
-      'variables' => array('blocks' => array()),
-      'file' => 'deploy_ui.pages.inc',
+    'deploy_ui_plan_view' => array(
+      'render_element' => 'vars',
+      'template' => 'deploy-ui-plan-view',
+      'path' => drupal_get_path('module', 'deploy_ui') . '/templates',
     ),
     'deploy_ui_overview_plan_content' => array(
       'variables' => array('info' => array()),

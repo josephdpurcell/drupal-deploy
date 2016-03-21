@@ -206,6 +206,25 @@ class DeployPlan {
   }
 
   /**
+   * Flattens a deployment plan by removing duplicated entities.
+   */
+  public function emptyPlan() {
+    $entity_keys = $this->getEntities();
+
+    foreach ($entity_keys as $entity_key) {
+      $entity = entity_load_single($entity_key['type'], $entity_key['id']);
+      deploy_manager_delete_from_plan($plan->name, $entity_key['type'], $entity);
+    }
+  }
+
+  /**
+   * Flattens a deployment plan by removing duplicated entities.
+   */
+  public function flatten() {
+    return TRUE;
+  }
+
+  /**
    * Returns the entities to be deployed by this plan.
    *
    * @return array()

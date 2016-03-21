@@ -15,13 +15,24 @@ $plugin = array(
     'items' => array(
       // TODO: Is there a simpler way to do add this page callback natively as
       // an allowed option in CTools? It's a nightmare to follow for developers.
+      'view' => array(
+        'path' => 'list/%ctools_export_ui/view',
+        'title' => 'View',
+        'page callback' => 'ctools_export_ui_switcher_page',
+        'page arguments' => array('deploy_ui_plan', 'view', 5),
+        'access callback' => 'ctools_export_ui_task_access',
+        'access arguments' => array('deploy_ui_plan', 'view', 5),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => -99,
+      ),
       'deploy' => array(
         'path' => 'list/%ctools_export_ui/deploy',
         'title' => 'Deploy',
         'page callback' => 'ctools_export_ui_switcher_page',
         'page arguments' => array('deploy_ui_plan', 'deploy', 5),
-        'access arguments' => array('administer deployments'),
-        'type' => MENU_LOCAL_TASK,
+        'access callback' => 'ctools_export_ui_task_access',
+        'access arguments' => array('deploy_ui_plan', 'deploy', 5),
+        'type' => MENU_LOCAL_ACTION,
       ),
     ),
   ),
@@ -39,6 +50,7 @@ $plugin = array(
   ),
 
   'allowed operations' => array(
+    'view' => array('title' => t('View')),
     'edit' => array('title' => t('Edit')),
     'deploy' => array('title' => t('Deploy')),
   ),
