@@ -345,10 +345,16 @@ class deploy_ui_plan extends ctools_export_ui {
       catch (Exception $e) {
         watchdog_exception('deploy_ui', $e);
       }
+
+      $latest = TRUE;
+      if (!deploy_is_latest_revision($entity_key['type'], $entity)) {
+        $latest = FALSE;
+      }
       // Construct a usable array for the theme function.
       $info[] = array(
         'title' => $title,
         'type' => $entity_info['label'],
+        'latest' => $latest,
       );
     }
 
