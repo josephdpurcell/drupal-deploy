@@ -165,8 +165,8 @@ function deploy_ui_empty_plan_form($form, &$form_state, $plan) {
 
   return confirm_form(
     $form,
-    t('Are you sure you want to empty the !name plan?', array(
-      '!name' => $plan->name,
+    t('Are you sure you want to empty the @name plan?', array(
+      '@name' => $plan->name,
       )
     ),
     'admin/structure/deploy',
@@ -191,7 +191,7 @@ function deploy_ui_empty_plan_form_submit($form, &$form_state) {
   }
 
   drupal_set_message(
-    t('All items were removed from the !plan plan.', array('!plan' => $plan->title))
+    t('All items were removed from the @plan plan.', array('@plan' => $plan->title))
   );
 
   $form_state['redirect'] = 'admin/structure/deploy';
