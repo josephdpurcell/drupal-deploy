@@ -34,10 +34,24 @@ class ReplicationViewBuilder extends EntityViewBuilder {
   /**
    * {@inheritdoc}
    */
+  protected function getBuildDefaults(EntityInterface $entity, $view_mode) {
+    $build = parent::getBuildDefaults($entity, $view_mode);
+    unset($build['#theme']);
+    return $build;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function view(EntityInterface $entity, $view_mode = 'FULL', $langcode = NULL) {
     $build = parent::view($entity, $view_mode, $langcode);
-    $form = $this->formBuilder->getForm('\Drupal\deploy\Form\ReplicationActionForm', $entity);
 
+    $build['info'] = [
+      '#prefix' => '<p>',
+      '#markup' => $entity->get('source')->entity->label() . ' to ' . $entity->get('target')->entity->label(),
+      '#suffix' => '</p>',
+    ];
+    $form = $this->formBuilder->getForm('\Drupal\deploy\Form\ReplicationActionForm', $entity);
     $build['form'] = $form;
 
     return $build;
