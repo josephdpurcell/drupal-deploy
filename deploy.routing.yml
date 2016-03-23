@@ -13,7 +13,7 @@ entity.replication.add_form:
   path: '/admin/structure/deployment/add'
   defaults:
     _entity_form: replication.add
-    _title: 'Start new deployment'
+    _title_callback: '\Drupal\deploy\Entity\Form\ReplicationForm::addTitle'
   requirements:
     _permission: 'administer deployments'
   options:

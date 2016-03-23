@@ -7,8 +7,18 @@
 
 namespace Drupal\deploy\Entity\Form;
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
+use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\PrependCommand;
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element\Form;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\replication\Entity\ReplicationLogInterface;
+use Drupal\workspace\Entity\Replication;
+use Drupal\workspace\WorkspacePointerInterface;
 
 /**
  * Form controller for Replication edit forms.
@@ -16,20 +26,64 @@ use Drupal\Core\Form\FormStateInterface;
  * @ingroup deploy
  */
 class ReplicationForm extends ContentEntityForm {
+
+  /** @var  WorkspacePointerInterface */
+  protected $source = null;
+
+  /** @var  WorkspacePointerInterface */
+  protected $target = null;
+
+  public function addTitle(RouteMatchInterface $route_match, EntityInterface $_entity = NULL) {
+    $this->setEntity(Replication::create());
+    if (!$this->getDefaultSource() || !$this->getDefaultTarget()) {
+      return $this->t('Error');
+    }
+    return $this->t('Deploy @source to @target', [
+      '@source' => $this->getDefaultSource()->label(),
+      '@target' => $this->getDefaultTarget()->label()
+    ]);
+  }
+
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $input = $form_state->getUserInput();
+    $js = isset($input['_drupal_ajax']) ? TRUE : FALSE;
+
     $form = parent::buildForm($form, $form_state);
 
-    if ($this->getDefaultSource()) {
-      $form['source']['widget']['#default_value'] = $this->getDefaultSource();
+    if (!$this->getDefaultSource() || !$this->getDefaultTarget()) {
+      $message = "Source and target must be set, make sure your current workspace has an upstream";
+      if ($js) {
+        return ['#markup' => $this->t($message)];
+      }
+      drupal_set_message($message, 'error');
+      return [];
     }
-    if ($this->getDefaultTarget()) {
-      $form['target']['widget']['#default_value'] = $this->getDefaultTarget();
-    }
-    $form['actions']['submit']['#value'] = t('Review');
 
+    $form['source']['widget']['#default_value'] = [$this->getDefaultSource()->id()];
+
+    if (empty($this->entity->get('target')->target_id) && $this->getDefaultTarget()) {
+      $form['target']['widget']['#default_value'] = [$this->getDefaultTarget()->id()];
+    }
+
+    if (!$form['source']['#access'] && !$form['target']['#access']) {
+      $form['actions']['submit']['#value'] = $this->t('Deploy to @target', ['@target' => $this->getDefaultTarget()->label()]);
+    }
+    else {
+      $form['actions']['submit']['#value'] = $this->t('Deploy');
+    }
+
+    $form['actions']['submit']['#ajax'] = [
+      'callback' => [$this, 'deploy'],
+      'event' => 'mousedown',
+      'prevent' => 'click',
+      'progress' => [
+        'type' => 'throbber',
+        'message' => 'Deploying',
+      ],
+    ];
     return $form;
   }
 
@@ -37,40 +91,78 @@ class ReplicationForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $entity = $this->entity;
-    $status = $entity->save();
+    parent::save($form, $form_state);
 
-    switch ($status) {
-      case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label deployment.', [
-          '%label' => $entity->label(),
-        ]));
-        break;
+    $input = $form_state->getUserInput();
+    $js = isset($input['_drupal_ajax']) ? TRUE : FALSE;
 
-      default:
-        drupal_set_message($this->t('Saved the %label deployment.', [
-          '%label' => $entity->label(),
-        ]));
+    $response = \Drupal::service('workspace.replicator_manager')->replicate(
+      $this->entity->get('source')->entity,
+      $this->entity->get('target')->entity
+    );
+    if (($response instanceof ReplicationLogInterface) && $response->get('ok')) {
+      $this->entity->set('replicated', REQUEST_TIME)->save();
+      drupal_set_message('Successful deployment.');
     }
-    $form_state->setRedirect('entity.replication.canonical', ['replication' => $entity->id()]);
+    else {
+      drupal_set_message('Deployment error', 'error');
+    }
+
+    if (!$js) {
+      $form_state->setRedirect('entity.replication.collection');
+    }
+  }
+
+  /**
+   * @param array $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   */
+  public function deploy(array $form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+    $response->addCommand(new CloseModalDialogCommand());
+    $status_messages = ['#type' => 'status_messages'];
+    $response->addCommand(new PrependCommand('main', \Drupal::service('renderer')->renderRoot($status_messages)));
+    return $response;
   }
 
   protected function getDefaultSource() {
-    /** @var \Drupal\multiversion\Entity\Workspace $workspace; **/
+    if (!empty($this->source)) {
+      return $this->source;
+    }
+
+    if (!empty($this->entity->get('source')) && ($this->entity->get('source')->entity instanceof WorkspacePointerInterface)) {
+      return $this->source = $this->entity->get('source')->entity;
+    }
+
+    /** @var \Drupal\multiversion\Entity\Workspace $workspace ; * */
     $workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
-    $workspace_pointers = \Drupal::service('entity_type.manager')->getStorage('workspace_pointer')->loadByProperties(['workspace_pointer' => $workspace->id()]);
-    return reset($workspace_pointers)->id();
+    $workspace_pointers = \Drupal::service('entity_type.manager')
+      ->getStorage('workspace_pointer')
+      ->loadByProperties(['workspace_pointer' => $workspace->id()]);
+    return $this->source = reset($workspace_pointers);
   }
 
   protected function getDefaultTarget() {
-    /** @var \Drupal\multiversion\Entity\Workspace $workspace; **/
+    if (!empty($this->target)) {
+      return $this->target;
+    }
+
+    if (!empty($this->entity->get('target')) && ($this->entity->get('target')->entity instanceof WorkspacePointerInterface)) {
+      return $this->target = $this->entity->get('target')->entity;
+    }
+
+    /** @var \Drupal\multiversion\Entity\Workspace $workspace ; * */
     $workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
-    /** @var \Drupal\multiversion\Entity\Workspace $upstream; **/
+    /** @var \Drupal\multiversion\Entity\Workspace $upstream ; * */
     $upstream = $workspace->get('upstream')->entity;
     if (!$upstream) {
-      return null;
+      return NULL;
     }
-    $workspace_pointers = \Drupal::service('entity_type.manager')->getStorage('workspace_pointer')->loadByProperties(['workspace_pointer' => $upstream->id()]);
-    return reset($workspace_pointers)->id();
+    $workspace_pointers = \Drupal::service('entity_type.manager')
+      ->getStorage('workspace_pointer')
+      ->loadByProperties(['workspace_pointer' => $upstream->id()]);
+    return $this->target = reset($workspace_pointers);
   }
+
 }

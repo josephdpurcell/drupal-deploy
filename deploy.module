@@ -20,8 +20,12 @@ function deploy_toolbar() {
        '#title' => t('Deploy'),
        '#url' => Url::fromRoute('entity.replication.add_form'),
        '#attributes' => [
-         'title' => t('Deploy the content'),
-         'class' => ['toolbar-icon', 'toolbar-icon-deploy'],
+         'title' => t('Deploy'),
+         'class' => ['toolbar-icon', 'toolbar-icon-deploy', 'use-ajax'],
+         'data-dialog-type' => 'modal',
+         'data-dialog-options' => json_encode([
+           'width' => '50%',
+         ])
        ],
      ],
     '#wrapper_attributes' => [
@@ -46,6 +50,7 @@ function deploy_entity_type_alter(array &$entity_types) {
     $replication = $entity_types['replication'];
     $replication ->setHandlerClass('list_builder', 'Drupal\deploy\ReplicationListBuilder');
     $replication ->setHandlerClass('view_builder', 'Drupal\deploy\Entity\ReplicationViewBuilder');
+    $replication->setHandlerClass('access', 'Drupal\deploy\ReplicationAccessControlHandler');
     $replication->setHandlerClass('route_provider', ['html' => 'Drupal\Core\Entity\Routing\AdminHtmlRouteProvider']);
     $replication->setHandlerClass('form', [
       'default' => 'Drupal\deploy\Entity\Form\ReplicationForm',
