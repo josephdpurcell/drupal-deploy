@@ -346,15 +346,16 @@ class deploy_ui_plan extends ctools_export_ui {
         watchdog_exception('deploy_ui', $e);
       }
 
-      $latest = TRUE;
+      $status = t('Latest');
       if (!deploy_is_latest_revision($entity_key['type'], $entity)) {
-        $latest = FALSE;
+        drupal_set_message(t('A newer revision exists for one or more items in this plan.'), 'warning', FALSE);
+        $status = t('Newer Available');
       }
       // Construct a usable array for the theme function.
       $info[] = array(
         'title' => $title,
         'type' => $entity_info['label'],
-        'latest' => $latest,
+        'status' => $status,
       );
     }
 

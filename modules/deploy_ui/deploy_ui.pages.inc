@@ -15,7 +15,8 @@ function theme_deploy_ui_overview_plan_content($variables) {
     return t('No content in this plan.');
   }
 
-  $header = array(t('Title'), t('Type'));
+  $status_latest = t('Latest');
+  $header = [t('Title'), t('Type'), t('Revision Status')];
   $table = [
     'header' => $header,
     'rows' => [],
@@ -25,12 +26,13 @@ function theme_deploy_ui_overview_plan_content($variables) {
   ];
 
   foreach ($info as $values) {
-    if ($values['latest']) {
-      $table['rows'][] = [$values['title'], $values['type']];
+    $fields = [$values['title'], $values['type'], $values['status']];
+    if ($values['status'] == $status_latest) {
+      $table['rows'][] = $fields;
     }
     else {
       $table['rows'][] = [
-        'data' => [$values['title'], $values['type']],
+        'data' => $fields,
         'class' => ['newer-available'],
       ];
     }
