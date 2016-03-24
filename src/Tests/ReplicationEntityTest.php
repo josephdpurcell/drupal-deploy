@@ -21,24 +21,21 @@ class ReplicationEntityTest extends WebTestBase {
 
   public static $modules = ['deploy'];
 
-  public function setUp() {
-    parent::setUp();
-    Workspace::create(['type' => 'basic', 'label' => 'Development', 'machine_name' => 'development'])->save();
-  }
-
-  public function testSpecialCharacters() {
+  public function testReplication() {
     $this->webUser = $this->drupalCreateUser([
+      'administer workspaces',
       'administer deployments',
     ]);
 
     $this->drupalLogin($this->webUser);
+
+    $this->drupalPostForm('admin/structure/workspace/2/activate', [], t('Activate'));
+
     $this->drupalGet('admin/structure/deployment/add');
     $deployment = [
-      'name[0][value]' => 'Test Deployment',
-      'source' => '1',
-      'target' => '2',
+      'name[0][value]' => 'Test Deployment'
     ];
-    $this->drupalPostForm('admin/structure/deployment/add', $deployment, t('Review'));
+    $this->drupalPostForm('admin/structure/deployment/add', $deployment, t('Deploy to Live'));
 
     $this->drupalGet('admin/structure/deployment');
     $this->assertText($deployment['name[0][value]'], 'Deployment found in list of deployments');
