@@ -122,7 +122,7 @@ class ReplicationForm extends ContentEntityForm {
     $response = new AjaxResponse();
     $response->addCommand(new CloseModalDialogCommand());
     $status_messages = ['#type' => 'status_messages'];
-    $response->addCommand(new PrependCommand('main', \Drupal::service('renderer')->renderRoot($status_messages)));
+    $response->addCommand(new PrependCommand('.region-highlighted', \Drupal::service('renderer')->renderRoot($status_messages)));
     return $response;
   }
 
