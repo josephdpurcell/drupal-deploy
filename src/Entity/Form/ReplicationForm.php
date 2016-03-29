@@ -154,15 +154,7 @@ class ReplicationForm extends ContentEntityForm {
 
     /** @var \Drupal\multiversion\Entity\Workspace $workspace ; * */
     $workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
-    /** @var \Drupal\multiversion\Entity\Workspace $upstream ; * */
-    $upstream = $workspace->get('upstream')->entity;
-    if (!$upstream) {
-      return NULL;
-    }
-    $workspace_pointers = \Drupal::service('entity_type.manager')
-      ->getStorage('workspace_pointer')
-      ->loadByProperties(['workspace_pointer' => $upstream->id()]);
-    return $this->target = reset($workspace_pointers);
+    return $this->target = $workspace->get('upstream')->entity;
   }
 
 }
