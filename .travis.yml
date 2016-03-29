@@ -11,6 +11,12 @@ env:
   - MAKE_FILE=drupal-8.0.x.make.yml
   - MAKE_FILE=drupal-8.1.x.make.yml
 
+matrix:
+  allow_failures:
+    - php: 7.0
+    - env: MAKE_FILE=drupal-8.1.x.make.yml
+  fast_finish: true
+
 services:
   - mysql
 
@@ -18,6 +24,9 @@ addons:
   apt:
     packages:
     - nginx
+
+notifications:
+  slack: det:YiOiwfzUBtt9aTnWvocK8uDI
 
 cache:
   directories:
