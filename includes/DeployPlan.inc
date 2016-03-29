@@ -213,8 +213,10 @@ class DeployPlan {
 
     foreach ($entity_keys as $entity_key) {
       $entity = entity_load_single($entity_key['type'], $entity_key['id']);
-      deploy_manager_delete_from_plan($self->name, $entity_key['type'], $entity);
+      deploy_manager_delete_from_plan($this->name, $entity_key['type'], $entity);
     }
+
+    return TRUE;
   }
 
   /**
@@ -250,6 +252,8 @@ class DeployPlan {
         deploy_manager_delete_revision_from_plan($this->name, $purge->entity_type, $entity);
       }
     }
+
+    return TRUE;
   }
 
   /**
