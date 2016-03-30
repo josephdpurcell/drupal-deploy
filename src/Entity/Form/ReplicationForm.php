@@ -96,16 +96,23 @@ class ReplicationForm extends ContentEntityForm {
     $input = $form_state->getUserInput();
     $js = isset($input['_drupal_ajax']) ? TRUE : FALSE;
 
-    $response = \Drupal::service('workspace.replicator_manager')->replicate(
-      $this->entity->get('source')->entity,
-      $this->entity->get('target')->entity
-    );
-    if (($response instanceof ReplicationLogInterface) && $response->get('ok')) {
-      $this->entity->set('replicated', REQUEST_TIME)->save();
-      drupal_set_message('Successful deployment.');
+    try {
+      $response = \Drupal::service('workspace.replicator_manager')->replicate(
+        $this->entity->get('source')->entity,
+        $this->entity->get('target')->entity
+      );
+
+      if (($response instanceof ReplicationLogInterface) && $response->get('ok')) {
+        $this->entity->set('replicated', REQUEST_TIME)->save();
+        drupal_set_message('Successful deployment.');
+      }
+      else {
+        drupal_set_message('Deployment error', 'error');
+      }
     }
-    else {
-      drupal_set_message('Deployment error', 'error');
+    catch(\Exception $e) {
+      watchdog_exception('Deploy', $e);
+      drupal_set_message($e->getMessage(), 'error');
     }
 
     if (!$js) {
