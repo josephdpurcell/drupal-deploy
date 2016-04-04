@@ -18,6 +18,12 @@ files[] = includes/DeployProcessor.inc
 files[] = includes/DeployService.inc
 files[] = includes/DeployServiceRest.inc
 
+files[] = includes/views/handler_base.inc
+files[] = includes/views/handler_entity_label_field.inc
+files[] = includes/views/handler_entity_link_field.inc
+files[] = includes/views/handler_entity_type_label_field.inc
+files[] = includes/views/handler_related_plans_field.inc
+
 files[] = plugins/DeployAggregatorManaged.inc
 files[] = plugins/DeployAuthenticatorSession.inc
 files[] = plugins/DeployProcessorMemory.inc

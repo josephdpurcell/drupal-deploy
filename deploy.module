@@ -64,6 +64,16 @@ function deploy_ctools_plugin_type() {
 }
 
 /**
+ * Implements hook_views_api().
+ */
+function deploy_views_api() {
+  return [
+    'api' => 3,
+    'path' => drupal_get_path('module', 'deploy') . '/includes',
+  ];
+}
+
+/**
  * Get all aggregator plugins.
  */
 function deploy_get_aggregator_plugins() {
@@ -504,6 +514,17 @@ function deploy_log($key, $status, $message = '', $variables = array(), $timesta
   return FALSE;
 }
 
+/**
+ * Checks if the entity is the latest revision.
+ *
+ * @param string $entity_type
+ *   The machine name of the entity type.
+ * @param object $entity
+ *   The entity object to use for the look up.
+ *
+ * @return bool
+ *   Is the supplied entity the latest revision.
+ */
 function deploy_is_latest_revision($entity_type, $entity) {
   $entity_info = &drupal_static(__FUNCTION__);
   if (empty($entity_info[$entity_type])) {
