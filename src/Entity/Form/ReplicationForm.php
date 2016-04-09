@@ -16,6 +16,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\Form;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
 use Drupal\replication\Entity\ReplicationLogInterface;
 use Drupal\workspace\Entity\Replication;
 use Drupal\workspace\WorkspacePointerInterface;
@@ -54,9 +55,10 @@ class ReplicationForm extends ContentEntityForm {
     $form = parent::buildForm($form, $form_state);
 
     if (!$this->getDefaultSource() || !$this->getDefaultTarget()) {
-      $message = "Source and target must be set, make sure your current workspace has an upstream";
+      $message = 'Source and target must be set, make sure your current workspace has an upstream. Go to <a href=":path">this page</a> to edit your workspaces.';
+      $message = $this->t($message, [':path' => Url::fromRoute('entity.workspace.collection')->toString()]);
       if ($js) {
-        return ['#markup' => $this->t($message)];
+        return ['#markup' => $message];
       }
       drupal_set_message($message, 'error');
       return [];
