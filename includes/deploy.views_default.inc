@@ -87,8 +87,20 @@ function deploy_views_default_views() {
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array();
-
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+    'rules_component::rules_remove_entity_from_deployment_plan' => array(
+      'selected' => 1,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+  );
+  /* Field: Deploy Manager Entity: Entity Type Label */
+  $handler->display->display_options['fields']['entity_type_label']['id'] = 'entity_type_label';
+  $handler->display->display_options['fields']['entity_type_label']['table'] = 'deploy_manager_entities';
+  $handler->display->display_options['fields']['entity_type_label']['field'] = 'entity_type_label';
+  $handler->display->display_options['fields']['entity_type_label']['label'] = 'Type';
   /* Field: Deploy Manager Entity: Entity Label */
   $handler->display->display_options['fields']['entity_label']['id'] = 'entity_label';
   $handler->display->display_options['fields']['entity_label']['table'] = 'deploy_manager_entities';

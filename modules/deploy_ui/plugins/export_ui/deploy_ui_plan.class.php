@@ -307,7 +307,7 @@ class deploy_ui_plan extends ctools_export_ui {
     $status = deploy_plan_get_status($plan->name);
     $status_info = deploy_status_info($status);
     if ($status_info) {
-      drupal_set_message(t($status_info['keyed message'], ['%key' => $plan->name]), $status_info['class']);
+      drupal_set_message(t($status_info['keyed message'], ['%key' => $plan->name]), $status_info['class'], FALSE);
     }
 
     // For managed entity plans we use a view to provide additional
@@ -323,7 +323,7 @@ class deploy_ui_plan extends ctools_export_ui {
       // Get the entity info and all entities of this type.
       $entity_info = entity_get_info($entity_key['type']);
       $entity = deploy_plan_entity_load($entity_key['type'], $entity_key['id'], $entity_key['revision_id']);
-      $label = deploy_plan_entity_label($entity_key['type'], $entity_key['id'], $entity_key['revision_id']);
+      $label = deploy_plan_entity_label($entity_key['type'], $entity, $entity_key['revision_id']);
 
       // Some entities fail fatally with entity_uri() and
       // entity_extract_ids(). So handle this gracefully.
