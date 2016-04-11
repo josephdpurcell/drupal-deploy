@@ -14,17 +14,10 @@ class deploy_views_handler_entity_link_field extends deploy_views_handler_base {
    * {@inheritdoc}
    */
   public function render($values) {
+
     $entity = $this->entity_load($values);
-    $label = entity_label($values->entity_type, $entity);
     $uri = entity_uri($values->entity_type, $entity);
-
-
-    if (empty($values->revision_id)) {
-      $text = t('@entity_label', ['@entity_label' => $label]);
-    }
-    else {
-      $text = t('@entity_label [rev:@rev]', ['@entity_label' => $label, '@rev' => $values->revision_id]);
-    }
+    $label = deploy_plan_entity_label($values->entity_type, $values->entity_id, $values->entity_id);
 
     $link = l($text, $uri['path'], $uri['options']);
     return $link;

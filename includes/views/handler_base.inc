@@ -41,13 +41,7 @@ abstract class deploy_views_handler_base extends views_handler_field {
    *   The entity object.
    */
   public function entity_load($values) {
-    if (empty($values->revision_id)) {
-      $entity = entity_load_single($values->entity_type, $values->entity_id);
-    }
-    else {
-      $entity = entity_revision_load($values->entity_type, $values->revision_id);
-    }
-
+    $entity = deploy_plan_entity_load($values->entity_type, $values->entity_id, $values->revision_id);
     return $entity;
   }
 

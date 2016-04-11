@@ -8,34 +8,20 @@
  * Theme callback for a plan's content.
  */
 function theme_deploy_ui_overview_plan_content($variables) {
-  drupal_add_css(drupal_get_path('module', 'deploy_ui') . '/css/deploy_ui.admin.css');
   $info = $variables['info'];
 
   if (empty($info)) {
     return t('No content in this plan.');
   }
 
-  $status_latest = t('Latest');
-  $header = [t('Title'), t('Type'), t('Revision Status'), t('Other Plans')];
+  $header = [t('Title'), t('Type')];
   $table = [
     'header' => $header,
     'rows' => [],
-    'attributes' => [
-      'class' => ['deploy-plan'],
-    ]
   ];
 
   foreach ($info as $values) {
-    $fields = [$values['title'], $values['type'], $values['status'], $values['plans']];
-    if ($values['status'] == $status_latest) {
-      $table['rows'][] = $fields;
-    }
-    else {
-      $table['rows'][] = [
-        'data' => $fields,
-        'class' => ['newer-available'],
-      ];
-    }
+    $table['rows'][] = [$values['title'], $values['type']];
   }
 
   return theme('table', $table);
@@ -109,4 +95,73 @@ function deploy_ui_flatten_plan_form_submit($form, &$form_state) {
   );
 
   $form_state['redirect'] = 'admin/structure/deploy/plans/list/' . $plan->name;
+}
+
+/**
+ * Callback for the flatten plan page.
+ */
+function deploy_ui_manage_plan_form($form, &$form_state, $plan) {
+  $form = array();
+
+  $form['deploy_plan'] = array(
+    '#type' => 'value',
+    '#value' => $plan,
+  );
+
+  $base_options = [
+    -1 => t('Remove'),
+    -9999 => t('Keep'),
+    ];
+
+  // Get the entity keys from the aggregator.
+  $entity_keys = $plan->getEntities();
+  foreach ($entity_keys as $entity_key) {
+    // Get the entity info and all entities of this type.
+    $entity_info = entity_get_info($entity_key['type']);
+
+    if (!empty($entity_info['entity keys']['revision']) && !empty($entity_key['revision_id'])) {
+      $entity = entity_revision_load($entity_key['type'], $entity_key['revision_id']);
+    }
+    else {
+      $entity = entity_load_single($entity_key['type'], $entity_key['id']);
+    }
+
+    $title = "{$entity_key['type']}:{$entity_key['id']}";
+    $label = entity_label($entity_key['type'], $entity);
+    if ($label) {
+      $title = $label;
+    }
+
+    $options = $base_options;
+    if ($entity_info['entity keys']['revision']) {
+
+      if (!empty($entity_key['revision_id'])) {
+        $title = t('@title (rev:@rev_id)', array('@title' => $title, '@rev_id' => $entity_key['revision_id']));
+      }
+
+      $revisions = db_select($entity_info['revision table'], 'tbl')
+        ->fields('tbl', [$entity_info['entity keys']['revision']])
+        ->condition($entity_info['entity keys']['id'], $entity_key['id'])
+        ->condition($entity_info['entity keys']['revision'], $entity_key['revision_id'], '<>')
+        ->execute()
+        ->fetchCol();
+
+      $options += array_combine($revisions, $revisions);
+    }
+
+    $element_key = "{$entity_key['type']}:{$entity_key['id']}:{$entity_key['revision_id']}";
+    $form[$element_key] = [
+      '#type' => 'select',
+      '#title' => $title,
+      '#options' => $options,
+      '#default_value' => -9999,
+    ];
+  }
+
+  $form['submit'] = [
+    '#type' => 'submit',
+    '#value' => 'Update',
+  ];
+
+  return $form;
 }
