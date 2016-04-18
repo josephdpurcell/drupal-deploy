@@ -109,11 +109,11 @@ function deploy_views_default_views() {
   $handler->display->display_options['fields']['entity_type_label']['table'] = 'deploy_manager_entities';
   $handler->display->display_options['fields']['entity_type_label']['field'] = 'entity_type_label';
   $handler->display->display_options['fields']['entity_type_label']['label'] = 'Type';
-  /* Field: Deploy Manager Entity: Entity Label */
-  $handler->display->display_options['fields']['entity_label']['id'] = 'entity_label';
-  $handler->display->display_options['fields']['entity_label']['table'] = 'deploy_manager_entities';
-  $handler->display->display_options['fields']['entity_label']['field'] = 'entity_label';
-  $handler->display->display_options['fields']['entity_label']['label'] = 'Entity';
+  /* Field: Deploy Manager Entity: Entity Link */
+  $handler->display->display_options['fields']['entity_link']['id'] = 'entity_link';
+  $handler->display->display_options['fields']['entity_link']['table'] = 'deploy_manager_entities';
+  $handler->display->display_options['fields']['entity_link']['field'] = 'entity_link';
+  $handler->display->display_options['fields']['entity_link']['label'] = 'Entity';
   /* Field: Deploy Manager Entity: Revision Status */
   $handler->display->display_options['fields']['revision_status']['id'] = 'revision_status';
   $handler->display->display_options['fields']['revision_status']['table'] = 'deploy_manager_entities';
