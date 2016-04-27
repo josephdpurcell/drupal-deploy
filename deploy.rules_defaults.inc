@@ -22,5 +22,16 @@ function deploy_default_rules_configuration() {
     }
   }');
 
+  $items['rules_use_latest_revision_of_entity'] = entity_import('rules_config', '{ "rules_use_latest_revision_of_entity" : {
+      "LABEL" : "Use Latest Revision of Entity",
+      "PLUGIN" : "action set",
+      "OWNER" : "rules",
+      "TAGS" : [ "deploy" ],
+      "REQUIRES" : [ "deploy" ],
+      "USES VARIABLES" : { "dme" : { "label" : "Plan entry", "type" : "deploy_manager_entities" } },
+      "ACTION SET" : [ { "deploy_manager_entity_use_latest_revision" : { "dme" : [ "dme" ] } } ]
+    }
+  }');
+
   return $items;
 }
