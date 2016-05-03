@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\deploy\Entity\Replication.
- */
-
 namespace Drupal\deploy\Entity;
 
 use Drupal\views\EntityViewsData;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\deploy\Entity\Form\ReplicationForm.
- */
-
 namespace Drupal\deploy\Entity\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;

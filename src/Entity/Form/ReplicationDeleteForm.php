@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\deploy\Entity\Form\ReplicationDeleteForm.
- */
-
 namespace Drupal\deploy\Entity\Form;
 
 use Drupal\Core\Entity\ContentEntityConfirmFormBase;

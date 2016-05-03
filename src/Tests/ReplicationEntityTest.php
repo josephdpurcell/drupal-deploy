@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\deploy\Tests\ReplicationEntityTest.
- */
-
 namespace Drupal\deploy\Tests;
 
 use Drupal\multiversion\Entity\Workspace;

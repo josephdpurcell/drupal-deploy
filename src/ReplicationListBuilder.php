@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\deploy\ReplicationListBuilder.
- */
-
 namespace Drupal\deploy;
 
 use Drupal\Core\Entity\EntityInterface;
